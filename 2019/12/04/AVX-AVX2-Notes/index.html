@@ -1,0 +1,947 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="AVX&#x2F;AVX2&#x2F;SSE&#x2F;SSE2指令集数据类型   数据类型 描述    __m128 包含4个float类型数字的向量   __m128d 包含2个double类型数字的向量   __m128i 包含若干整形数字的向量   __m256 包含8个float类型数字的向量   __m256d 包含4个float类型数字的向量   __m256i 包含若干整形数字的向">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSE&#x2F;SSE2&#x2F;AVX&#x2F;AVX2 Notes">
+<meta property="og:url" content="http://blog.home.io/2019/12/04/AVX-AVX2-Notes/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="AVX&#x2F;AVX2&#x2F;SSE&#x2F;SSE2指令集数据类型   数据类型 描述    __m128 包含4个float类型数字的向量   __m128d 包含2个double类型数字的向量   __m128i 包含若干整形数字的向量   __m256 包含8个float类型数字的向量   __m256d 包含4个float类型数字的向量   __m256i 包含若干整形数字的向">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p9.qhimg.com/bdm/216_133_0/t01921d73c9579e28d4.jpg">
+<meta property="article:published_time" content="2019-12-04T10:30:57.000Z">
+<meta property="article:modified_time" content="2022-03-17T16:47:16.642Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Base">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p9.qhimg.com/bdm/216_133_0/t01921d73c9579e28d4.jpg">
+  
+  
+  <title>SSE/SSE2/AVX/AVX2 Notes - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="SSE/SSE2/AVX/AVX2 Notes">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-12-04 18:30" pubdate>
+        2019年12月4日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      18k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      151 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">SSE/SSE2/AVX/AVX2 Notes</h1>
+            
+            <div class="markdown-body">
+              <h1 id="AVX-x2F-AVX2-x2F-SSE-x2F-SSE2指令集"><a href="#AVX-x2F-AVX2-x2F-SSE-x2F-SSE2指令集" class="headerlink" title="AVX&#x2F;AVX2&#x2F;SSE&#x2F;SSE2指令集"></a>AVX&#x2F;AVX2&#x2F;SSE&#x2F;SSE2指令集</h1><h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>__m128</td>
+<td>包含4个float类型数字的向量</td>
+</tr>
+<tr>
+<td>__m128d</td>
+<td>包含2个double类型数字的向量</td>
+</tr>
+<tr>
+<td>__m128i</td>
+<td>包含若干整形数字的向量</td>
+</tr>
+<tr>
+<td>__m256</td>
+<td>包含8个float类型数字的向量</td>
+</tr>
+<tr>
+<td>__m256d</td>
+<td>包含4个float类型数字的向量</td>
+</tr>
+<tr>
+<td>__m256i</td>
+<td>包含若干整形数字的向量</td>
+</tr>
+</tbody></table>
+<ul>
+<li>每一种类型，2个下划线开头，接着一个m，然后是vector的长度</li>
+<li>若向量类型是d结尾，则向量存的double类型的数字。若无后缀则为float类型的数字。</li>
+<li>整型的向量可以包含各种类型的整型数，如char,short,unsigned long long。也即, __m256i可以包含32个char，16个short，8个int，4个long类型。这些整型数可以是有符号和无符号类型。</li>
+</ul>
+<h2 id="函数名约定"><a href="#函数名约定" class="headerlink" title="函数名约定"></a>函数名约定</h2><p><code>_mm&lt;bit_width&gt;_&lt;name&gt;_&lt;data_type&gt;</code></p>
+<ul>
+<li><p><code>&lt;bit_width&gt;</code>：向量长度，对于128位向量，参数为空，256位向量，参数为256</p>
+</li>
+<li><p><code>&lt;name&gt;</code>：内联函数的算数操作简述</p>
+</li>
+<li><p><code>&lt;data_type&gt;</code>：函数主参数的数据类型</p>
+<ul>
+<li><code>p/s</code>：分别为<code>packed</code>和<code>scalar</code>。packed指令是对整个向量暂存器的所有数据都进行计算。而scalar只计算向量暂存器的低位中的数据进行计算。</li>
+<li><code>s/d</code>：s为float类型，d为double类型</li>
+</ul>
+<blockquote>
+<p><strong>ps：</strong>包含float类型的向量<br><strong>pd：</strong>包含double类型的向量<br><strong>epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64：</strong>包含8位&#x2F;16位&#x2F;32位&#x2F;64位的<strong>有符号整数</strong><br><strong>epu8&#x2F;epu16&#x2F;epu32&#x2F;epu64：</strong>包含8位&#x2F;16位&#x2F;32位&#x2F;64位的<strong>无符号整数</strong><br><strong>si128&#x2F;si256：</strong>未指定的128位或者256位向量<br><strong>m128&#x2F;m128i&#x2F;m128d&#x2F;m256&#x2F;m256i&#x2F;m256d：</strong>当输入向量类型与返回向量的类型不同时，标识输入向量类型</p>
+</blockquote>
+</li>
+</ul>
+<p>示例1：<code>_mm256_srlv_epi64</code>，即使不知道<code>srlv</code>的含义，<code>_mm256</code>前缀说明该函数返回一个<strong>256-bit</strong>向量，后缀<code>_epi64</code>表示参数包含多个<strong>64-bit</strong>整型数。</p>
+<p>示例2：<code>_mm_testnzc_ps</code>，其中<code>_mm</code>意味着该函数返回一个<strong>128-bit</strong>向量，后缀<code>ps</code>表示该参数包含float类型。</p>
+<h2 id="写一个AVX程序"><a href="#写一个AVX程序" class="headerlink" title="写一个AVX程序"></a>写一个AVX程序</h2><p>首先需要包含<code>immintrin.h</code>头文件。</p>
+<p>hello_avx.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;immintrin.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;isotream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-comment">// Initialize the two argument vectors</span><br>    __m256 evens = _mm256_set_ps(<span class="hljs-number">2.0</span>,<span class="hljs-number">4.0</span>,<span class="hljs-number">6.0</span>,<span class="hljs-number">8.0</span>,<span class="hljs-number">10.0</span>,<span class="hljs-number">12.0</span>,<span class="hljs-number">14.0</span>,<span class="hljs-number">16.0</span>);<br>    __m256 odds = _mm256_set_ps(<span class="hljs-number">1.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">7.0</span>, <span class="hljs-number">9.0</span>, <span class="hljs-number">11.0</span>, <span class="hljs-number">13.0</span>, <span class="hljs-number">15.0</span>);<br>    <br>    <span class="hljs-comment">// Compute the difference between the two vectors</span><br>    __m256 result = _mm256_sub_ps(evens, odds);<br>    <br>    <span class="hljs-comment">// Show the elements of the result vector</span><br>    <span class="hljs-type">float</span> *f = (<span class="hljs-type">float</span>*)&amp;result;<br>    cout &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; f[<span class="hljs-number">0</span>] &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="函数初始化"><a href="#函数初始化" class="headerlink" title="函数初始化"></a>函数初始化</h2><h3 id="标量初始化函数"><a href="#标量初始化函数" class="headerlink" title="标量初始化函数"></a>标量初始化函数</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>_mm256_setzero_ps&#x2F;pd</td>
+<td>返回一个全0的float&#x2F;double类型向量</td>
+</tr>
+<tr>
+<td>_mm256_setzero_si256</td>
+<td>返回一个全0的整型向量</td>
+</tr>
+<tr>
+<td>_mm256_set1_ps&#x2F;pd</td>
+<td>用一个float类型数填充向量</td>
+</tr>
+<tr>
+<td>_mm256_set1_epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64x</td>
+<td>用整型数填充向量</td>
+</tr>
+<tr>
+<td>_mm256_set_epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64x</td>
+<td>用一个整形数初始化向量</td>
+</tr>
+<tr>
+<td>_mm256_set_ps&#x2F;pd</td>
+<td>用8个float或4个double类型数字初始化向量</td>
+</tr>
+<tr>
+<td>_mm256_set_m128&#x2F;m128d&#x2F;m128i</td>
+<td>用2个128位的向量初始化一个256位向量</td>
+</tr>
+<tr>
+<td>_mm256_setr_ps&#x2F;pd</td>
+<td>用8个float或者4个double的转置顺序初始化向量</td>
+</tr>
+<tr>
+<td>_mm256_setr_epi8&#x2F;epi16&#x2F;epi32&#x2F;epi64x</td>
+<td>用若干个整形数的转置顺序初始化向量</td>
+</tr>
+</tbody></table>
+<h4 id="setzero"><a href="#setzero" class="headerlink" title="setzero"></a>setzero</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;immintrin.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">setzero</span><span class="hljs-params">()</span> </span>&#123;<br>	<span class="hljs-comment">//单精度</span><br>	__m256 float_vec = _mm256_setzero_ps();<br>	<span class="hljs-type">float</span> *flo = (<span class="hljs-type">float</span>*)&amp;float_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;float:\t%f, %f, %f, %f, %f, %f, %f, %f\n&quot;</span>, flo[<span class="hljs-number">0</span>], flo[<span class="hljs-number">1</span>], flo[<span class="hljs-number">2</span>], flo[<span class="hljs-number">3</span>], flo[<span class="hljs-number">4</span>], flo[<span class="hljs-number">5</span>], flo[<span class="hljs-number">6</span>], flo[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//双精度</span><br>	__m256d double_vec = _mm256_setzero_pd();<br>	<span class="hljs-type">double</span> *dou = (<span class="hljs-type">double</span>*)&amp;double_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;double:\t%lf, %lf, %lf, %lf\n&quot;</span>, dou[<span class="hljs-number">0</span>], dou[<span class="hljs-number">1</span>], dou[<span class="hljs-number">2</span>], dou[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//整型</span><br>	__m256i int_vec = _mm256_setzero_si256();<br>	<span class="hljs-type">int</span>* i = (<span class="hljs-type">int</span>*)&amp;int_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;int:\t%d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, i[<span class="hljs-number">0</span>], i[<span class="hljs-number">1</span>], i[<span class="hljs-number">2</span>], i[<span class="hljs-number">3</span>], i[<span class="hljs-number">4</span>], i[<span class="hljs-number">5</span>], i[<span class="hljs-number">6</span>], i[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs shell">float:  0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000, 0.000000<br>double: 0.000000, 0.000000, 0.000000, 0.000000<br>int:    0, 0, 0, 0, 0, 0, 0, 0<br></code></pre></td></tr></table></figure>
+
+<h4 id="set1"><a href="#set1" class="headerlink" title="set1"></a>set1</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;immintrin.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">set1</span><span class="hljs-params">()</span> </span>&#123;<br>	<span class="hljs-comment">//单精度</span><br>	__m256 float_vec = _mm256_set1_ps(<span class="hljs-number">1.0</span>);<br>	<span class="hljs-type">float</span> *flo = (<span class="hljs-type">float</span>*)&amp;float_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;float:\t\t%f, %f, %f, %f, %f, %f, %f, %f\n&quot;</span>, flo[<span class="hljs-number">0</span>], flo[<span class="hljs-number">1</span>], flo[<span class="hljs-number">2</span>], flo[<span class="hljs-number">3</span>], flo[<span class="hljs-number">4</span>], flo[<span class="hljs-number">5</span>], flo[<span class="hljs-number">6</span>], flo[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//双精度</span><br>	__m256d double_vec = _mm256_set1_pd(<span class="hljs-number">2.0</span>);<br>	<span class="hljs-type">double</span> *dou = (<span class="hljs-type">double</span>*)&amp;double_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;double:\t\t%lf, %lf, %lf, %lf\n&quot;</span>, dou[<span class="hljs-number">0</span>], dou[<span class="hljs-number">1</span>], dou[<span class="hljs-number">2</span>], dou[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//8-bit整型</span><br>	__m256i char_vec = _mm256_set1_epi8(<span class="hljs-number">3</span>);<br>	<span class="hljs-type">char</span>* c = (<span class="hljs-type">char</span>*)&amp;char_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;char:\t\t%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, c[<span class="hljs-number">0</span>], c[<span class="hljs-number">1</span>], c[<span class="hljs-number">2</span>], c[<span class="hljs-number">3</span>], c[<span class="hljs-number">4</span>], c[<span class="hljs-number">5</span>], c[<span class="hljs-number">6</span>], c[<span class="hljs-number">7</span>], c[<span class="hljs-number">8</span>], c[<span class="hljs-number">9</span>], c[<span class="hljs-number">10</span>], c[<span class="hljs-number">11</span>], c[<span class="hljs-number">12</span>], c[<span class="hljs-number">13</span>], c[<span class="hljs-number">14</span>], c[<span class="hljs-number">15</span>], c[<span class="hljs-number">16</span>], c[<span class="hljs-number">17</span>], c[<span class="hljs-number">18</span>], c[<span class="hljs-number">19</span>], c[<span class="hljs-number">20</span>], c[<span class="hljs-number">21</span>], c[<span class="hljs-number">22</span>], c[<span class="hljs-number">23</span>], c[<span class="hljs-number">24</span>], c[<span class="hljs-number">25</span>], c[<span class="hljs-number">26</span>], c[<span class="hljs-number">27</span>], c[<span class="hljs-number">28</span>], c[<span class="hljs-number">29</span>], c[<span class="hljs-number">30</span>], c[<span class="hljs-number">31</span>]);<br><br>	<span class="hljs-comment">//16-bit整型</span><br>	__m256i short_vec = _mm256_set1_epi16(<span class="hljs-number">4</span>);<br>	<span class="hljs-type">short</span> *sho = (<span class="hljs-type">short</span>*)&amp;short_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;short:\t\t%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, sho[<span class="hljs-number">0</span>], sho[<span class="hljs-number">1</span>], sho[<span class="hljs-number">2</span>], sho[<span class="hljs-number">3</span>], sho[<span class="hljs-number">4</span>], sho[<span class="hljs-number">5</span>], sho[<span class="hljs-number">6</span>], sho[<span class="hljs-number">7</span>], sho[<span class="hljs-number">8</span>], sho[<span class="hljs-number">9</span>], sho[<span class="hljs-number">10</span>], sho[<span class="hljs-number">11</span>], sho[<span class="hljs-number">12</span>], sho[<span class="hljs-number">13</span>], sho[<span class="hljs-number">14</span>], sho[<span class="hljs-number">15</span>]);<br><br>	<span class="hljs-comment">//32-bit整型</span><br>	__m256i int_vec = _mm256_set1_epi32(<span class="hljs-number">5</span>);<br>	<span class="hljs-type">int</span> *i = (<span class="hljs-type">int</span>*)&amp;int_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, i[<span class="hljs-number">0</span>], i[<span class="hljs-number">1</span>], i[<span class="hljs-number">2</span>], i[<span class="hljs-number">3</span>], i[<span class="hljs-number">4</span>], i[<span class="hljs-number">5</span>], i[<span class="hljs-number">6</span>], i[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//64-bit整数</span><br>	__m256i long_vec = _mm256_set1_epi64x(<span class="hljs-number">6</span>);<br>	<span class="hljs-type">long</span> <span class="hljs-type">long</span> *lo = (<span class="hljs-type">long</span> <span class="hljs-type">long</span>*)&amp;long_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;long long:\t%lld, %lld, %lld, %lld\n&quot;</span>, lo[<span class="hljs-number">0</span>], lo[<span class="hljs-number">1</span>], lo[<span class="hljs-number">2</span>], lo[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs shell">float:          1.000000, 1.000000, 1.000000, 1.000000, 1.000000, 1.000000, 1.000000, 1.000000<br>double:         2.000000, 2.000000, 2.000000, 2.000000<br>char:           3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3<br>short:          4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4<br>int:            5, 5, 5, 5, 5, 5, 5, 5<br>long long:      6, 6, 6, 6<br></code></pre></td></tr></table></figure>
+
+<h4 id="set"><a href="#set" class="headerlink" title="set"></a>set</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;immintrin.h&gt;</span>	<span class="hljs-comment">//AVX/AVX2</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;xmmintrin.h&gt;</span>	<span class="hljs-comment">//SSE</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;emmintrin.h&gt;</span>	<span class="hljs-comment">//SSE2</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>	<span class="hljs-comment">//单精度</span><br>	__m256 float_vec = _mm256_set_ps(<span class="hljs-number">1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">4.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">6.0</span>, <span class="hljs-number">7.0</span>, <span class="hljs-number">8.0</span>);<br>	<span class="hljs-type">float</span> *flo = (<span class="hljs-type">float</span> *)&amp;float_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;float:\t\t%f, %f, %f, %f, %f, %f, %f, %f\n&quot;</span>, flo[<span class="hljs-number">0</span>], flo[<span class="hljs-number">1</span>], flo[<span class="hljs-number">2</span>], flo[<span class="hljs-number">3</span>], flo[<span class="hljs-number">4</span>], flo[<span class="hljs-number">5</span>], flo[<span class="hljs-number">6</span>], flo[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//双精度</span><br>	__m256d double_vec = _mm256_set_pd(<span class="hljs-number">9.0</span>, <span class="hljs-number">10.0</span>, <span class="hljs-number">11.0</span>, <span class="hljs-number">12.0</span>);<br>	<span class="hljs-type">double</span> *dou = (<span class="hljs-type">double</span>*)&amp;double_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;double:\t\t%lf, %lf, %lf, %lf\n&quot;</span>, dou[<span class="hljs-number">0</span>], dou[<span class="hljs-number">1</span>], dou[<span class="hljs-number">2</span>], dou[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//8-bit整型</span><br>	__m256i char_vec = _mm256_set_epi8(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>, <span class="hljs-number">32</span>);<br>	<span class="hljs-type">char</span> *c = (<span class="hljs-type">char</span>*)&amp;char_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;char:\t\t%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, c[<span class="hljs-number">0</span>], c[<span class="hljs-number">1</span>], c[<span class="hljs-number">2</span>], c[<span class="hljs-number">3</span>], c[<span class="hljs-number">4</span>], c[<span class="hljs-number">5</span>], c[<span class="hljs-number">6</span>], c[<span class="hljs-number">7</span>], c[<span class="hljs-number">8</span>], c[<span class="hljs-number">9</span>], c[<span class="hljs-number">10</span>], c[<span class="hljs-number">11</span>], c[<span class="hljs-number">12</span>], c[<span class="hljs-number">13</span>], c[<span class="hljs-number">14</span>], c[<span class="hljs-number">15</span>], c[<span class="hljs-number">16</span>], c[<span class="hljs-number">17</span>], c[<span class="hljs-number">18</span>], c[<span class="hljs-number">19</span>], c[<span class="hljs-number">20</span>], c[<span class="hljs-number">21</span>], c[<span class="hljs-number">22</span>], c[<span class="hljs-number">23</span>], c[<span class="hljs-number">24</span>], c[<span class="hljs-number">25</span>], c[<span class="hljs-number">26</span>], c[<span class="hljs-number">27</span>], c[<span class="hljs-number">28</span>], c[<span class="hljs-number">29</span>], c[<span class="hljs-number">30</span>], c[<span class="hljs-number">31</span>]);<br><br>	<span class="hljs-comment">//16-bit整型</span><br>	__m256i short_vec = _mm256_set_epi16(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>);<br>	<span class="hljs-type">short</span> *sho = (<span class="hljs-type">short</span> *)&amp;short_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;short:\t\t%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, sho[<span class="hljs-number">0</span>], sho[<span class="hljs-number">1</span>], sho[<span class="hljs-number">2</span>], sho[<span class="hljs-number">3</span>], sho[<span class="hljs-number">4</span>], sho[<span class="hljs-number">5</span>], sho[<span class="hljs-number">6</span>], sho[<span class="hljs-number">7</span>], sho[<span class="hljs-number">8</span>], sho[<span class="hljs-number">9</span>], sho[<span class="hljs-number">10</span>], sho[<span class="hljs-number">11</span>], sho[<span class="hljs-number">12</span>], sho[<span class="hljs-number">13</span>], sho[<span class="hljs-number">14</span>], sho[<span class="hljs-number">15</span>]);<br><br>	<span class="hljs-comment">//32-bit整型</span><br>	__m256i int_vec = _mm256_set_epi32(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>);<br>	<span class="hljs-type">int</span> *i = (<span class="hljs-type">int</span>*)&amp;int_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, i[<span class="hljs-number">0</span>], i[<span class="hljs-number">1</span>], i[<span class="hljs-number">2</span>], i[<span class="hljs-number">3</span>], i[<span class="hljs-number">4</span>], i[<span class="hljs-number">5</span>], i[<span class="hljs-number">6</span>], i[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//64-bit整型</span><br>	__m256i long_vec = _mm256_set_epi64x(<span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>);<br>	<span class="hljs-type">long</span> <span class="hljs-type">long</span> *lo = (<span class="hljs-type">long</span> <span class="hljs-type">long</span>*)&amp;long_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;long long:\t%lld, %lld, %lld, %lld\n&quot;</span>, lo[<span class="hljs-number">0</span>], lo[<span class="hljs-number">1</span>], lo[<span class="hljs-number">2</span>], lo[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//从128-bit单精度向量初始化值</span><br>	__m128 float_vec_128_0 = _mm_set_ps(<span class="hljs-number">1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">4.0</span>);<br>	__m128 float_vec_128_1 = _mm_set_ps(<span class="hljs-number">5.0</span>, <span class="hljs-number">6.0</span>, <span class="hljs-number">7.0</span>, <span class="hljs-number">8.0</span>);<br>	__m256 float_vec_256 = _mm256_set_m128(float_vec_128_1, float_vec_128_0);<br>	<span class="hljs-type">float</span> *flo_256 = (<span class="hljs-type">float</span>*)&amp;float_vec_256;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;float:\t\t%f, %f, %f, %f, %f, %f, %f, %f\n&quot;</span>, flo_256[<span class="hljs-number">0</span>], flo_256[<span class="hljs-number">1</span>], flo_256[<span class="hljs-number">2</span>], flo_256[<span class="hljs-number">3</span>], flo_256[<span class="hljs-number">4</span>], flo_256[<span class="hljs-number">5</span>], flo_256[<span class="hljs-number">6</span>], flo_256[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//从128-bit双精度向量初始化值</span><br>	__m128d double_vec_128_0 = _mm_set_pd(<span class="hljs-number">9.0</span>, <span class="hljs-number">10.0</span>);<br>	__m128d double_vec_128_1 = _mm_set_pd(<span class="hljs-number">11.0</span>, <span class="hljs-number">12.0</span>);<br>	__m256d double_vec_256 = _mm256_set_m128d(double_vec_128_1, double_vec_128_0);<br>	<span class="hljs-type">double</span> *dou_256 = (<span class="hljs-type">double</span>*)&amp;double_vec_256;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;double:\t\t%lf, %lf, %lf, %lf\n&quot;</span>, dou_256[<span class="hljs-number">0</span>], dou_256[<span class="hljs-number">1</span>], dou_256[<span class="hljs-number">2</span>], dou_256[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//从128-bit整型向量初始化值</span><br>	__m128i int_vec_128_0 = _mm_set_epi32(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br>	__m128i int_vec_128_1 = _mm_set_epi32(<span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>);<br>	__m256i int_vec_256 = _mm256_set_m128i(int_vec_128_1, int_vec_128_0);<br>	<span class="hljs-type">int</span> *i_256 = (<span class="hljs-type">int</span>*)&amp;int_vec_256;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, i_256[<span class="hljs-number">0</span>], i_256[<span class="hljs-number">1</span>], i_256[<span class="hljs-number">2</span>], i_256[<span class="hljs-number">3</span>], i_256[<span class="hljs-number">4</span>], i_256[<span class="hljs-number">5</span>], i_256[<span class="hljs-number">6</span>], i_256[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">float:          8.000000, 7.000000, 6.000000, 5.000000, 4.000000, 3.000000, 2.000000, 1.000000<br>double:         12.000000, 11.000000, 10.000000, 9.000000<br>char:           32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1<br>short:          16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1<br>int:            8, 7, 6, 5, 4, 3, 2, 1<br>long long:      12, 11, 10, 9<br>float:          4.000000, 3.000000, 2.000000, 1.000000, 8.000000, 7.000000, 6.000000, 5.000000<br>double:         10.000000, 9.000000, 12.000000, 11.000000<br>int:            4, 3, 2, 1, 8, 7, 6, 5<br></code></pre></td></tr></table></figure>
+
+<h4 id="setr"><a href="#setr" class="headerlink" title="setr"></a>setr</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;immintrin.h&gt;</span>	<span class="hljs-comment">//AVX/AVX2</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;xmmintrin.h&gt;</span>	<span class="hljs-comment">//SSE</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;emmintrin.h&gt;</span>	<span class="hljs-comment">//SSE2</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>	<span class="hljs-comment">//单精度  </span><br>	__m256 float_vec = _mm256_setr_ps(<span class="hljs-number">1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">4.0</span>, <span class="hljs-number">5.0</span>, <span class="hljs-number">6.0</span>, <span class="hljs-number">7.0</span>, <span class="hljs-number">8.0</span>);<br><br>	<span class="hljs-type">float</span>* flo = (<span class="hljs-type">float</span>*)&amp;float_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;float:\t\t%f, %f, %f, %f, %f, %f, %f, %f\n&quot;</span>, flo[<span class="hljs-number">0</span>], flo[<span class="hljs-number">1</span>], flo[<span class="hljs-number">2</span>], flo[<span class="hljs-number">3</span>], flo[<span class="hljs-number">4</span>], flo[<span class="hljs-number">5</span>], flo[<span class="hljs-number">6</span>], flo[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//双精度</span><br>	__m256d double_vec = _mm256_setr_pd(<span class="hljs-number">9.0</span>, <span class="hljs-number">10.0</span>, <span class="hljs-number">11.0</span>, <span class="hljs-number">12.0</span>);<br><br>	<span class="hljs-type">double</span>* dou = (<span class="hljs-type">double</span>*)&amp;double_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;double:\t\t%lf, %lf, %lf, %lf\n&quot;</span>, dou[<span class="hljs-number">0</span>], dou[<span class="hljs-number">1</span>], dou[<span class="hljs-number">2</span>], dou[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//32-bit整型</span><br>	__m256i int_vec = _mm256_setr_epi32(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>);<br><br>	<span class="hljs-type">int</span>* i = (<span class="hljs-type">int</span>*)&amp;int_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, i[<span class="hljs-number">0</span>], i[<span class="hljs-number">1</span>], i[<span class="hljs-number">2</span>], i[<span class="hljs-number">3</span>], i[<span class="hljs-number">4</span>], i[<span class="hljs-number">5</span>], i[<span class="hljs-number">6</span>], i[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">//64-bit整型</span><br>	__m256i long_vec = _mm256_setr_epi64x(<span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>);<br><br>	<span class="hljs-type">long</span> <span class="hljs-type">long</span>* lo = (<span class="hljs-type">long</span> <span class="hljs-type">long</span>*)&amp;long_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;long long:\t%d, %d, %d, %d\n&quot;</span>, lo[<span class="hljs-number">0</span>], lo[<span class="hljs-number">1</span>], lo[<span class="hljs-number">2</span>], lo[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">//16-bit整型</span><br>	__m256i short_vec = _mm256_setr_epi16(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>);<br><br>	<span class="hljs-type">short</span>* sho = (<span class="hljs-type">short</span>*)&amp;short_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;short:\t\t%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, sho[<span class="hljs-number">0</span>], sho[<span class="hljs-number">1</span>], sho[<span class="hljs-number">2</span>], sho[<span class="hljs-number">3</span>], sho[<span class="hljs-number">4</span>], sho[<span class="hljs-number">5</span>], sho[<span class="hljs-number">6</span>], sho[<span class="hljs-number">7</span>], sho[<span class="hljs-number">8</span>], sho[<span class="hljs-number">9</span>], sho[<span class="hljs-number">10</span>], sho[<span class="hljs-number">11</span>], sho[<span class="hljs-number">12</span>], sho[<span class="hljs-number">13</span>], sho[<span class="hljs-number">14</span>], sho[<span class="hljs-number">15</span>]);<br><br>	<span class="hljs-comment">//8-bit整型</span><br>	__m256i char_vec = _mm256_setr_epi8(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>, <span class="hljs-number">9</span>, <span class="hljs-number">10</span>, <span class="hljs-number">11</span>, <span class="hljs-number">12</span>, <span class="hljs-number">13</span>, <span class="hljs-number">14</span>, <span class="hljs-number">15</span>, <span class="hljs-number">16</span>, <span class="hljs-number">17</span>, <span class="hljs-number">18</span>, <span class="hljs-number">19</span>, <span class="hljs-number">20</span>, <span class="hljs-number">21</span>, <span class="hljs-number">22</span>, <span class="hljs-number">23</span>, <span class="hljs-number">24</span>, <span class="hljs-number">25</span>, <span class="hljs-number">26</span>, <span class="hljs-number">27</span>, <span class="hljs-number">28</span>, <span class="hljs-number">29</span>, <span class="hljs-number">30</span>, <span class="hljs-number">31</span>, <span class="hljs-number">32</span>);<br><br>	<span class="hljs-type">char</span>* c = (<span class="hljs-type">char</span>*)&amp;char_vec;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;char:\t\t%d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, c[<span class="hljs-number">0</span>], c[<span class="hljs-number">1</span>], c[<span class="hljs-number">2</span>], c[<span class="hljs-number">3</span>], c[<span class="hljs-number">4</span>], c[<span class="hljs-number">5</span>], c[<span class="hljs-number">6</span>], c[<span class="hljs-number">7</span>], c[<span class="hljs-number">8</span>], c[<span class="hljs-number">9</span>], c[<span class="hljs-number">10</span>], c[<span class="hljs-number">11</span>], c[<span class="hljs-number">12</span>], c[<span class="hljs-number">13</span>], c[<span class="hljs-number">14</span>], c[<span class="hljs-number">15</span>], c[<span class="hljs-number">16</span>], c[<span class="hljs-number">17</span>], c[<span class="hljs-number">18</span>], c[<span class="hljs-number">19</span>], c[<span class="hljs-number">20</span>], c[<span class="hljs-number">21</span>], c[<span class="hljs-number">22</span>], c[<span class="hljs-number">23</span>], c[<span class="hljs-number">24</span>], c[<span class="hljs-number">25</span>], c[<span class="hljs-number">26</span>], c[<span class="hljs-number">27</span>], c[<span class="hljs-number">28</span>], c[<span class="hljs-number">29</span>], c[<span class="hljs-number">30</span>], c[<span class="hljs-number">31</span>]);<br><br>	<span class="hljs-comment">// Set value from 128-bit single-precision vectors</span><br>	__m128 float_vec_128_0 = _mm_setr_ps(<span class="hljs-number">1.0</span>, <span class="hljs-number">2.0</span>, <span class="hljs-number">3.0</span>, <span class="hljs-number">4.0</span>);<br>	__m128 float_vec_128_1 = _mm_setr_ps(<span class="hljs-number">5.0</span>, <span class="hljs-number">6.0</span>, <span class="hljs-number">7.0</span>, <span class="hljs-number">8.0</span>);<br><br>	__m256 float_vec_256 = _mm256_setr_m128(float_vec_128_1, float_vec_128_0);<br>	<span class="hljs-type">float</span>* flo_256 = (<span class="hljs-type">float</span>*)&amp;float_vec_256;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;float:\t\t%f, %f, %f, %f, %f, %f, %f, %f\n&quot;</span>, flo_256[<span class="hljs-number">0</span>], flo_256[<span class="hljs-number">1</span>], flo_256[<span class="hljs-number">2</span>], flo_256[<span class="hljs-number">3</span>], flo_256[<span class="hljs-number">4</span>], flo_256[<span class="hljs-number">5</span>], flo_256[<span class="hljs-number">6</span>], flo_256[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-comment">// Set value from 128-bit double-precision vectors</span><br>	__m128d double_vec_128_0 = _mm_setr_pd(<span class="hljs-number">9.0</span>, <span class="hljs-number">10.0</span>);<br>	__m128d double_vec_128_1 = _mm_setr_pd(<span class="hljs-number">11.0</span>, <span class="hljs-number">12.0</span>);<br><br>	__m256d double_vec_256 = _mm256_setr_m128d(double_vec_128_1, double_vec_128_0);<br>	<span class="hljs-type">double</span>* dou_256 = (<span class="hljs-type">double</span>*)&amp;double_vec_256;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;double:\t\t%lf, %lf, %lf, %lf\n&quot;</span>, dou_256[<span class="hljs-number">0</span>], dou_256[<span class="hljs-number">1</span>], dou_256[<span class="hljs-number">2</span>], dou_256[<span class="hljs-number">3</span>]);<br><br>	<span class="hljs-comment">// Set value from 128-bit integer vectors</span><br>	__m128i int_vec_128_0 = _mm_setr_epi32(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br>	__m128i int_vec_128_1 = _mm_setr_epi32(<span class="hljs-number">5</span>, <span class="hljs-number">6</span>, <span class="hljs-number">7</span>, <span class="hljs-number">8</span>);<br><br>	__m256i int_vec_256 = _mm256_setr_m128i(int_vec_128_1, int_vec_128_0);<br>	<span class="hljs-type">int</span>* i_256 = (<span class="hljs-type">int</span>*)&amp;int_vec_256;<br>	<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;int:\t\t%d, %d, %d, %d, %d, %d, %d, %d\n&quot;</span>, i_256[<span class="hljs-number">0</span>], i_256[<span class="hljs-number">1</span>], i_256[<span class="hljs-number">2</span>], i_256[<span class="hljs-number">3</span>], i_256[<span class="hljs-number">4</span>], i_256[<span class="hljs-number">5</span>], i_256[<span class="hljs-number">6</span>], i_256[<span class="hljs-number">7</span>]);<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs shell">float:          1.000000, 2.000000, 3.000000, 4.000000, 5.000000, 6.000000, 7.000000, 8.000000<br>double:         9.000000, 10.000000, 11.000000, 12.000000<br>int:            1, 2, 3, 4, 5, 6, 7, 8<br>long long:      9, 10, 11, 12<br>short:          1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16<br>char:           1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32<br>float:          5.000000, 6.000000, 7.000000, 8.000000, 1.000000, 2.000000, 3.000000, 4.000000<br>double:         11.000000, 12.000000, 9.000000, 10.000000<br>int:            5, 6, 7, 8, 1, 2, 3, 4<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h3 id="从内存中加载数据"><a href="#从内存中加载数据" class="headerlink" title="从内存中加载数据"></a>从内存中加载数据</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>_mm256_load_ps&#x2F;pd</td>
+<td>从对齐的内存地址加载float&#x2F;double向量</td>
+</tr>
+<tr>
+<td>_mm256_load_si256</td>
+<td>从对齐的内存地址加载整形向量</td>
+</tr>
+<tr>
+<td>_mm256_loadu_ps&#x2F;pd</td>
+<td>从未对齐的内存地址加载浮点向量</td>
+</tr>
+<tr>
+<td>_mm256_loadu_si256</td>
+<td>从未对齐的内存地址加载整形向量</td>
+</tr>
+<tr>
+<td>_mm_maskload_ps&#x2F;pd</td>
+<td>根据掩码加载128位浮点向量的部分</td>
+</tr>
+<tr>
+<td>_mm256_maskload_ps&#x2F;pd</td>
+<td>根据掩码加载256位浮点向量的部分</td>
+</tr>
+<tr>
+<td>_mm_maskload_epi32&#x2F;64（只在avx2中支持）</td>
+<td>根据掩码加载128位整形向量的部分</td>
+</tr>
+<tr>
+<td>_mm256_maskload_epi32&#x2F;64（只在avx2中支持）</td>
+<td>根据掩码加载256位整形向量的部分</td>
+</tr>
+</tbody></table>
+<p>调用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">float</span> *aligned_floats = (<span class="hljs-type">float</span>*)<span class="hljs-built_in">aligned_alloc</span>(<span class="hljs-number">32</span>, <span class="hljs-number">64</span>*<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>));<br><span class="hljs-comment">// Initialize data</span><br>__m256 vec = _mm256_load_ps(aligned_floats);<br><br><span class="hljs-type">float</span> *unaligned_floats = (<span class="hljs-type">float</span>*)<span class="hljs-built_in">malloc</span>(<span class="hljs-number">64</span>*<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">float</span>));<br><span class="hljs-comment">// Initialize data</span><br>__m256 vec = _mm256_loadu_ps(unaligned_floats);<br></code></pre></td></tr></table></figure>
+
+<p>若要处理的float数组长度为11不能被8整除。那么最后5个浮点数需要置0。或者使用上表中的<code>_maskload_</code>。</p>
+<p><code>_maskload_</code>函数有两个参数：内存地址、相同元素数目的整型向量作为返回。整型向量中每个元素的最高位为1，返回的向量中对应元素是从内存中读取的。若整型向量中每个元素最高位为0，则返回的向量对应元素置0。</p>
+<p>mask_load.cpp</p>
+<p>读入8个int到向量，最后3个应该置0。使用了<code>_mm256_maskload_epi32</code>，第二个参数应为<code>__m256i</code>mask向量。该mask向量包含5个整型，其最高位是1，剩下3个整型的最高位置0.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;immintrin.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostram&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-type">int</span> int_array[<span class="hljs-number">8</span>] = &#123;<span class="hljs-number">100</span>,<span class="hljs-number">200</span>,<span class="hljs-number">300</span>,<span class="hljs-number">400</span>,<span class="hljs-number">500</span>,<span class="hljs-number">600</span>,<span class="hljs-number">700</span>,<span class="hljs-number">800</span>&#125;;<br>    <span class="hljs-comment">// Initialize the mask vector</span><br>    __m256i mask = _mm256_setr_epi32(<span class="hljs-number">-20</span>, <span class="hljs-number">-70</span>, <span class="hljs-number">-48</span>, <span class="hljs-number">-9</span>, <span class="hljs-number">-100</span>, <span class="hljs-number">3</span>, <span class="hljs-number">5</span>, <span class="hljs-number">8</span>);<br>    <span class="hljs-comment">// or</span><br>    __m256i mask_1 = _mm256_set_epi32(<span class="hljs-number">3</span>,<span class="hljs-number">5</span>,<span class="hljs-number">8</span>,<span class="hljs-number">-100</span>,<span class="hljs-number">-9</span>,<span class="hljs-number">-48</span>,<span class="hljs-number">-70</span>,<span class="hljs-number">-20</span>);<br>    <br>    <span class="hljs-comment">// Selectively load data to the vector</span><br>    __m256i result = _mm256_maskload_epi32(int_array, mask);<br>    <br>    <span class="hljs-comment">// Selectively load data into reuslt vector</span><br>    <span class="hljs-type">int</span> *res = (<span class="hljs-type">int</span>*)&amp;result;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d %d %d %d %d %d %d %d\n&quot;</span>, <br>    res[<span class="hljs-number">0</span>], res[<span class="hljs-number">1</span>], res[<span class="hljs-number">2</span>], res[<span class="hljs-number">3</span>], res[<span class="hljs-number">4</span>], res[<span class="hljs-number">5</span>], res[<span class="hljs-number">6</span>], res[<span class="hljs-number">7</span>]);<br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>输出：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs basic"><span class="hljs-symbol">100 </span><span class="hljs-number">200</span> <span class="hljs-number">300</span> <span class="hljs-number">400</span> <span class="hljs-number">500</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span> <span class="hljs-number">0</span><br></code></pre></td></tr></table></figure>
+
+<p>说明：</p>
+<ul>
+<li>负整型的最高位总为1。所以mask vector选用5个负数，3个正数</li>
+<li><code>_mm256_maskload_epi32</code>是AVX2函数，因此用gcc编译加<code>-mavx2</code>参数</li>
+</ul>
+<h2 id="算术本质"><a href="#算术本质" class="headerlink" title="算术本质"></a>算术本质</h2><h3 id="加减法"><a href="#加减法" class="headerlink" title="加减法"></a>加减法</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>_mm256_add_ps&#x2F;pd</td>
+<td>对两个浮点向量做加法</td>
+</tr>
+<tr>
+<td>_mm256_sub_ps&#x2F;pd</td>
+<td>对两个浮点向量做减法</td>
+</tr>
+<tr>
+<td>(2)_mm256_add_epi8&#x2F;16&#x2F;32&#x2F;64</td>
+<td>对两个整形向量做加法</td>
+</tr>
+<tr>
+<td>(2)_mm256_sub_epi8&#x2F;16&#x2F;32&#x2F;64</td>
+<td>对两个整形向量做减法</td>
+</tr>
+<tr>
+<td>(2)_mm256_adds_epi8&#x2F;16 (2)_mm256_adds_epu8&#x2F;16</td>
+<td>两个整数向量相加且考虑内存饱和问题</td>
+</tr>
+<tr>
+<td>(2)_mm256_subs_epi8&#x2F;16 (2)_mm256_subs_epu8&#x2F;16</td>
+<td>两个整数向量相减且考虑内存饱和问题</td>
+</tr>
+<tr>
+<td>_mm256_hadd_ps&#x2F;pd</td>
+<td>水平方向上对两个float类型向量做加法</td>
+</tr>
+<tr>
+<td>_mm256_hsub_ps&#x2F;pd</td>
+<td>垂直方向上最两个float类型向量做减法</td>
+</tr>
+<tr>
+<td>(2)_mm256_hadd_epi16&#x2F;32</td>
+<td>水平方向上对两个整形向量做加法</td>
+</tr>
+<tr>
+<td>(2)_mm256_hsub_epi16&#x2F;32</td>
+<td>水平方向上最两个整形向量做减法</td>
+</tr>
+<tr>
+<td>(2)_mm256_hadds_epi16</td>
+<td>对两个包含short类型的向量做加法且考虑内存饱和的问题</td>
+</tr>
+<tr>
+<td>(2)_mm256_hsubs_epi16</td>
+<td>对两个包含short类型的向量做减法且考虑内存饱和的问题</td>
+</tr>
+<tr>
+<td>_mm256_addsub_ps&#x2F;pd</td>
+<td>加上和减去两个float类型的向量、(在偶数位置减去，奇数位置加上，获最后得目标向量。)</td>
+</tr>
+</tbody></table>
+<p>前面有一个(2)，代表函数只在AVX2中支持。</p>
+<p><code>_add_/_sub_</code>函数和<code>_adds_/_subs_</code>函数的区别在于。<code>s</code>表示饱和，即当结果需要更多的内存来保存结果也能存下。</p>
+<p><strong>例1：</strong>一个向量包含signed bytes，因此每个元素最大值是127(0x7F).若有98加85的操作，结果是183(0xB7).</p>
+<ul>
+<li>若用<code>_mm256_add_epi8</code>，溢出部分会被忽略存储结果为**-73(0xB7)**</li>
+<li>若用<code>_mm256_adds_epi8</code>，结果会被限制在最大值即<strong>127(0x7F)</strong></li>
+</ul>
+<p><strong>例2：</strong>两个signed short整型向量，最小值为-32768。若计算-18000-19000，结果为-37000(0xFFFF6F78 as a 32-bit integer)</p>
+<ul>
+<li>若用<code>_mm256_sub_epi16</code>，溢出会被忽略存储结果为 <strong>28536(0x6F78)</strong></li>
+<li>若用<code>_mm256_subs_epi16</code>，结果会被限制在最小值**-32768(0x8000)**</li>
+</ul>
+<p><code>_hadd_/_hsub_</code>函数为水平加减。即向量相邻元素做加减，而不是向量间做加减。</p>
+<p>而在水平方向上做加减法的意思如下图：</p>
+<p><img src="https://www.codeproject.com/KB/cpp/874396/Fig1.jpg" srcset="/img/loading.gif" lazyload></p>
+<h3 id="乘除法"><a href="#乘除法" class="headerlink" title="乘除法"></a>乘除法</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>_mm256_mul_ps&#x2F;pd</td>
+<td>对两个float类型的向量进行相乘</td>
+</tr>
+<tr>
+<td>(2)_mm256_mul_epi32 (2)_mm256_mul_epu32</td>
+<td>将包含32位整数的向量的最低四个元素相乘</td>
+</tr>
+<tr>
+<td>(2)_mm256_mullo_epi16&#x2F;32</td>
+<td>Multiply integers and store low halves</td>
+</tr>
+<tr>
+<td>(2)_mm256_mulhi_epi16 (2)_mm256_mulhi_epu16</td>
+<td>Multiply integers and store high halves</td>
+</tr>
+<tr>
+<td>(2)_mm256_mulhrs_epi16</td>
+<td>Multiply 16-bit elements to form 32-bit elements</td>
+</tr>
+<tr>
+<td>_mm256_div_ps&#x2F;pd</td>
+<td>对两个float类型的向量进行想除</td>
+</tr>
+</tbody></table>
+<p><img src="https://img-blog.csdnimg.cn/20190701164948547.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1c3Rfc29ydA==,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload></p>
+<p><img src="https://img-blog.csdnimg.cn/2019070116512981.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1c3Rfc29ydA==,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload></p>
+<h3 id="复合运算"><a href="#复合运算" class="headerlink" title="复合运算"></a>复合运算</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>(2)_mm_fmadd_ps&#x2F;pd&#x2F; (2)_mm256_fmadd_ps&#x2F;pd</td>
+<td>将两个向量相乘，再将积加上第三个。(res&#x3D;a*b+c)</td>
+</tr>
+<tr>
+<td>(2)_mm_fmsub_ps&#x2F;pd&#x2F; (2)_mm256_fmsub_ps&#x2F;pd</td>
+<td>将两个向量相乘，然后从乘积中减去一个向量。(res&#x3D;a*b-c)</td>
+</tr>
+<tr>
+<td>(2)_mm_fmadd_ss&#x2F;sd</td>
+<td>将向量中最低的元素相乘并相加（res[0]&#x3D;a[0]*b[0]+c[0])</td>
+</tr>
+<tr>
+<td>(2)_mm_fmsub_ss&#x2F;sd</td>
+<td>将向量中最低的元素相乘并相减（res[0]&#x3D;a[0]*b[0]-c[0])</td>
+</tr>
+<tr>
+<td>(2)_mm_fnmadd_ps&#x2F;pd (2)_mm256_fnmadd_ps&#x2F;pd</td>
+<td>将两个向量相乘，并将负积加到第三个。(res &#x3D; -(a * b) + c)</td>
+</tr>
+<tr>
+<td>(2)_mm_fnmsub_ps&#x2F;pd&#x2F; (2)_mm256_fnmsub_ps&#x2F;pd</td>
+<td>将两个向量相乘，并将负积加到第三个 (res &#x3D; -(a * b) - c)</td>
+</tr>
+<tr>
+<td>(2)_mm_fnmadd_ss&#x2F;sd</td>
+<td>将两个向量的低位相乘，并将负积加到第三个向量的低位。(res[0] &#x3D; -(a[0] * b[0]) + c[0])</td>
+</tr>
+<tr>
+<td>(2)_mm_fnmsub_ss&#x2F;sd</td>
+<td>将最低的元素相乘，并从求反的积中减去第三个向量的最低元素。(res[0] &#x3D; -(a[0] * b[0]) - c[0])</td>
+</tr>
+<tr>
+<td>(2)_mm_fmaddsub_ps&#x2F;pd&#x2F; (2)_mm256_fmaddsub_ps&#x2F;pd</td>
+<td>将两个矢量相乘，然后从乘积中交替加上和减去（res&#x3D;a*b+&#x2F;-c)</td>
+</tr>
+<tr>
+<td>(2)_mm_fmsubadd_ps&#x2F;pd&#x2F; (2)_mmf256_fmsubadd_ps&#x2F;pd</td>
+<td>将两个向量相乘，然后从乘积中交替地进行减法和加法（res&#x3D;a*b-&#x2F;+c）（奇数次方，偶数次方）</td>
+</tr>
+</tbody></table>
+<h2 id="unpack、permute、shuffle、blend"><a href="#unpack、permute、shuffle、blend" class="headerlink" title="unpack、permute、shuffle、blend"></a>unpack、permute、shuffle、blend</h2><h3 id="unpack"><a href="#unpack" class="headerlink" title="unpack"></a>unpack</h3><img src="https://www.officedaytime.com/tips/simdimg/unpack.png" srcset="/img/loading.gif" lazyload style="zoom:150%;" />
+
+<h3 id="permute"><a href="#permute" class="headerlink" title="permute"></a>permute</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>_mm_permute_ps&#x2F;pd _mm256_permute_ps&#x2F;pd</td>
+<td>根据8位控制值从输入向量中选择元素</td>
+</tr>
+<tr>
+<td>(2)_mm256_permute4x64_pd&#x2F; (2)_mm256_permute4x64_epi64</td>
+<td>根据8位控制值从输入向量中选择64位元素</td>
+</tr>
+<tr>
+<td>_mm256_permute2f128_ps&#x2F;pd</td>
+<td>基于8位控制值从两个输入向量中选择128位块</td>
+</tr>
+<tr>
+<td>_mm256_permute2f128_si256</td>
+<td>基于8位控制值从两个输入向量中选择128位块</td>
+</tr>
+<tr>
+<td>_mm_permutevar_ps&#x2F;pd _mm256_permutevar_ps&#x2F;pd</td>
+<td>根据整数向量中的位从输入向量中选择元素</td>
+</tr>
+<tr>
+<td>(2)_mm256_permutevar8x32_ps (2)_mm256_permutevar8x32_epi32</td>
+<td>使用整数向量中的索引选择32位元素（浮点和整数）</td>
+</tr>
+</tbody></table>
+<img src="https://www.officedaytime.com/tips/simdimg/shuffle.png" srcset="/img/loading.gif" lazyload style="zoom:150%;" />
+
+<p><img src="https://img-blog.csdnimg.cn/20190701173134557.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2p1c3Rfc29ydA==,size_16,color_FFFFFF,t_70" srcset="/img/loading.gif" lazyload></p>
+<h3 id="shuffle"><a href="#shuffle" class="headerlink" title="shuffle"></a>shuffle</h3><table>
+<thead>
+<tr>
+<th>数据类型</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>_mm256_shuffle_ps&#x2F;pd</td>
+<td>根据8位值选择浮点元素</td>
+</tr>
+<tr>
+<td>_mm256_shuffle_epi8&#x2F; _mm256_shuffle_epi32</td>
+<td>根据8位值选择整数元素</td>
+</tr>
+<tr>
+<td>(2)_mm256_shufflelo_epi16&#x2F; (2)_mm256_shufflehi_epi16</td>
+<td>基于8位控制值从两个输入向量中选择128位块</td>
+</tr>
+</tbody></table>
+<p>对于_mm256_shuffle_pd，只使用控制值的高4位。如果输入向量包含int或float，则使用所有控制位。对于_mm256_shuffle_ps，前两对位从第一个矢量中选择元素，第二对位从第二个矢量中选择元素。</p>
+<img src="https://www.officedaytime.com/tips/simdimg/shuffle.png" srcset="/img/loading.gif" lazyload style="zoom:150%;" />
+
+<p><img src="https://img-blog.csdnimg.cn/20190701173738368.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="blend"><a href="#blend" class="headerlink" title="blend"></a>blend</h3><img src="https://www.officedaytime.com/tips/simdimg/blend.png" srcset="/img/loading.gif" lazyload style="zoom:150%;" />
+
+
+
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><p><a target="_blank" rel="noopener" href="https://software.intel.com/sites/landingpage/IntrinsicsGuide/">https://software.intel.com/sites/landingpage/IntrinsicsGuide/</a></p>
+<p><a target="_blank" rel="noopener" href="https://software.intel.com/en-us/articles/introduction-to-intel-advanced-vector-extensions/">https://software.intel.com/en-us/articles/introduction-to-intel-advanced-vector-extensions/</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX">https://www.codeproject.com/Articles/874396/Crunching-Numbers-with-AVX-and-AVX</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.triplez.cn/avx-avx2-learning-notes/#Shuffling">https://blog.triplez.cn/avx-avx2-learning-notes/#Shuffling</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/Triple-Z/AVX-AVX2-Example-Code">https://github.com/Triple-Z/AVX-AVX2-Example-Code</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/just_sort/article/details/94393506">https://blog.csdn.net/just_sort/article/details/94393506</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/64ef4d304e17">https://www.jianshu.com/p/64ef4d304e17</a></p>
+<p><a target="_blank" rel="noopener" href="https://www.officedaytime.com/tips/simd.html">https://www.officedaytime.com/tips/simd.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/microsoft/SPTAG/blob/master/AnnService/inc/Core/Common/DistanceUtils.h">https://github.com/microsoft/SPTAG/blob/master/AnnService/inc/Core/Common/DistanceUtils.h</a></p>
+<p>CPU指令集介绍<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7006817">https://blog.csdn.net/gengshenghong/article/details/7006817</a></p>
+<p>在C&#x2F;C++代码中使用SSE等指令集的指令(1)介绍<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7007100">https://blog.csdn.net/gengshenghong/article/details/7007100</a><br>在C&#x2F;C++代码中使用SSE等指令集的指令(2)参考手册<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7008682">https://blog.csdn.net/gengshenghong/article/details/7008682</a><br>在C&#x2F;C++代码中使用SSE等指令集的指令(3)SSE指令集基础<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7008704">https://blog.csdn.net/gengshenghong/article/details/7008704</a><br>在C&#x2F;C++代码中使用SSE等指令集的指令(4)SSE指令集Intrinsic函数使用<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7010615">https://blog.csdn.net/gengshenghong/article/details/7010615</a><br>在C&#x2F;C++代码中使用SSE等指令集的指令(5)SSE进行加法运算简单的性能测试<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/gengshenghong/article/details/7011373">https://blog.csdn.net/gengshenghong/article/details/7011373</a></p>
+<p>Writing C++ Wrappers for SIMD Intrinsics (1-5)<br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/10/09/writing-c-plus-plus-wrappers-for-simd-intrinsics-1/">https://johanmabille.github.io/blog/2014/10/09/writing-c-plus-plus-wrappers-for-simd-intrinsics-1/</a><br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/10/10/writing-c-plus-plus-wrappers-for-simd-intrinsics-2/">https://johanmabille.github.io/blog/2014/10/10/writing-c-plus-plus-wrappers-for-simd-intrinsics-2/</a><br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/10/10/writing-c-plus-plus-wrappers-for-simd-intrinsics-3/">https://johanmabille.github.io/blog/2014/10/10/writing-c-plus-plus-wrappers-for-simd-intrinsics-3/</a><br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/10/13/writing-c-plus-plus-wrappers-for-simd-intrinsics-4/">https://johanmabille.github.io/blog/2014/10/13/writing-c-plus-plus-wrappers-for-simd-intrinsics-4/</a><br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/10/25/writing-c-plus-plus-wrappers-for-simd-intrinsics-5/">https://johanmabille.github.io/blog/2014/10/25/writing-c-plus-plus-wrappers-for-simd-intrinsics-5/</a><br>Performance Considerations About SIMD Wrappers<br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/11/20/performance-considerations-about-simd-wrappers/">https://johanmabille.github.io/blog/2014/11/20/performance-considerations-about-simd-wrappers/</a><br>Aligned Memory Allocator<br><a target="_blank" rel="noopener" href="https://johanmabille.github.io/blog/2014/12/06/aligned-memory-allocator/">https://johanmabille.github.io/blog/2014/12/06/aligned-memory-allocator/</a></p>
+<p>Ubuntu SSE指令集 编程实例—复数乘法与共轭乘法</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/jxwxg/article/details/53091376">https://blog.csdn.net/jxwxg/article/details/53091376</a></p>
+<p>AVX2整数向量运算</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/tigerisland45/article/details/54671536">https://blog.csdn.net/tigerisland45/article/details/54671536</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Base/">Base</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/17/HowToWrite/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">How To Write</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/">
+                        <span class="hidden-mobile">Delaunay三角剖分</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

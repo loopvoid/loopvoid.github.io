@@ -1,0 +1,575 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Delaunay TriangleDelaunay三角剖分特点：  最小角最大：在不出现奇异性的情况下,Delaunay三角剖分最小角之和均大于任何非 Delaunay剖分所形成三角形最小角之和 ,三角形的最小内角之和最大 ,从而使得划分的三角形不会出现某个内角过小的情况 ,比较有利于有限元的后续计算。空外接圆：Delaunay三角剖分中任意三角形的外接圆内不包括其他结点。因此 ,在各种二维三角剖">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Delaunay三角剖分">
+<meta property="og:url" content="http://blog.home.io/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Delaunay TriangleDelaunay三角剖分特点：  最小角最大：在不出现奇异性的情况下,Delaunay三角剖分最小角之和均大于任何非 Delaunay剖分所形成三角形最小角之和 ,三角形的最小内角之和最大 ,从而使得划分的三角形不会出现某个内角过小的情况 ,比较有利于有限元的后续计算。空外接圆：Delaunay三角剖分中任意三角形的外接圆内不包括其他结点。因此 ,在各种二维三角剖">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p4.qhimg.com/bdm/216_133_0/t01685fac33ad433a3c.jpg">
+<meta property="article:published_time" content="2019-11-28T04:04:41.000Z">
+<meta property="article:modified_time" content="2022-03-17T16:56:43.292Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Algorithm">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p4.qhimg.com/bdm/216_133_0/t01685fac33ad433a3c.jpg">
+  
+  
+  <title>Delaunay三角剖分 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Delaunay三角剖分">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-11-28 12:04" pubdate>
+        2019年11月28日 中午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      32 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Delaunay三角剖分</h1>
+            
+            <div class="markdown-body">
+              <h1 id="Delaunay-Triangle"><a href="#Delaunay-Triangle" class="headerlink" title="Delaunay Triangle"></a>Delaunay Triangle</h1><p>Delaunay三角剖分特点：</p>
+<blockquote>
+<p><strong>最小角最大</strong>：在不出现奇异性的情况下,Delaunay三角剖分最小角之和均大于任何非 Delaunay剖分所形成三角形最小角之和 ,三角形的最小内角之和最大 ,从而使得划分的三角形不会出现某个内角过小的情况 ,比较有利于有限元的后续计算。<br><strong>空外接圆</strong>：Delaunay三角剖分中任意三角形的外接圆内不包括其他结点。因此 ,在各种二维三角剖分中 ,只有 Delaunay三角剖分才同时满足全局和局部最优。</p>
+</blockquote>
+<p>Delaunay三角剖分优点：</p>
+<blockquote>
+<p>1.<strong>最接近</strong>：以最近的三点组成三角形，且三角形各边皆不相交。<br>2.<strong>唯一性</strong>：不论从何处区域开始构建，最终结果唯一。<br>3.<strong>最优解</strong>：任意两个相邻三角形形成的凸四边形的对角线若可以互换,那么两个三角形六个内角中最小的角度不会变大。<br>4.<strong>最规则</strong>：若将三角网中的每个三角形的最小角进行升序排列，则Delaunay三角网的排列得到的数值最大。<br>5.<strong>区域性</strong>：新增、删除、移动某一个顶点时只会影响临近的三角形。<br>6.具有<strong>凸多边形的外壳</strong>：三角网最外层的边界形成一个凸多边形的外壳。</p>
+</blockquote>
+<h1 id="Voronoi图"><a href="#Voronoi图" class="headerlink" title="Voronoi图"></a>Voronoi图</h1><p>离散点集P的Delaunay三角剖分和离散点集P的Voronoi图为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Dual_graph">对偶图</a>的关系。</p>
+<p>Delaunay三角形的外心是Voronoi图的顶点。 </p>
+<blockquote>
+<p>对偶图：设G是平面图，在图G的每个面中指定一个新节点，对两个面公共的边，指定一条新边与其<strong>相交</strong>。由这些新结点和新边组成的图为G的对偶图。</p>
+</blockquote>
+<p>图中的蓝色虚线的图是红色实线的对偶图：</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/1280px-Duals_graphs.svg.png" srcset="/img/loading.gif" lazyload alt="Duals_graphs"></p>
+<p>Delaunay三角形和其外接圆与圆心：</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/337px-Delaunay_circumcircles_centers.svg.png" srcset="/img/loading.gif" lazyload alt="Delaunay_circumcircles_centers"></p>
+<p>连接外接圆圆心生成Voronoi图：</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/441px-Delaunay_Voronoi.svg.png" srcset="/img/loading.gif" lazyload alt="Delaunay_Voronoi"></p>
+<h1 id="Delaunay三角剖分算法"><a href="#Delaunay三角剖分算法" class="headerlink" title="Delaunay三角剖分算法"></a>Delaunay三角剖分算法</h1><p>Delaunay三角剖分常见算法：翻边算法、分割归并法、逐点插入算法、三角网增长法。本文从常见的逐点插入的Bowyer-Watson算法来理解。</p>
+<p>在<a target="_blank" rel="noopener" href="http://paulbourke.net/papers/triangulate/">《Triangulate》</a>里对该方法进行了分析，给出了伪代码：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></div></td><td class="code"><pre><code class="hljs pgsql">subroutine triangulate<br><span class="hljs-keyword">input</span> : vertex list<br>output : triangle list<br>   initialize the triangle list<br>   determine the supertriangle<br>   <span class="hljs-keyword">add</span> supertriangle vertices <span class="hljs-keyword">to</span> the <span class="hljs-keyword">end</span> <span class="hljs-keyword">of</span> the vertex list<br>   <span class="hljs-keyword">add</span> the supertriangle <span class="hljs-keyword">to</span> the triangle list<br>   <span class="hljs-keyword">for</span> <span class="hljs-keyword">each</span> sample <span class="hljs-type">point</span> <span class="hljs-keyword">in</span> the vertex list<br>      initialize the edge buffer<br>      <span class="hljs-keyword">for</span> <span class="hljs-keyword">each</span> triangle currently <span class="hljs-keyword">in</span> the triangle list<br>         calculate the triangle circumcircle center <span class="hljs-keyword">and</span> radius<br>         <span class="hljs-keyword">if</span> the <span class="hljs-type">point</span> lies <span class="hljs-keyword">in</span> the triangle circumcircle <span class="hljs-keyword">then</span><br>            <span class="hljs-keyword">add</span> the three triangle edges <span class="hljs-keyword">to</span> the edge buffer<br>            remove the triangle <span class="hljs-keyword">from</span> the triangle list<br>         endif<br>      endfor<br>      <span class="hljs-keyword">delete</span> <span class="hljs-keyword">all</span> doubly specified edges <span class="hljs-keyword">from</span> the edge buffer<br>         this leaves the edges <span class="hljs-keyword">of</span> the enclosing <span class="hljs-type">polygon</span> <span class="hljs-keyword">only</span><br>      <span class="hljs-keyword">add</span> <span class="hljs-keyword">to</span> the triangle list <span class="hljs-keyword">all</span> triangles formed <span class="hljs-keyword">between</span> the <span class="hljs-type">point</span> <br>         <span class="hljs-keyword">and</span> the edges <span class="hljs-keyword">of</span> the enclosing <span class="hljs-type">polygon</span><br>   endfor<br>   remove <span class="hljs-keyword">any</span> triangles <span class="hljs-keyword">from</span> the triangle list that use the supertriangle vertices<br>   remove the supertriangle vertices <span class="hljs-keyword">from</span> the vertex list<br><span class="hljs-keyword">end</span><br></code></pre></td></tr></table></figure>
+
+<p>因该算法效率不高，因此有网上给的优化后的伪代码：</p>
+<figure class="highlight glsl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs glsl">input: 顶点列表(<span class="hljs-keyword">vertices</span>)　　　　　　　　　　　　　　　　　　　　  　<span class="hljs-comment">//vertices为外部生成的随机或乱序顶点列表</span><br>output:已确定的三角形列表(<span class="hljs-keyword">triangles</span>)<br>　　　　初始化顶点列表<br>　　　　创建索引列表(indices = new Array(<span class="hljs-keyword">vertices</span>.<span class="hljs-built_in">length</span>))　　　　<span class="hljs-comment">//indices数组中的值为0,1,2,3,......,vertices.length-1</span><br>　　　　基于<span class="hljs-keyword">vertices</span>中的顶点x坐标对indices进行sort　　  　　　　　  <span class="hljs-comment">//sort后的indices值顺序为顶点坐标x从小到大排序（也可对y坐标，本例中针对x坐标）</span><br>　　　　确定超级三角形<br>　　　　将超级三角形保存至未确定三角形列表（temp <span class="hljs-keyword">triangles</span>）<br>　　　　将超级三角形push到<span class="hljs-keyword">triangles</span>列表<br>　　　　遍历基于indices顺序的<span class="hljs-keyword">vertices</span>中每一个点　　　　　　　　　  　<span class="hljs-comment">//基于indices后，则顶点则是由x从小到大出现</span><br>　　　　　　初始化边缓存数组（edge <span class="hljs-keyword">buffer</span>）<br>　　　　　　遍历temp <span class="hljs-keyword">triangles</span>中的每一个三角形<br>　　　　　　　　计算该三角形的圆心和半径<br>　　　　　　　　如果该点在外接圆的右侧<br>　　　　　　　　　　则该三角形为Delaunay三角形，保存到<span class="hljs-keyword">triangles</span><br>　　　　　　　　　　并在temp里去除掉<br>　　　　　　　　　　跳过<br>　　　　　　　　如果该点在外接圆外（即也不是外接圆右侧）<br>　　　　　　　　　　则该三角形为不确定        　　　　　　　　　     <span class="hljs-comment">//后面会在问题中讨论</span><br>　　　　　　　　　　跳过<br>　　　　　　　　如果该点在外接圆内<br>　　　　　　　　　　则该三角形不为Delaunay三角形<br>　　　　　　　　　　将三边保存至edge <span class="hljs-keyword">buffer</span><br>　　　　　　　　　　在temp中去除掉该三角形<br>　　　　　　对edge <span class="hljs-keyword">buffer</span>进行去重<br>　　　　　　将edge <span class="hljs-keyword">buffer</span>中的边与当前的点进行组合成若干三角形并保存至temp <span class="hljs-keyword">triangles</span>中<br>　　　　将<span class="hljs-keyword">triangles</span>与temp <span class="hljs-keyword">triangles</span>进行合并<br>　　　　除去与超级三角形有关的三角形<br>end<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="Bowyer-Watson算法"><a href="#Bowyer-Watson算法" class="headerlink" title="Bowyer-Watson算法"></a>Bowyer-Watson算法</h1><p>基本思想:</p>
+<blockquote>
+<p>1.构造一个超级三角形，包含所有的散点，存入三角形链表<br>2.将点集中的离散点依次插入，在三角形链表中找出外接圆包含插入点的三角形（称为该点的影响三角形），删除影响三角形的<strong>公共边</strong>，将插入点同影响三角形的全部顶点连接起来，完成一个点在Delaunay三角形链表中的插入。<br>3.根据优化准则对局部新形成的三角形优化。将形成的三角形放入Delaunay三角形链表。<br>4.循环执行步骤2，直到所有离散点插入完毕。</p>
+</blockquote>
+<p>图示:(来自<a target="_blank" rel="noopener" href="https://baike.baidu.com/item/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86%E7%AE%97%E6%B3%95">百度百科</a>)</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/d009b3de9c82d1582789d194800a19d8bc3e4288.jpg" srcset="/img/loading.gif" lazyload alt="d009b3de9c82d1582789d194800a19d8bc3e4288.jpg"></p>
+<p>借助三个点理解一遍。</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/Snipaste_2019-11-28_09-57-39.png" srcset="/img/loading.gif" lazyload alt="Snipaste_2019-11-28_09-57-39.png"></p>
+<p>根据离散点的最大分布得到一个随机超级三角形(即该三角形包含了整个离散点集P)，并将超级三角形放入temp triangles中</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/Snipaste_2019-11-28_10-01-38.png" srcset="/img/loading.gif" lazyload alt="Snipaste_2019-11-28_10-01-38.png"></p>
+<p>接下来对temp triangle中的三角形遍历画外接圆，这时先对左边第一个点a进行判断，其在圆内所以该三角形不为Delaunay三角形，将其三边保存至edge buffer中，temp triangles中删除该三角形</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/Snipaste_2019-11-28_10-03-32.png" srcset="/img/loading.gif" lazyload alt="Snipaste_2019-11-28_10-03-32.png"></p>
+<p>将a点与edge buffer中的每一个边相连，组成三个三角形，存入temp triangles中</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/Snipaste_2019-11-28_10-05-40.png" srcset="/img/loading.gif" lazyload alt="Delaunay三角剖分/Snipaste_2019-11-28_10-05-40.png"></p>
+<p>再将重复对temp triangles的遍历并画外接圆，这时使用的是b点来进行判断</p>
+<ul>
+<li>b点在三角形1外接圆右侧，则表示左侧三角形为Delaunay三角形，将该三角形保存至triangles中</li>
+<li>b点在三角形2外接圆外侧，为不确定三角形，跳过（后面处理），但并不在temp triangles中删除</li>
+<li>b点在三角形3外接圆内侧，则这时向清空后的edge buffer加入该三角形的三条边，并用b点与edge buffer中的三角边进行组合，组合成了三个三角形并加入到temp triangles中</li>
+</ul>
+<p>这时，temp buffer 中有六条边，triangles中有两个三角形，temp triangles中有1个三角形</p>
+<p>对temp buffer中的六条边进行去重，得到五条边，将该点与这五条边组合成五个三角形并加入到temp triangles 中，这时temp triangles中有6个三角形</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/Snipaste_2019-11-28_10-13-35.png" srcset="/img/loading.gif" lazyload alt="Delaunay三角剖分/Snipaste_2019-11-28_10-13-35.png"></p>
+<p>由于三个点已经遍历结束，到了不会再对第三个点形成的三角形做外接圆，这时则将triangles与temp triangles合并，合并后的数组表示包含已经确定的Delaunay三角形和剩下的三角形</p>
+<p>这时除去合并后数组中的和超级三角形三个点有关的所有三角形，即进行数组坐标的限定，则得到了最后的结果：</p>
+<p><img src="/2019/11/28/Delaunay%E4%B8%89%E8%A7%92%E5%89%96%E5%88%86/Snipaste_2019-11-28_10-18-12.png" srcset="/img/loading.gif" lazyload alt="Snipaste_2019-11-28_10-18-12.png"></p>
+<h1 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h1><p><a target="_blank" rel="noopener" href="https://github.com/loopvoid/delaunay">Delaunay-Cpp</a></p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="http://www.cs.cmu.edu/~quake/triangle.html">http://www.cs.cmu.edu/~quake/triangle.html</a><br><a target="_blank" rel="noopener" href="https://people.sc.fsu.edu/~jburkardt/c_src/triangle/triangle.html">https://people.sc.fsu.edu/~jburkardt/c_src/triangle/triangle.html</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/zhiyishou/p/4430017.html">https://www.cnblogs.com/zhiyishou/p/4430017.html</a><br><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Delaunay_triangulation">https://en.wikipedia.org/wiki/Delaunay_triangulation</a><br><a target="_blank" rel="noopener" href="http://local.wasp.uwa.edu.au/~pbourke/papers/triangulate/index.html">http://local.wasp.uwa.edu.au/~pbourke/papers/triangulate/index.html</a><br><a target="_blank" rel="noopener" href="http://local.wasp.uwa.edu.au/~pbourke/papers/triangulate/cpp.zip">http://local.wasp.uwa.edu.au/~pbourke/papers/triangulate/cpp.zip</a><br><a target="_blank" rel="noopener" href="https://github.com/obviousjim/ofxDelaunay">https://github.com/obviousjim/ofxDelaunay</a><br><a target="_blank" rel="noopener" href="https://github.com/delfrrr/delaunator-cpp/blob/master/include/delaunator.hpp">https://github.com/delfrrr/delaunator-cpp/blob/master/include/delaunator.hpp</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Algorithm/">Algorithm</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/12/04/AVX-AVX2-Notes/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">SSE/SSE2/AVX/AVX2 Notes</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/11/17/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">
+                        <span class="hidden-mobile">正则表达式</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

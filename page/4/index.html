@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta property="og:type" content="website">
+<meta property="og:title" content="Hexo">
+<meta property="og:url" content="http://blog.home.io/page/4/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  <title>Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 100vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Loop Void">
+              
+            </span>
+
+            
+          </div>
+
+          
+            <div class="scroll-down-bar">
+              <i class="iconfont icon-arrowdown"></i>
+            </div>
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      <div class="container nopadding-x-md">
+        <div class="py-5" id="board"
+          style=margin-top:0>
+          
+          <div class="container">
+            <div class="row">
+              <div class="col-12 col-md-10 m-auto">
+                
+
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/03/11/%E7%BB%93%E5%B7%B4Jieba%E5%88%86%E8%AF%8D/" target="_blank">
+          结巴Jieba分词
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/03/11/%E7%BB%93%E5%B7%B4Jieba%E5%88%86%E8%AF%8D/" target="_blank">
+          
+          Jieba-Github 特点 支持三种分词模式：   精确模式，试图将句子最精确地切开，适合文本分析；  全模式，把句子中所有的可以成词的词语都扫描出来, 速度非常快，但是不能解决歧义；  搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词。    支持繁体分词  支持自定义词典   安装Python 2.x 下的安装全自动安装 ：easy_install jie
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-03-11 21:38" pubdate>
+              2017-03-11
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%88%86%E8%AF%8D/">分词</a>
+            
+              <a href="/tags/TTS/">TTS</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/" target="_blank">
+          逻辑回归模型和ML入门
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/" target="_blank">
+          
+          简介(Introduction)问题：肿瘤医院提供了数据，并希望我们确定患者是否有致命的恶性肿瘤或良性肿瘤。 这被称为分类问题。 为了帮助分类每个患者，我们给出他们的年龄和肿瘤的大小。 直观地，可以想象年轻的患者和患有小的良性肿瘤的患者不太可能患有恶性癌症。 数据集模拟此应用程序，其中每个观察结果是表示为点（在下面的图中）的患者，其中红色表示恶性，蓝色表示良性。 注意：这是一个学习的玩具示例，在现
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-03-10 08:15" pubdate>
+              2017-03-10
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Machine-Learning/">Machine Learning</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/ML/">ML</a>
+            
+              <a href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B/">逻辑回归模型</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/03/04/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7%E7%9A%84%E9%AB%98%E6%96%AF%E6%BB%A4%E6%B3%A2/" target="_blank">
+          一维信号的高斯滤波
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/03/04/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7%E7%9A%84%E9%AB%98%E6%96%AF%E6%BB%A4%E6%B3%A2/" target="_blank">
+          
+          正态分布高斯滤波使用的是高斯函数，即我们熟悉的正态分布的概率密度函数：$$ f(x)&#x3D;\frac{1}{σ\sqrt{2π}} exp (\frac{(x-μ)^2}{2σ^2}) $$ 我们生成的高斯模板就是从这个公式来的。例如要生成一个大小为3，标准差为1的模板，则只需要代公式计算（此处均值μ为0，不为0将其平移即可）：$f(−1) 、f(0)、f(1)$就可以得到模板的值了。 高斯
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-03-04 19:14" pubdate>
+              2017-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E6%BB%A4%E6%B3%A2/">滤波</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7/">一维信号</a>
+            
+              <a href="/tags/%E9%AB%98%E6%96%AF%E6%BB%A4%E6%B3%A2/">高斯滤波</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/03/04/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%BB%A4%E6%B3%A2/" target="_blank">
+          一维信号的滤波
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/03/04/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%BB%A4%E6%B3%A2/" target="_blank">
+          
+          简介数字滤波方法有很多种，每种方法有其不同的特点和使用范围。从大的范围可分为3类。  克服大脉冲干扰的数字滤波法   限幅滤波法 中值滤波法    抑制小幅度高频噪声的平均滤波法   算数平均 滑动平均 加权滑动平均 一阶滞后滤波法    复合滤波法   下面介绍常用滤波方法 克服大脉冲干扰的数字滤波法克服由仪器外部环境偶然因素引起的突变性扰动或仪器内部不稳定引起误码等造成的尖脉冲干扰，是仪器数据
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-03-04 18:40" pubdate>
+              2017-03-04
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E6%BB%A4%E6%B3%A2/">滤波</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E4%B8%80%E7%BB%B4%E6%BB%A4%E6%B3%A2/">一维滤波</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/" target="_blank">
+          Vibe算法
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/" target="_blank">
+          
+          原文链接 简介ViBe - a powerful technique for background detection and subtraction in video sequencesViBe是一种像素级视频背景建模或前景检测的算法，效果优于所熟知的几种算法，对硬件内存占用也少。ViBe是一种像素级的背景建模、前景检测算法，该算法主要不同之处是背景模型的更新策略，随机选择需要替换的像素的样本，
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-03-02 20:09" pubdate>
+              2017-03-02
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Opencv/">Opencv</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E8%83%8C%E6%99%AF%E5%BB%BA%E6%A8%A1/">背景建模</a>
+            
+              <a href="/tags/%E5%89%8D%E6%99%AF%E6%A3%80%E6%B5%8B/">前景检测</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/03/01/%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC/" target="_blank">
+          双线性插值
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/03/01/%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC/" target="_blank">
+          
+          简介双线性插值，又称为双线性内插。在数学上，双线性插值是有两个变量的插值函数的线性插值扩展，其核心思想是在两个方向分别进行一次线性插值。假设源图像大小为$m\times n$，目标图像为$a \times b$。那么两幅图像的边长比分别为：$m&#x2F;a$和$n&#x2F;b$。注意，通常这个比例不是整数，编程存储的时候要用浮点型。目标图像的第（i,j）个像素点（i行j列）可以通过边长比对应回
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-03-01 17:34" pubdate>
+              2017-03-01
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/Opencv/">Opencv</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/Opencv/">Opencv</a>
+            
+              <a href="/tags/%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC/">双线性插值</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/02/27/%E6%9E%81%E7%BA%BF%E7%BA%A6%E6%9D%9F/" target="_blank">
+          极线约束
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/02/27/%E6%9E%81%E7%BA%BF%E7%BA%A6%E6%9D%9F/" target="_blank">
+          
+          三维空间中一点P，投影到两个不同的平面$I_{1}、I_{2}$，投影点分别为$P_{1}，P_{2}$。$P、P_{1}、P_{2}$在三维空间内构成一个平面S。S与面$I_{1}$的交线$L_{1}$过$P_{1}$点，称之为对应于$P_{2}$的极线。同理S与$I_{2}$的交线称之为对应于$P_{1}$的极线（对应于左边图像点的极线在右边图像上，右边与之相同）. 如图： 所谓极线约束就是说
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-02-27 16:49" pubdate>
+              2017-02-27
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%A4%9A%E8%A7%86%E5%9B%BE%E9%9B%86%E5%90%88/">多视图集合</a>
+            
+              <a href="/tags/%E6%9E%81%E7%BA%BF%E7%BA%A6%E6%9D%9F/">极线约束</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/02/26/%E5%87%A0%E4%BD%95%E8%B7%9D%E7%A6%BB%E6%80%BB%E6%B1%87/" target="_blank">
+          几何距离总汇
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/02/26/%E5%87%A0%E4%BD%95%E8%B7%9D%E7%A6%BB%E6%80%BB%E6%B1%87/" target="_blank">
+          
+          简介在做分类时常常需要估算不同样本之间的相似性度量(SimilarityMeasurement)，这时通常采用的方法就是计算样本间的**“距离”(Distance)**。采用什么样的方法计算距离是很讲究，甚至关系到分类的正确与否。本文的目的就是对常用的相似性度量作一个汇总。   欧氏距离 曼哈顿距离 切比雪夫距离 闵可夫斯基距离 标准化欧氏距离 马氏距离 夹角余弦 汉明距离 杰卡德距离&amp;杰
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-02-26 15:21" pubdate>
+              2017-02-26
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%87%A0%E4%BD%95%E8%B7%9D%E7%A6%BB/">几何距离</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/02/26/%E9%9D%9E%E5%8F%82%E6%95%B0%E4%BC%B0%E8%AE%A1/" target="_blank">
+          非参数估计
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/02/26/%E9%9D%9E%E5%8F%82%E6%95%B0%E4%BC%B0%E8%AE%A1/" target="_blank">
+          
+          简介非参数估计和参数估计（即，监督参数估计和非监督参数估计）共同构成了概率密度估计方法。非参数估计是一种对先验知识要求最少，完全依靠训练数据进行估计，而且可以用于任意形状密度估计的方法。常见的非参数估计方法有以下几种： 直方图把数据的值域分成若干相等的区间，数据按照区间分为若干组，每组形成一个矩形区域，矩形的高和该组数据的数量成正比，其底为所属区间，将这些矩形依次排列组成的图行就是直方图。它提供数
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-02-26 14:32" pubdate>
+              2017-02-26
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+            
+              <a href="/tags/%E6%95%B0%E7%90%86%E7%BB%9F%E8%AE%A1/">数理统计</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+  <div class="row mx-auto index-card">
+    
+    
+    <article class="col-12 col-md-12 mx-auto index-info">
+      <h1 class="index-header">
+        
+        <a href="/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/" target="_blank">
+          飞盘运动模型的物理学
+        </a>
+      </h1>
+
+      <p class="index-excerpt">
+        <a href="/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/" target="_blank">
+          
+          飞盘的物理学  V. R. Morrison Physics Department, Mount Allison University, Sackville, NB Canada E4L 1E6 (&amp;#x76;&amp;#x72;&amp;#109;&amp;#114;&amp;#x72;&amp;#115;&amp;#x6e;&amp;#64;&amp;#x6d;&amp;#x74;&amp;#97;&amp;#46;&amp;#99;&amp;#x61;) 参考原文   摘要飞盘是常见的娱乐方式
+        </a>
+      </p>
+
+      <div class="index-btm post-metas">
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-date"></i>
+            <time datetime="2017-02-24 17:16" pubdate>
+              2017-02-24
+            </time>
+          </div>
+        
+        
+          <div class="post-meta mr-3">
+            <i class="iconfont icon-category"></i>
+            
+              <a href="/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/">数学建模</a>
+            
+          </div>
+        
+        
+          <div class="post-meta">
+            <i class="iconfont icon-tags"></i>
+            
+              <a href="/tags/%E9%A3%9E%E7%9B%98/">飞盘</a>
+            
+              <a href="/tags/%E5%BB%BA%E6%A8%A1/">建模</a>
+            
+          </div>
+        
+      </div>
+    </article>
+  </div>
+
+
+
+  <nav aria-label="navigation">
+    <span class="pagination" id="pagination">
+      <a class="extend prev" rel="prev" href="/page/3/#board"><i class="iconfont icon-arrowleft"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/#board">2</a><a class="page-number" href="/page/3/#board">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/#board">5</a><a class="extend next" rel="next" href="/page/5/#board"><i class="iconfont icon-arrowright"></i></a>
+    </span>
+  </nav>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
