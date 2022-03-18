@@ -1,0 +1,574 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="在看到有人讨论如何判断线段相交的问题的时候，发现自己有矢量这块基础知识的缺失，因此写篇笔记填个坑，以便记忆。 矢量的基本知识 矢量的概念：如果一条线段的端点是有次序之分的，我们把这种线段成为有向线段(directed segment)。如果有向线段$p_1p_2$的起点$p_1$在坐标原点，则将其称为矢量(vector)$p_2$。 矢量加减法：设二维矢量$P&#x3D;(x_1,y_1),Q&amp;#">
+<meta property="og:type" content="article">
+<meta property="og:title" content="矢量的叉积">
+<meta property="og:url" content="http://blog.home.io/2017/02/19/%E7%9F%A2%E9%87%8F%E7%9A%84%E5%8F%89%E7%A7%AF/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="在看到有人讨论如何判断线段相交的问题的时候，发现自己有矢量这块基础知识的缺失，因此写篇笔记填个坑，以便记忆。 矢量的基本知识 矢量的概念：如果一条线段的端点是有次序之分的，我们把这种线段成为有向线段(directed segment)。如果有向线段$p_1p_2$的起点$p_1$在坐标原点，则将其称为矢量(vector)$p_2$。 矢量加减法：设二维矢量$P&#x3D;(x_1,y_1),Q&amp;#">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p7.qhimg.com/bdm/216_133_0/t012c42150ed5f9e397.jpg">
+<meta property="article:published_time" content="2017-02-19T10:28:42.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:07:03.137Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="Opencv">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p7.qhimg.com/bdm/216_133_0/t012c42150ed5f9e397.jpg">
+  
+  
+  <title>矢量的叉积 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="矢量的叉积">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-02-19 18:28" pubdate>
+        2017年2月19日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.8k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      40 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">矢量的叉积</h1>
+            
+            <div class="markdown-body">
+              <p>在看到有人讨论如何判断线段相交的问题的时候，发现自己有矢量这块基础知识的缺失，因此写篇笔记填个坑，以便记忆。</p>
+<h2 id="矢量的基本知识"><a href="#矢量的基本知识" class="headerlink" title="矢量的基本知识"></a>矢量的基本知识</h2><ul>
+<li><strong>矢量的概念</strong>：如果一条线段的端点是有次序之分的，我们把这种线段成为有向线段(directed segment)。如果有向线段$p_1p_2$的起点$p_1$在坐标原点，则将其称为矢量(vector)$p_2$。</li>
+<li><strong>矢量加减法</strong>：设二维矢量$P&#x3D;(x_1,y_1),Q&#x3D;(x_2,y_2)$<br>   ​    矢量加法定义为：$P+Q&#x3D;(x_1+x_2,y_1+y_2)$<br>   ​    矢量减法定义为： $P-Q&#x3D;(x_1-x_2,y_1-y_2)$<br>   ​    显然有性质 $P+Q&#x3D;Q+P,P-Q&#x3D;-(Q-P)$</li>
+<li><strong>矢量的叉积</strong>：计算矢量叉积是与直线和线段相关算法的核心部分。设矢量$P&#x3D;(x_1,y_1),Q&#x3D;(x_2,y_2)$，则矢量叉积定义为由$(0,0)$、$P_1$、$P_2$和$P_1+P_2$所组成的平行四边形的带符号的面积，即：$P × Q &#x3D; x_1<em>y_2 - x_2</em>y_1$，其结果是一个标量。显然有性质 $P × Q &#x3D; - ( Q × P ) $和$ P × ( - Q ) &#x3D; - ( P × Q )$。<br>叉积的另一个非常重要性质是可以通过它的符号判断两矢量相互之间的顺逆时针关系：<br>　　若 $P × Q &gt; 0$ , 则P在Q的顺时针方向。<br>　　若 $P × Q &lt; 0$ , 则P在Q的逆时针方向。<br>　　若 $P × Q &#x3D; 0$ , 则P与Q共线，但可能同向也可能反向。</li>
+<li><strong>折线段的拐向判断</strong>：折线段的拐向判断方法可以直接由矢量叉积的性质推出。对于有公共端点的线段$p_0p_1$和$p_1p_2$，通过计算$(p_2 - p_0) × (p_1 - p_0)$的符号便可以确定折线段的拐向：<br>  若$(p_2 - p_0) × (p_1 - p_0) &gt; 0$,则$p_0p_1$在$p_1$点拐向右侧后得到$p_1p_2$。<br>  　　若$(p_2 - p_0) × (p_1 - p_0) &lt; 0$,则p_0p_1在p_1点拐向左侧后得到p_1p_2。<br>  　　若(p_2 - p_0) × (p_0 - p_0) &#x3D; 0,则$p_0$、$p_1$、$p_2$三点共线。<br>  这一条判断也可用来判断点在线段或直线的哪一测。</li>
+</ul>
+<h2 id="判断两条直线是否相交"><a href="#判断两条直线是否相交" class="headerlink" title="判断两条直线是否相交"></a>判断两条直线是否相交</h2><p>　　第一个可能会想到的办法，就是判断斜率，这个在中学时代就学过了，不过斜率需要考虑垂直的特殊情况，比较麻烦。计算两个向量的叉积或许是一个更好的办法，如果两个向量叉乘为0，则是平行或者重合的，否则两直线相交。这里贴出来一个便于理解原理的代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2\highgui\highgui.hpp&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2\opencv.hpp&gt;</span>  </span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br>  <br> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">point</span>  <br>&#123;  <br>    <span class="hljs-type">int</span> x;  <br>    <span class="hljs-type">int</span> y;  <br>&#125;;  <br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">v</span>  <br>&#123;  <br>    point start;  <br>    point end;  <br>&#125;;  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">crossProduct</span><span class="hljs-params">(v* v1, v* v2)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    v vt1, vt2;  <br>    <span class="hljs-type">int</span> result = <span class="hljs-number">0</span>;  <br>  <br>    vt1.start.x = v1-&gt;start.x;  <br>    vt1.start.y = v1-&gt;start.y;  <br>    vt1.end.x = v1-&gt;end.x - v1-&gt;start.x;  <br>    vt1.end.y = v1-&gt;end.y - v1-&gt;start.y;  <br>      <br>    vt2.start.x = v2-&gt;start.x;  <br>    vt2.start.y = v2-&gt;start.y;  <br>    vt2.end.x = v2-&gt;end.x - v2-&gt;start.x;  <br>    vt2.end.y = v2-&gt;end.y - v2-&gt;start.y;  <br>  <br>    result = vt1.end.x * vt2.end.y - vt2.end.x * vt1.end.y;  <br>    <span class="hljs-keyword">return</span> result;  <br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-function">Point <span class="hljs-title">p1end</span><span class="hljs-params">(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>)</span></span>;  <br>    <span class="hljs-function">Point <span class="hljs-title">p1start</span><span class="hljs-params">(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)</span></span>;  <br>    <span class="hljs-function">Point <span class="hljs-title">p2end</span><span class="hljs-params">(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>)</span></span>;  <br>    <span class="hljs-function">Point <span class="hljs-title">p2start</span><span class="hljs-params">(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>)</span></span>;  <br>    v pt1, pt2;  <br>    pt1.end.x = p1end.x;  <br>    pt1.end.y = p1end.y;  <br>    pt1.start.x = p1start.x;  <br>    pt1.start.y = p1start.y;  <br>    pt2.end.x = p2end.x;  <br>    pt2.end.y = p2end.y;  <br>    pt2.start.x = p2start.x;  <br>    pt2.start.y = p2start.y;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;CrossProduct: &quot;</span> &lt;&lt; <span class="hljs-built_in">crossProduct</span>(&amp;pt1, &amp;pt2) &lt;&lt; endl;  <br>    <span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+<p><strong>输出结果为: CrossProduct: -3</strong><br> <img src="/2017/02/19/%E7%9F%A2%E9%87%8F%E7%9A%84%E5%8F%89%E7%A7%AF/Crossproduct_1.jpg" srcset="/img/loading.gif" lazyload alt="矢量的叉积"><br>如图所示，向量$P_1$，$P_2$的叉乘就是图中平行四边形的面积&#x3D;3，负号就表示向量$P_1$在$P_2$的逆时针方向。</p>
+<h2 id="判断两线段相交"><a href="#判断两线段相交" class="headerlink" title="判断两线段相交"></a>判断两线段相交</h2><p>经典方法，就是<a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_71dbfe2e0101f7zb.html">跨立实验</a>，即如果一条线段跨过另一条线段，则线段的两个端点分别在另一条线段的两侧。但是，还需要检测边界情况，即两条线段中可能某条线段的某个端点正好落在另一条线段上。<br>程序模拟如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">direction</span><span class="hljs-params">(point* pi, point* pj, point* pk)</span></span>&#123;  <br>point p1, p2;  <br>  <br>p1.x = pk-&gt;x - pi-&gt;x;  <br>p1.y = pk-&gt;y - pi-&gt;y;  <br>  <br>p2.x = pj-&gt;x - pi-&gt;x;  <br>p2.y = pj-&gt;y - pi-&gt;y;  <br>  <br><span class="hljs-keyword">return</span> <span class="hljs-built_in">crossProduct</span>(&amp;p1, &amp;p2);  <br>&#125;  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">onSegment</span><span class="hljs-params">(point* pi, point* pj, point* pk)</span></span>&#123;  <br><span class="hljs-type">int</span> minx, miny, maxx, maxy;  <br><span class="hljs-keyword">if</span> (pi-&gt;x &gt; pj-&gt;x)&#123;  <br>    minx = pj-&gt;x;  <br>    mxx = pi-&gt;x;   <br>&#125;  <br><span class="hljs-keyword">else</span>&#123;  <br>    minx = pi-&gt;x;  <br>    maxx = pj-&gt;x;  <br>&#125;  <br>  <br><span class="hljs-keyword">if</span> (pi-&gt;y &gt; pj-&gt;y)&#123;  <br>    miny = pj-&gt;y;  <br>    maxy = pi-&gt;y;   <br>&#125;  <br><span class="hljs-keyword">else</span>&#123;  <br>    miny = pi-&gt;y;  <br>    maxy = pj-&gt;y;  <br>&#125;  <br>  <br><span class="hljs-keyword">if</span> (minx &lt;= pk-&gt;x &amp;&amp; pk-&gt;x &lt;= maxx &amp;&amp; miny &lt;= pk-&gt;y &amp;&amp; pk-&gt;y &lt;= maxy)  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;  <br><span class="hljs-keyword">else</span>  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">segmentIntersect</span><span class="hljs-params">(point* p1, point* p2, point* p3, point* p4)</span></span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">int</span> d1 = <span class="hljs-built_in">direction</span>(p3, p4, p1);  <br>    <span class="hljs-type">int</span> d2 = <span class="hljs-built_in">direction</span>(p3, p4, p2);  <br>    <span class="hljs-type">int</span> d3 = <span class="hljs-built_in">direction</span>(p1, p2, p3);  <br>    <span class="hljs-type">int</span> d4 = <span class="hljs-built_in">direction</span>(p1, p2, p4);  <br>    <span class="hljs-keyword">if</span> (d1 * d2 &lt; <span class="hljs-number">0</span> &amp;&amp; d3 * d4 &lt; <span class="hljs-number">0</span>)  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;  <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!d1 &amp;&amp; <span class="hljs-built_in">onSegment</span>(p3, p4, p1))  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;  <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!d2 &amp;&amp; <span class="hljs-built_in">onSegment</span>(p3, p4, p2))  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;  <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!d3 &amp;&amp; <span class="hljs-built_in">onSegment</span>(p1, p2, p3))  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;  <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!d4 &amp;&amp; <span class="hljs-built_in">onSegment</span>(p1, p2, p4))  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;  <br>    <span class="hljs-keyword">else</span>  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+<p>实际上，如果想改进上述算法，还可以在跨立试验前加一步，就是先做快速排斥试验。那就是，先分别判断以两条线段为对角线的矩形是否相交，如果不相交，则两个线段肯定不相交。</p>
+<h2 id="计算交点"><a href="#计算交点" class="headerlink" title="计算交点"></a>计算交点</h2><p>设一条线段为$L_0&#x3D;P_1P_2$, 另一条线段或直线为$L_1&#x3D;Q_1Q_2$, 要计算的就是$L_0$和$L_1$的交点。<br><strong>1、</strong>首先判断$L_0$和$L_1$是否相交(方法已在前文讨论过), 如果不相交则没有交点, 否则说明$L_0$和$L_1$一定有交点, 下面就将$L_0$和$L_1$都看作直线来考虑.</p>
+<p><strong>2、</strong>如果$P_1$和$P_2$横坐标相同, 即$L_0$平行于Y轴 </p>
+<ul>
+<li>若$L_1$也平行于Y轴 <ul>
+<li>若$P_1$的纵坐标和$Q_1$的纵坐标相同, 说明$L_0$和$L_1$共线, 假如$L_1$是直线的话他们有无穷的交点, 假如$L_1$是线段的话可用”计算两条共线线段的交点”的算法求他们的交点(该方法在前文已讨论过);</li>
+<li>否则说明$L_0$和$L_1$平行, 他们没有交点;</li>
+</ul>
+</li>
+<li>若$L_1$不平行于Y轴, 则交点横坐标为$P_1$的横坐标, 代入到$L_1$的直线方程中可以计算出交点纵坐标;</li>
+</ul>
+<p><strong>3、</strong>如果$P_1$和$P_2$横坐标不同, 但是$Q_1$和$Q_2$横坐标相同, 即$L_1$平行于Y轴, 则交点横坐标为$Q_1$的横坐标, 代入到$L_0$的直线方程中可以计算出交点纵坐标;</p>
+<p><strong>4、</strong>如果$P_1$和$P_2$纵坐标相同, 即$L_0$平行于X轴</p>
+<ul>
+<li>若$L_1$也平行于X轴,<ul>
+<li>若$P_1$的横坐标和$Q_1$的横坐标相同, 说明$L_0$和$L_1$共线, 假如$L_1$是直线的话他们有无穷的交点, 假如$L_1$是线段的话可用”计算两条共线线段的交点”的算法求他们的交点(该方法在前文已讨论过);</li>
+<li>否则说明$L_0$和$L_1$平行, 他们没有交点;</li>
+</ul>
+</li>
+<li>若$L_1$不平行于X轴, 则交点纵坐标为$P_1$的纵坐标, 代入到$L_1$的直线方程中可以计算出交点横坐标;</li>
+</ul>
+<p><strong>5、</strong>如果$P_1$和$P_2$纵坐标不同, 但是$Q_1$和$Q_2$纵坐标相同, 即$L_1$平行于X轴, 则交点纵坐标为$Q_1$的纵坐标, 代入到$L_0$的直线方程中可以计算出交点横坐标;</p>
+<p><strong>6、</strong>剩下的情况就是$L_1$和$L_0$的斜率均存在且不为0的情况 </p>
+<ul>
+<li>计算出$L_0$的斜率K0, $L_1$的斜率$k_1$;</li>
+<li>如果$k_1$ &#x3D; $k_2$ <ul>
+<li>如果$Q_1$在$L_0$上, 则说明$L_0$和$L_1$共线, 假如$L_1$是直线的话有无穷交点, 假如$L_1$是线段的话可用”计算两条共线线段的交点”的算法求他们的交点(该方法在前文已讨论过);</li>
+<li>如果$Q_1$不在$L_0$上, 则说明$L_0$和$L_1$平行, 他们没有交点.</li>
+</ul>
+</li>
+<li>联立两直线的方程组可以解出交点来</li>
+</ul>
+<p>这个算法并不复杂, 但是要分情况讨论清楚, 尤其是当两条线段共线的情况需要单独考虑, 所以在前文将求两条共线线段的算法单独写出来. 另外, 一开始就先利用矢量叉乘判断线段与线段(或直线)是否相交, 如果结果是相交, 那么在后面就可以将线段全部看作直线来考虑. 需要注意的是, 我们可以将直线或线段方程改写为$$ax+by+c&#x3D;0$$这样一来上述过程的部分步骤可以合并, 缩短了代码长度, 但是由于先要求出参数, 这种算法将花费更多的时间.</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/02/19/Opencv%E7%90%86%E8%A7%A3Mat/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv理解Mat与基本操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2016/08/06/Hexo%E6%9C%80%E5%B8%B8%E7%94%A8%E7%9A%84%E5%87%A0%E4%B8%AA%E5%91%BD%E4%BB%A4/">
+                        <span class="hidden-mobile">Hexo最常用的几个命令</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

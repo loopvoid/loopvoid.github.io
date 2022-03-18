@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Jieba-Github 特点 支持三种分词模式：   精确模式，试图将句子最精确地切开，适合文本分析；  全模式，把句子中所有的可以成词的词语都扫描出来, 速度非常快，但是不能解决歧义；  搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词。    支持繁体分词  支持自定义词典   安装Python 2.x 下的安装全自动安装 ：easy_install jie">
+<meta property="og:type" content="article">
+<meta property="og:title" content="结巴Jieba分词">
+<meta property="og:url" content="http://blog.home.io/2017/03/11/%E7%BB%93%E5%B7%B4Jieba%E5%88%86%E8%AF%8D/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Jieba-Github 特点 支持三种分词模式：   精确模式，试图将句子最精确地切开，适合文本分析；  全模式，把句子中所有的可以成词的词语都扫描出来, 速度非常快，但是不能解决歧义；  搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词。    支持繁体分词  支持自定义词典   安装Python 2.x 下的安装全自动安装 ：easy_install jie">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p1.qhimg.com/bdm/216_133_0/t01de7d1c8e4c7c398d.jpg">
+<meta property="article:published_time" content="2017-03-11T13:38:52.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:07:34.041Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="分词">
+<meta property="article:tag" content="TTS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p1.qhimg.com/bdm/216_133_0/t01de7d1c8e4c7c398d.jpg">
+  
+  
+  <title>结巴Jieba分词 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="结巴Jieba分词">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-03-11 21:38" pubdate>
+        2017年3月11日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.5k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      46 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">结巴Jieba分词</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="https://github.com/fxsjy/jieba">Jieba-Github</a></p>
+<h1 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h1><ul>
+<li><p>支持三种分词模式：</p>
+<blockquote>
+<ul>
+<li>精确模式，试图将句子最精确地切开，适合文本分析； </li>
+<li>全模式，把句子中所有的可以成词的词语都扫描出来, 速度非常快，但是不能解决歧义； </li>
+<li>搜索引擎模式，在精确模式的基础上，对长词再次切分，提高召回率，适合用于搜索引擎分词。</li>
+</ul>
+</blockquote>
+</li>
+<li><p>支持繁体分词</p>
+</li>
+<li><p>支持自定义词典</p>
+</li>
+</ul>
+<h1 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h1><h2 id="Python-2-x-下的安装"><a href="#Python-2-x-下的安装" class="headerlink" title="Python 2.x 下的安装"></a>Python 2.x 下的安装</h2><p>全自动安装 ：easy_install jieba 或者 pip install jieba<br>半自动安装 ：先下载<a target="_blank" rel="noopener" href="http://pypi.python.org/pypi/jieba/">http://pypi.python.org/pypi/jieba/</a> ，解压后运行python setup.py install<br>手动安装 ：将jieba目录放置于当前目录或者site-packages目录<br>通过<strong>import jieba</strong>来引用</p>
+<h2 id="Python-3-x-下的安装"><a href="#Python-3-x-下的安装" class="headerlink" title="Python 3.x 下的安装"></a>Python 3.x 下的安装</h2><p>目前master分支是只支持Python2.x 的<br><a target="_blank" rel="noopener" href="https://github.com/fxsjy/jieba/tree/jieba3k">Python3.x</a>版本的分支也已经基本可用.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></div></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> https://github.com/fxsjy/jieba.git<br>git checkout jieba3k<br>python setup.py install<br>​````<br><span class="hljs-comment"># 算法实现：</span><br>基于Trie树结构实现高效的词图扫描，生成句子中汉字所有可能成词情况所构成的有向无环图（DAG) <br>采用了动态规划查找最大概率路径, 找出基于词频的最大切分组合 <br>对于未登录词，采用了基于汉字成词能力的HMM模型，使用了Viterbi算法<br><br><span class="hljs-comment"># 功能</span><br>jieba具有四大功能，**分词**，**添加自定义词典**，**关键词提取**，**词性标注**,**并行分词**。<br><span class="hljs-comment">## 分词</span><br>jieba.cut方法接受两个输入参数:<br>&gt; * 第一个参数为需要分词的字符串 <br>&gt; * cut_all参数用来控制是否采用全模式 <br>jieba.cut_for_search方法接受一个参数：需要分词的字符串,该方法适合用于搜索引擎构建倒排索引的分词，粒度比较细 <br>注意：待分词的字符串可以是gbk字符串、utf-8字符串或者unicode <br>jieba.cut以及jieba.cut_for_search返回的结构都是一个可迭代的generator，可以使用<span class="hljs-keyword">for</span>循环来获得分词后得到的每一个词语(unicode)，也可以用list(jieba.cut(...))转化为list <br><br>代码示例( 分词 )<br>​```python<br><span class="hljs-comment">#encoding=utf-8</span><br>import jieba<br>seg_list = jieba.cut(<span class="hljs-string">&quot;我来到北京清华大学&quot;</span>, cut_all=True)<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Full Mode:&quot;</span>, <span class="hljs-string">&quot;/ &quot;</span>.<span class="hljs-built_in">join</span>(seg_list)  <span class="hljs-comment"># 全模式</span><br>seg_list = jieba.cut(<span class="hljs-string">&quot;我来到北京清华大学&quot;</span>, cut_all=False)<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;Default Mode:&quot;</span>, <span class="hljs-string">&quot;/ &quot;</span>.<span class="hljs-built_in">join</span>(seg_list)  <span class="hljs-comment"># 精确模式</span><br>seg_list = jieba.cut(<span class="hljs-string">&quot;他来到了网易杭研大厦&quot;</span>)  <span class="hljs-comment"># 默认是精确模式</span><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;, &quot;</span>.<span class="hljs-built_in">join</span>(seg_list)<br>seg_list = jieba.cut_for_search(<span class="hljs-string">&quot;小明硕士毕业于中国科学院计算所，后在日本京都大学深造&quot;</span>)  <span class="hljs-comment"># 搜索引擎模式</span><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;, &quot;</span>.<span class="hljs-built_in">join</span>(seg_list)<br></code></pre></td></tr></table></figure>
+
+<p>Output: </p>
+<ul>
+<li>全模式: 我&#x2F; 来到&#x2F; 北京&#x2F; 清华&#x2F; 清华大学&#x2F; 华大&#x2F; 大学 </li>
+<li>精确模式: 我&#x2F; 来到&#x2F; 北京&#x2F; 清华大学 </li>
+<li>新词识别：他, 来到, 了, 网易, 杭研, 大厦    (此处，“杭研”并没有在词典中，但是也被Viterbi算法识别出来了) </li>
+<li>搜索引擎模式： 小明, 硕士, 毕业, 于, 中国, 科学, 学院, 科学院, 中国科学院, 计算, 计算所, 后, 在, 日本, 京都, 大学, 日本京都大学, 深造</li>
+</ul>
+<h2 id="添加自定义词典"><a href="#添加自定义词典" class="headerlink" title="添加自定义词典"></a>添加自定义词典</h2><p>开发者可以指定自己自定义的词典，以便包含jieba词库里没有的词。虽然jieba有新词识别能力，但是自行添加新词可以保证更高的正确率 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">jieba.load_userdict(file_name) <span class="hljs-comment"># file_name为自定义词典的路径</span><br></code></pre></td></tr></table></figure>
+
+<p>词典格式和dict.txt一样，一个词占一行；每一行分三部分，一部分为词语，另一部分为词频，最后为词性（可省略），用空格隔开<br><strong>范例</strong>：<br>自定义词典：</p>
+<blockquote>
+<p>云计算 5<br>李小福 2 nr<br>创新办 3 i<br>easy_install 3 eng<br>好用 300<br>韩玉赏鉴 3 nz</p>
+</blockquote>
+<p><strong>用法示例</strong>：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#encoding=utf-8</span><br><span class="hljs-keyword">import</span> sys<br>sys.path.append(<span class="hljs-string">&quot;../&quot;</span>)<br><span class="hljs-keyword">import</span> jieba<br>jieba.load_userdict(<span class="hljs-string">&quot;userdict.txt&quot;</span>)<br><span class="hljs-keyword">import</span> jieba.posseg <span class="hljs-keyword">as</span> pseg<br><br>test_sent = <span class="hljs-string">&quot;李小福是创新办主任也是云计算方面的专家;&quot;</span><br>test_sent += <span class="hljs-string">&quot;例如我输入一个带“韩玉赏鉴”的标题，在自定义词库中也增加了此词为N类型&quot;</span><br>words = jieba.cut(test_sent)<br><span class="hljs-keyword">for</span> w <span class="hljs-keyword">in</span> words:<br><span class="hljs-built_in">print</span> w<br><br>result = pseg.cut(test_sent)<br><br><span class="hljs-keyword">for</span> w <span class="hljs-keyword">in</span> result:<br><span class="hljs-built_in">print</span> w.word, <span class="hljs-string">&quot;/&quot;</span>, w.flag, <span class="hljs-string">&quot;, &quot;</span>,<br><br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;\n========&quot;</span><br><br>terms = jieba.cut(<span class="hljs-string">&#x27;easy_install is great&#x27;</span>)<br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> terms:<br>    <span class="hljs-built_in">print</span> t<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;-------------------------&#x27;</span><br>terms = jieba.cut(<span class="hljs-string">&#x27;python 的正则表达式是好用的&#x27;</span>)<br><span class="hljs-keyword">for</span> t <span class="hljs-keyword">in</span> terms:<br>    <span class="hljs-built_in">print</span> t<br></code></pre></td></tr></table></figure>
+
+<p>之前： 李小福 &#x2F; 是 &#x2F; 创新 &#x2F; 办 &#x2F; 主任 &#x2F; 也 &#x2F; 是 &#x2F; 云 &#x2F; 计算 &#x2F; 方面 &#x2F; 的 &#x2F; 专家 &#x2F;<br>加载自定义词库后： 李小福 &#x2F; 是 &#x2F; 创新办 &#x2F; 主任 &#x2F; 也 &#x2F; 是 &#x2F; 云计算 &#x2F; 方面 &#x2F; 的 &#x2F; 专家 &#x2F;<br><strong><a target="_blank" rel="noopener" href="https://github.com/fxsjy/jieba/issues/14">通过用户自定义词典来增强歧义纠错能力</a></strong></p>
+<h2 id="关键词提取"><a href="#关键词提取" class="headerlink" title="关键词提取"></a>关键词提取</h2><p>jieba.analyse.extract_tags(sentence,topK) #需要先import jieba.analyse<br>说明</p>
+<p>setence为待提取的文本</p>
+<p>topK为返回几个TF&#x2F;IDF权重最大的关键词，默认值为20<br>代码示例 （关键词提取）</p>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs vim">import sys<br>sys.path.<span class="hljs-keyword">append</span>(<span class="hljs-string">&#x27;../&#x27;</span>)<br><br>import jieba<br>import jieba.analyse<br>from optparse import OptionParser<br><br>USAGE = <span class="hljs-string">&quot;usage: python extract_tags.py [file name] -k [top k]&quot;</span><br><br>parser = OptionParser(USAGE)<br>parser.add_option(<span class="hljs-string">&quot;-k&quot;</span>, dest=<span class="hljs-string">&quot;topK&quot;</span>)<br><span class="hljs-keyword">opt</span>, <span class="hljs-keyword">args</span> = parser.parse_args()<br><br><br><span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(<span class="hljs-keyword">args</span>) &lt; <span class="hljs-number">1</span>:<br>    <span class="hljs-keyword">print</span> USAGE<br>    sys.<span class="hljs-keyword">exit</span>(<span class="hljs-number">1</span>)<br><br>file_name = <span class="hljs-keyword">args</span>[<span class="hljs-number">0</span>]<br><br><span class="hljs-keyword">if</span> <span class="hljs-keyword">opt</span>.topK <span class="hljs-keyword">is</span> None:<br>    topK = <span class="hljs-number">10</span><br><span class="hljs-keyword">else</span>:<br>    topK = <span class="hljs-keyword">int</span>(<span class="hljs-keyword">opt</span>.topK)<br><br>content = <span class="hljs-keyword">open</span>(file_name, <span class="hljs-string">&#x27;rb&#x27;</span>).<span class="hljs-keyword">read</span>()<br><br><span class="hljs-keyword">tags</span> = jieba.analyse.extract_tags(content, topK=topK)<br><br><span class="hljs-keyword">print</span> <span class="hljs-string">&quot;,&quot;</span>.<span class="hljs-keyword">join</span>(<span class="hljs-keyword">tags</span>)<br></code></pre></td></tr></table></figure>
+
+<h2 id="词性标注"><a href="#词性标注" class="headerlink" title="词性标注"></a>词性标注</h2><p>标注句子分词后每个词的词性，采用和ictclas兼容的标记法<br>用法示例</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">import</span> jieba.posseg <span class="hljs-keyword">as</span> pseg<br><span class="hljs-meta">&gt;&gt;&gt; </span>words = pseg.cut(<span class="hljs-string">&quot;我爱北京天安门&quot;</span>)<br><span class="hljs-meta">&gt;&gt;&gt; </span><span class="hljs-keyword">for</span> w <span class="hljs-keyword">in</span> words:<br><span class="hljs-meta">... </span>   <span class="hljs-built_in">print</span> w.word, w.flag<br>...<br>我 r<br>爱 v<br>北京 ns<br>天安门 ns<br></code></pre></td></tr></table></figure>
+
+<h2 id="并行分词"><a href="#并行分词" class="headerlink" title="并行分词"></a>并行分词</h2><p>原理：将目标文本按行分隔后，把各行文本分配到多个python进程并行分词，然后归并结果，从而获得分词速度的可观提升<br>基于python自带的multiprocessing模块，目前暂不支持windows<br>用法：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">jieba.enable_parallel(<span class="hljs-number">4</span>) <span class="hljs-comment"># 开启并行分词模式，参数为并行进程数</span><br>jieba.disable_parallel() <span class="hljs-comment"># 关闭并行分词模式</span><br></code></pre></td></tr></table></figure>
+
+<p>例子：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> urllib2<br><span class="hljs-keyword">import</span> sys,time<br><span class="hljs-keyword">import</span> sys<br>sys.path.append(<span class="hljs-string">&quot;../../&quot;</span>)<br><span class="hljs-keyword">import</span> jieba<br>jieba.enable_parallel(<span class="hljs-number">4</span>)<br><br>url = sys.argv[<span class="hljs-number">1</span>]<br>content = <span class="hljs-built_in">open</span>(url,<span class="hljs-string">&quot;rb&quot;</span>).read()<br>t1 = time.time()<br>words = <span class="hljs-built_in">list</span>(jieba.cut(content))<br><br>t2 = time.time()<br>tm_cost = t2-t1<br><br>log_f = <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;1.log&quot;</span>,<span class="hljs-string">&quot;wb&quot;</span>)<br><span class="hljs-keyword">for</span> w <span class="hljs-keyword">in</span> words:<br><span class="hljs-built_in">print</span> &gt;&gt; log_f, w.encode(<span class="hljs-string">&quot;utf-8&quot;</span>), <span class="hljs-string">&quot;/&quot;</span> ,<br><span class="hljs-built_in">print</span> <span class="hljs-string">&#x27;speed&#x27;</span> , <span class="hljs-built_in">len</span>(content)/tm_cost, <span class="hljs-string">&quot; bytes/second&quot;</span><br></code></pre></td></tr></table></figure>
+
+<p>实验结果：在4核3.4GHz Linux机器上，对金庸全集进行精确分词，获得了1MB&#x2F;s的速度，是单进程版的3.3倍。<br>其他词典</p>
+<p>占用内存较小的词典文件 <a target="_blank" rel="noopener" href="https://github.com/fxsjy/jieba/raw/master/extra_dict/dict.txt.small">https://github.com/fxsjy/jieba/raw/master/extra_dict&#x2F;dict.txt.small</a><br>支持繁体分词更好的词典文件 <a target="_blank" rel="noopener" href="https://github.com/fxsjy/jieba/raw/master/extra_dict/dict.txt.big">https://github.com/fxsjy/jieba/raw/master/extra_dict&#x2F;dict.txt.big</a><br>下载你所需要的词典，然后覆盖jieba&#x2F;dict.txt 即可或者用jieba.set_dictionary(‘data&#x2F;dict.txt.big’)</p>
+<h1 id="模块初始化机制的改变-lazy-load-（从0-28版本开始）"><a href="#模块初始化机制的改变-lazy-load-（从0-28版本开始）" class="headerlink" title="模块初始化机制的改变:lazy load （从0.28版本开始）"></a>模块初始化机制的改变:lazy load （从0.28版本开始）</h1><p>jieba采用延迟加载，”import jieba”不会立即触发词典的加载，一旦有必要才开始加载词典构建trie。如果你想手工初始jieba，也可以手动初始化。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> jieba<br>jieba.initialize()  <span class="hljs-comment"># 手动初始化（可选）在0.28之前的版本是不能指定主词典的路径的，有了延迟加载机制后，你可以改变主词典的路径: </span><br>jieba.set_dictionary(<span class="hljs-string">&#x27;data/dict.txt.big&#x27;</span>)<br></code></pre></td></tr></table></figure>
+
+<p>例子： </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#encoding=utf-8</span><br><span class="hljs-keyword">import</span> sys<br>sys.path.append(<span class="hljs-string">&quot;../&quot;</span>)<br><span class="hljs-keyword">import</span> jieba<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">cuttest</span>(<span class="hljs-params">test_sent</span>):<br>result = jieba.cut(test_sent)<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot; &quot;</span>.join(result)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">testcase</span>():<br>cuttest(<span class="hljs-string">&quot;这是一个伸手不见五指的黑夜。我叫孙悟空，我爱北京，我爱Python和C++。&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;我不喜欢日本和服。&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;雷猴回归人间。&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;工信处女干事每月经过下属科室都要亲口交代24口交换机等技术性器件的安装工作&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;我需要廉租房&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;永和服装饰品有限公司&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;我爱北京天安门&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;abc&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;隐马尔可夫&quot;</span>)<br>cuttest(<span class="hljs-string">&quot;雷猴是个好网站&quot;</span>)<br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>testcase()<br>jieba.set_dictionary(<span class="hljs-string">&quot;foobar.txt&quot;</span>)<br><span class="hljs-built_in">print</span> <span class="hljs-string">&quot;================================&quot;</span><br>testcase()<br><br></code></pre></td></tr></table></figure>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86/">自然语言处理</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%88%86%E8%AF%8D/">分词</a>
+                    
+                      <a class="hover-with-bg" href="/tags/TTS/">TTS</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/03/11/Ubuntu16-04%E5%AE%89%E8%A3%85L2TP/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Ubuntu16-04安装L2TP</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/">
+                        <span class="hidden-mobile">逻辑回归模型和ML入门</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

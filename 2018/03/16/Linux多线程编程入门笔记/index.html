@@ -1,0 +1,586 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="最基础，进程同时创建5个线程，各自调用同一个函数123456789101112131415161718192021222324252627#include &lt;iostream&gt;  #include &lt;pthread.h&gt; &#x2F;&#x2F;多线程相关操作头文件，可移植众多平台    using namespace std;    #define NUM_THREADS 5 &#x2F;&#x2F;线程数">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux多线程编程入门笔记">
+<meta property="og:url" content="http://blog.home.io/2018/03/16/Linux%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="最基础，进程同时创建5个线程，各自调用同一个函数123456789101112131415161718192021222324252627#include &lt;iostream&gt;  #include &lt;pthread.h&gt; &#x2F;&#x2F;多线程相关操作头文件，可移植众多平台    using namespace std;    #define NUM_THREADS 5 &#x2F;&#x2F;线程数">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p9.qhimg.com/bdm/216_133_0/t01f48bcb61b61e9b94.jpg">
+<meta property="article:published_time" content="2018-03-16T14:27:18.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:10:00.027Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Cpp">
+<meta property="article:tag" content="Pthread">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p9.qhimg.com/bdm/216_133_0/t01f48bcb61b61e9b94.jpg">
+  
+  
+  <title>Linux多线程编程入门笔记 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Linux多线程编程入门笔记">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-03-16 22:27" pubdate>
+        2018年3月16日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      12k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      97 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux多线程编程入门笔记</h1>
+            
+            <div class="markdown-body">
+              <h2 id="最基础，进程同时创建5个线程，各自调用同一个函数"><a href="#最基础，进程同时创建5个线程，各自调用同一个函数" class="headerlink" title="最基础，进程同时创建5个线程，各自调用同一个函数"></a>最基础，进程同时创建5个线程，各自调用同一个函数</h2><figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span> <span class="hljs-comment">//多线程相关操作头文件，可移植众多平台  </span></span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_THREADS 5 <span class="hljs-comment">//线程数  </span></span><br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;hello...&quot;</span> &lt;&lt; endl;  <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125; <span class="hljs-comment">//函数返回的是函数指针，便于后面作为参数  </span><br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> tids[NUM_THREADS]; <span class="hljs-comment">//线程id  </span><br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tids[i], <span class="hljs-literal">NULL</span>, say_hello, <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//参数：创建的线程id，线程参数，线程运行函数的起始地址，运行函数的参数  </span><br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> ) <span class="hljs-comment">//创建线程成功返回0  </span><br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;  <br>    <span class="hljs-built_in">pthread_exit</span>( <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//等待各个线程退出后，进程才结束，否则进程强制结束，线程处于未终止的状态 </span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; <br>&#125; <br></code></pre></td></tr></table></figure>
+
+<p>输入命令：<code>g++ pthread_chap1.cpp -o pthread_chap1 -lpthread</code></p>
+<p>注意:</p>
+<blockquote>
+<ul>
+<li>此为c++程序，故用g++来编译生成可执行文件，并且要调用处理多线程操作相关的静态链接库文件pthread。</li>
+<li>-lpthread 编译选项到位置可任意，如g++ -o pthread_chap1 pthread_chap1.cpp -lpthread</li>
+<li>​</li>
+</ul>
+</blockquote>
+<p>测试结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs bash">jack@jack:~/coding/muti_thread$ ./pthread_chap1 <br>hello...hello...  <br>hello...  <br>hello...  <br>  <br>hello... <br><br><br>jack@jack:~/coding/muti_thread$ ./pthread_chap1 <br>hello...hello...hello...  <br>hello...  <br>  <br>hello... <br></code></pre></td></tr></table></figure>
+
+<p>可知，两次运行的结果会有差别，这不是多线程的特点吧？这显然没有同步？还有待进一步探索…<br>多线程的运行是混乱的，混乱就是正常？</p>
+<h2 id="线程调用到函数在一个类中，那必须将该函数声明为静态函数函数"><a href="#线程调用到函数在一个类中，那必须将该函数声明为静态函数函数" class="headerlink" title="线程调用到函数在一个类中，那必须将该函数声明为静态函数函数"></a>线程调用到函数在一个类中，那必须将该函数声明为静态函数函数</h2><p>因为静态成员函数属于静态全局区，线程可以共享这个区域，故可以各自调用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_THREADS 5  </span><br>  <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Hello</span>  <br>&#123;  <br><span class="hljs-keyword">public</span>:  <br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-title">say_hello</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function">    </span>&#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;hello...&quot;</span> &lt;&lt; endl;  <br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>    &#125;  <br>&#125;;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> tids[NUM_THREADS];  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tids[i], <span class="hljs-literal">NULL</span>, Hello::say_hello, <span class="hljs-literal">NULL</span> );  <br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;  <br>    <span class="hljs-built_in">pthread_exit</span>( <span class="hljs-literal">NULL</span> );  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>测试结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp">jack@jack:~/coding/muti_thread$ ./pthread_chap2<br>hello...hello...hello...  <br>hello...  <br>hello... <br><br>jack@jack:~/coding/muti_thread$ ./pthread_chap2<br>hello...<br>hello...<br>hello...  <br>hello...  <br>hello... <br></code></pre></td></tr></table></figure>
+
+<h2 id="如何在线程调用函数时传入参数呢？"><a href="#如何在线程调用函数时传入参数呢？" class="headerlink" title="如何在线程调用函数时传入参数呢？"></a>如何在线程调用函数时传入参数呢？</h2><p>先看下面修改的代码，传入线程编号作为参数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span> <span class="hljs-comment">//多线程相关操作头文件，可移植众多平台  </span></span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_THREADS 5 <span class="hljs-comment">//线程数  </span></span><br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">int</span> i = *( (<span class="hljs-type">int</span>*)args ); <span class="hljs-comment">//对传入的参数进行强制类型转换，由无类型指针转变为整形指针，再用*读取其指向到内容  </span><br>    cout &lt;&lt; <span class="hljs-string">&quot;hello in &quot;</span> &lt;&lt; i &lt;&lt;  endl; <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>; <br>&#125; <span class="hljs-comment">//函数返回的是函数指针，便于后面作为参数  </span><br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> tids[NUM_THREADS]; <span class="hljs-comment">//线程id  </span><br>    cout &lt;&lt; <span class="hljs-string">&quot;hello in main..&quot;</span> &lt;&lt; endl;  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tids[i], <span class="hljs-literal">NULL</span>, say_hello, (<span class="hljs-type">void</span>*)&amp;i ); <span class="hljs-comment">//传入到参数必须强转为void*类型，即无类型指针，&amp;i表示取i的地址，即指向i的指针  </span><br>        cout &lt;&lt; <span class="hljs-string">&quot;Current pthread id = &quot;</span> &lt;&lt; tids[i] &lt;&lt; endl; <span class="hljs-comment">//用tids数组打印创建的进程id信息  </span><br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> ) <span class="hljs-comment">//创建线程成功返回0  </span><br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;  <br>    <span class="hljs-built_in">pthread_exit</span>( <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//等待各个线程退出后，进程才结束，否则进程强制结束，线程处于未终止的状态 </span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>测试结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">jack@jack:~/coding/muti_thread$ ./pthread_chap2 <br>hello <span class="hljs-keyword">in</span> main..  <br>Current pthread <span class="hljs-built_in">id</span> = 3078458224  <br>Current pthread <span class="hljs-built_in">id</span> = 3070065520  <br>hello <span class="hljs-keyword">in</span> hello <span class="hljs-keyword">in</span> 2  <br>1  <br>Current pthread <span class="hljs-built_in">id</span> = hello <span class="hljs-keyword">in</span> 2  <br>3061672816  <br>Current pthread <span class="hljs-built_in">id</span> = 3053280112  <br>hello <span class="hljs-keyword">in</span> 4  <br>Current pthread <span class="hljs-built_in">id</span> = hello <span class="hljs-keyword">in</span> 4  <br>3044887408 <br></code></pre></td></tr></table></figure>
+
+<p>显然不是想要的结果，调用顺序很乱，这是为什么呢？<br>这是因为多线程到缘故，主进程还没开始对i赋值，线程已经开始跑了…?<br>修改代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span> <span class="hljs-comment">//多线程相关操作头文件，可移植众多平台  </span></span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_THREADS 5 <span class="hljs-comment">//线程数  </span></span><br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;hello in thread &quot;</span> &lt;&lt; *( (<span class="hljs-type">int</span> *)args ) &lt;&lt;  endl;  <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125; <span class="hljs-comment">//函数返回的是函数指针，便于后面作为参数  </span><br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> tids[NUM_THREADS]; <span class="hljs-comment">//线程id  </span><br>    <span class="hljs-type">int</span> indexes[NUM_THREADS]; <span class="hljs-comment">//用来保存i的值避免被修改  </span><br>  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        indexes[i] = i;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tids[i], <span class="hljs-literal">NULL</span>, say_hello, (<span class="hljs-type">void</span>*)&amp;(indexes[i]) );  <br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> ) <span class="hljs-comment">//创建线程成功返回0  </span><br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>        <span class="hljs-built_in">pthread_join</span>( tids[i], <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//pthread_join用来等待一个线程的结束，是一个线程阻塞的函数 </span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>; <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>测试结果：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">jack@jack:~/coding/muti_thread$ ./pthread_chap3 <br>hello <span class="hljs-keyword">in</span> thread hello <span class="hljs-keyword">in</span> thread hello <span class="hljs-keyword">in</span> thread hello <span class="hljs-keyword">in</span> thread hello <span class="hljs-keyword">in</span> thread 30124  <br></code></pre></td></tr></table></figure>
+
+<p>这是正常的吗？感觉还是有问题…待续</p>
+<p>代码中如果没有pthread_join主线程会很快结束从而使整个进程结束，从而使创建的线程没有机会开始执行就结束了。加入pthread_join后，主线程会一直等待直到等待的线程结束自己才结束，使创建的线程有机会执行。</p>
+<h2 id="线程创建时属性参数的设置pthread-attr-t及join功能的使用"><a href="#线程创建时属性参数的设置pthread-attr-t及join功能的使用" class="headerlink" title="线程创建时属性参数的设置pthread_attr_t及join功能的使用"></a>线程创建时属性参数的设置pthread_attr_t及join功能的使用</h2><p>线程的属性由结构体pthread_attr_t进行管理。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span><br>&#123;<br>    <span class="hljs-type">int</span>                           detachstate;     线程的分离状态<br>    <span class="hljs-type">int</span>                          schedpolicy;   线程调度策略<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sched_param</span>      schedparam;   线程的调度参数<br>    <span class="hljs-type">int</span> inheritsched; 线程的继承性 <br>    <span class="hljs-type">int</span> scope; 线程的作用域 <br>    <span class="hljs-type">size_t</span> guardsize; 线程栈末尾的警戒缓冲区大小 <br>    <span class="hljs-type">int</span> stackaddr_set; <span class="hljs-type">void</span> * stackaddr; 线程栈的位置 <br>    <span class="hljs-type">size_t</span> stacksize; 线程栈的大小<br>&#125;<span class="hljs-type">pthread_attr_t</span>;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_THREADS 5  </span><br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;hello in thread &quot;</span> &lt;&lt; *(( <span class="hljs-type">int</span> * )args) &lt;&lt; endl;  <br>    <span class="hljs-type">int</span> status = <span class="hljs-number">10</span> + *(( <span class="hljs-type">int</span> * )args); <span class="hljs-comment">//线程退出时添加退出的信息，status供主程序提取该线程的结束信息  </span><br>    <span class="hljs-built_in">pthread_exit</span>( ( <span class="hljs-type">void</span>* )status ); <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;  <br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> tids[NUM_THREADS];  <br>    <span class="hljs-type">int</span> indexes[NUM_THREADS];  <br>      <br>    <span class="hljs-type">pthread_attr_t</span> attr; <span class="hljs-comment">//线程属性结构体，创建线程时加入的参数  </span><br>    <span class="hljs-built_in">pthread_attr_init</span>( &amp;attr ); <span class="hljs-comment">//初始化  </span><br>    <span class="hljs-built_in">pthread_attr_setdetachstate</span>( &amp;attr, PTHREAD_CREATE_JOINABLE ); <span class="hljs-comment">//是设置你想要指定线程属性参数，这个参数表明这个线程是可以join连接的，join功能表示主程序可以等线程结束后再去做某事，实现了主程序和线程同步功能  </span><br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        indexes[i] = i;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tids[i], &amp;attr, say_hello, ( <span class="hljs-type">void</span>* )&amp;( indexes[i] ) );  <br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;   <br>    <span class="hljs-built_in">pthread_attr_destroy</span>( &amp;attr ); <span class="hljs-comment">//释放内存   </span><br>    <span class="hljs-type">void</span> *status;  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_join</span>( tids[i], &amp;status ); <span class="hljs-comment">//主程序join每个线程后取得每个线程的退出信息status  </span><br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_join error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>        <span class="hljs-keyword">else</span>  <br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_join get status:&quot;</span> &lt;&lt; (<span class="hljs-type">long</span>)status &lt;&lt; endl;  <br>        &#125;  <br>    &#125;  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>测试结果：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp">jack@jack:~/coding/muti_thread$ ./pthread_chap4  <br>hello in thread hello in thread hello in thread hello in thread <span class="hljs-number">0</span>hello in thread <span class="hljs-number">321</span>  <br>  <br><span class="hljs-number">4</span>  <br>pthread_join get status:<span class="hljs-number">10</span>  <br>pthread_join get status:<span class="hljs-number">11</span>  <br>pthread_join get status:<span class="hljs-number">12</span>  <br>pthread_join get status:<span class="hljs-number">13</span>  <br>pthread_join get status:<span class="hljs-number">14</span>  <br></code></pre></td></tr></table></figure>
+
+<h2 id="互斥锁的实现"><a href="#互斥锁的实现" class="headerlink" title="互斥锁的实现"></a>互斥锁的实现</h2><p>互斥锁是实现线程同步的一种机制，只要在临界区前后对资源加锁就能阻塞其他进程的访问。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_THREADS 5  </span><br>  <br><span class="hljs-type">int</span> sum = <span class="hljs-number">0</span>; <span class="hljs-comment">//定义全局变量，让所有线程同时写，这样就需要锁机制  </span><br><span class="hljs-type">pthread_mutex_t</span> sum_mutex; <span class="hljs-comment">//互斥锁  </span><br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;hello in thread &quot;</span> &lt;&lt; *(( <span class="hljs-type">int</span> * )args) &lt;&lt; endl;  <br>    <span class="hljs-built_in">pthread_mutex_lock</span>( &amp;sum_mutex ); <span class="hljs-comment">//先加锁，再修改sum的值，锁被占用就阻塞，直到拿到锁再修改sum;  </span><br>    cout &lt;&lt; <span class="hljs-string">&quot;before sum is &quot;</span> &lt;&lt; sum &lt;&lt; <span class="hljs-string">&quot; in thread &quot;</span> &lt;&lt; *( ( <span class="hljs-type">int</span>* )args ) &lt;&lt; endl;  <br>    sum += *( ( <span class="hljs-type">int</span>* )args );  <br>    cout &lt;&lt; <span class="hljs-string">&quot;after sum is &quot;</span> &lt;&lt; sum &lt;&lt; <span class="hljs-string">&quot; in thread &quot;</span> &lt;&lt; *( ( <span class="hljs-type">int</span>* )args ) &lt;&lt; endl;  <br>    <span class="hljs-built_in">pthread_mutex_unlock</span>( &amp;sum_mutex ); <span class="hljs-comment">//释放锁，供其他线程使用  </span><br>    <span class="hljs-built_in">pthread_exit</span>( <span class="hljs-number">0</span> ); <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;  <br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> tids[NUM_THREADS];  <br>    <span class="hljs-type">int</span> indexes[NUM_THREADS];  <br>      <br>    <span class="hljs-type">pthread_attr_t</span> attr; <span class="hljs-comment">//线程属性结构体，创建线程时加入的参数  </span><br>    <span class="hljs-built_in">pthread_attr_init</span>( &amp;attr ); <span class="hljs-comment">//初始化  </span><br>    <span class="hljs-built_in">pthread_attr_setdetachstate</span>( &amp;attr, PTHREAD_CREATE_JOINABLE ); <span class="hljs-comment">//是设置你想要指定线程属性参数，这个参数表明这个线程是可以join连接的，join功能表示主程序可以等线程结束后再去做某事，实现了主程序和线程同步功能  </span><br>    <span class="hljs-built_in">pthread_mutex_init</span>( &amp;sum_mutex, <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//对锁进行初始化      </span><br>  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        indexes[i] = i;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tids[i], &amp;attr, say_hello, ( <span class="hljs-type">void</span>* )&amp;( indexes[i] ) ); <span class="hljs-comment">//5个进程同时去修改sum  </span><br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;   <br>    <span class="hljs-built_in">pthread_attr_destroy</span>( &amp;attr ); <span class="hljs-comment">//释放内存   </span><br>    <span class="hljs-type">void</span> *status;  <br>    <span class="hljs-keyword">for</span>( <span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_THREADS; ++i )  <br>    &#123;  <br>        <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_join</span>( tids[i], &amp;status ); <span class="hljs-comment">//主程序join每个线程后取得每个线程的退出信息status  </span><br>        <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>        &#123;  <br>            cout &lt;&lt; <span class="hljs-string">&quot;pthread_join error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>        &#125;  <br>    &#125;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;finally sum is &quot;</span> &lt;&lt; sum &lt;&lt; endl;  <br>    <span class="hljs-built_in">pthread_mutex_destroy</span>( &amp;sum_mutex ); <span class="hljs-comment">//注销锁  </span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>测试结果:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs cpp">jack@jack:~/coding/muti_thread$ ./pthread_chap5 <br>hello in thread hello in thread hello in thread <span class="hljs-number">410</span>  <br>before sum is hello in thread <span class="hljs-number">0</span> in thread <span class="hljs-number">4</span>  <br>after sum is <span class="hljs-number">4</span> in thread <span class="hljs-number">4</span>hello in thread   <br>  <br>  <br><span class="hljs-number">2</span>  <br><span class="hljs-number">3</span>  <br>before sum is <span class="hljs-number">4</span> in thread <span class="hljs-number">1</span>  <br>after sum is <span class="hljs-number">5</span> in thread <span class="hljs-number">1</span>  <br>before sum is <span class="hljs-number">5</span> in thread <span class="hljs-number">0</span>  <br>after sum is <span class="hljs-number">5</span> in thread <span class="hljs-number">0</span>  <br>before sum is <span class="hljs-number">5</span> in thread <span class="hljs-number">2</span>  <br>after sum is <span class="hljs-number">7</span> in thread <span class="hljs-number">2</span>  <br>before sum is <span class="hljs-number">7</span> in thread <span class="hljs-number">3</span>  <br>after sum is <span class="hljs-number">10</span> in thread <span class="hljs-number">3</span>  <br>finally sum is <span class="hljs-number">10</span>  <br></code></pre></td></tr></table></figure>
+
+<p>可知，sum的访问和修改顺序是正常的，这就达到了多线程的目的了，但是线程的运行顺序是混乱的，混乱就是正常？</p>
+<h2 id="信号量的实现"><a href="#信号量的实现" class="headerlink" title="信号量的实现"></a>信号量的实现</h2><p>信号量是线程同步的另一种实现机制，信号量的操作有signal和wait，本例子采用条件信号变量pthread_cond_t tasks_cond;<br>信号量的实现也要给予锁机制。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> BOUNDARY 5  </span><br>  <br><span class="hljs-type">int</span> tasks = <span class="hljs-number">10</span>;  <br><span class="hljs-type">pthread_mutex_t</span> tasks_mutex; <span class="hljs-comment">//互斥锁  </span><br><span class="hljs-type">pthread_cond_t</span> tasks_cond; <span class="hljs-comment">//条件信号变量，处理两个线程间的条件关系，当task&gt;5，hello2处理，反之hello1处理，直到task减为0  </span><br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello2</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> pid = <span class="hljs-built_in">pthread_self</span>(); <span class="hljs-comment">//获取当前线程id  </span><br>    cout &lt;&lt; <span class="hljs-string">&quot;[&quot;</span> &lt;&lt; pid &lt;&lt; <span class="hljs-string">&quot;] hello in thread &quot;</span> &lt;&lt;  *( ( <span class="hljs-type">int</span>* )args ) &lt;&lt; endl;  <br>      <br>    <span class="hljs-type">bool</span> is_signaled = <span class="hljs-literal">false</span>; <span class="hljs-comment">//sign  </span><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)  <br>    &#123;  <br>    <span class="hljs-built_in">pthread_mutex_lock</span>( &amp;tasks_mutex ); <span class="hljs-comment">//加锁  </span><br>    <span class="hljs-keyword">if</span>( tasks &gt; BOUNDARY )  <br>    &#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;[&quot;</span> &lt;&lt; pid &lt;&lt; <span class="hljs-string">&quot;] take task: &quot;</span> &lt;&lt; tasks &lt;&lt; <span class="hljs-string">&quot; in thread &quot;</span> &lt;&lt; *( (<span class="hljs-type">int</span>*)args ) &lt;&lt; endl;  <br>        --tasks; <span class="hljs-comment">//modify  </span><br>    &#125;  <br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>( !is_signaled )  <br>    &#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;[&quot;</span> &lt;&lt; pid &lt;&lt; <span class="hljs-string">&quot;] pthread_cond_signal in thread &quot;</span> &lt;&lt; *( ( <span class="hljs-type">int</span>* )args ) &lt;&lt; endl;  <br>        <span class="hljs-built_in">pthread_cond_signal</span>( &amp;tasks_cond ); <span class="hljs-comment">//signal:向hello1发送信号，表明已经&gt;5  </span><br>        is_signaled = <span class="hljs-literal">true</span>; <span class="hljs-comment">//表明信号已发送，退出此线程  </span><br>    &#125;  <br>    <span class="hljs-built_in">pthread_mutex_unlock</span>( &amp;tasks_mutex ); <span class="hljs-comment">//解锁  </span><br>    <span class="hljs-keyword">if</span>( tasks == <span class="hljs-number">0</span> )  <br>        <span class="hljs-keyword">break</span>;  <br>    &#125;      <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">say_hello1</span><span class="hljs-params">( <span class="hljs-type">void</span>* args )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_t</span> pid = <span class="hljs-built_in">pthread_self</span>(); <span class="hljs-comment">//获取当前线程id  </span><br>    cout &lt;&lt; <span class="hljs-string">&quot;[&quot;</span> &lt;&lt; pid &lt;&lt; <span class="hljs-string">&quot;] hello in thread &quot;</span> &lt;&lt;  *( ( <span class="hljs-type">int</span>* )args ) &lt;&lt; endl;  <br>  <br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)  <br>    &#123;  <br>        <span class="hljs-built_in">pthread_mutex_lock</span>( &amp;tasks_mutex ); <span class="hljs-comment">//加锁  </span><br>        <span class="hljs-keyword">if</span>( tasks &gt; BOUNDARY )  <br>        &#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;[&quot;</span> &lt;&lt; pid &lt;&lt; <span class="hljs-string">&quot;] pthread_cond_signal in thread &quot;</span> &lt;&lt; *( ( <span class="hljs-type">int</span>* )args ) &lt;&lt; endl;  <br>        <span class="hljs-built_in">pthread_cond_wait</span>( &amp;tasks_cond, &amp;tasks_mutex ); <span class="hljs-comment">//wait:等待信号量生效，接收到信号，向hello2发出信号，跳出wait,执行后续   </span><br>        &#125;  <br>        <span class="hljs-keyword">else</span>  <br>        &#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;[&quot;</span> &lt;&lt; pid &lt;&lt; <span class="hljs-string">&quot;] take task: &quot;</span> &lt;&lt; tasks &lt;&lt; <span class="hljs-string">&quot; in thread &quot;</span> &lt;&lt; *( (<span class="hljs-type">int</span>*)args ) &lt;&lt; endl;  <br>            --tasks;  <br>    &#125;  <br>        <span class="hljs-built_in">pthread_mutex_unlock</span>( &amp;tasks_mutex ); <span class="hljs-comment">//解锁  </span><br>        <span class="hljs-keyword">if</span>( tasks == <span class="hljs-number">0</span> )  <br>            <span class="hljs-keyword">break</span>;  <br>    &#125;   <br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">NULL</span>;<br>&#125;  <br>  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">pthread_attr_t</span> attr; <span class="hljs-comment">//线程属性结构体，创建线程时加入的参数  </span><br>    <span class="hljs-built_in">pthread_attr_init</span>( &amp;attr ); <span class="hljs-comment">//初始化  </span><br>    <span class="hljs-built_in">pthread_attr_setdetachstate</span>( &amp;attr, PTHREAD_CREATE_JOINABLE ); <span class="hljs-comment">//是设置你想要指定线程属性参数，这个参数表明这个线程是可以join连接的，join功能表示主程序可以等线程结束后再去做某事，实现了主程序和线程同步功能  </span><br>    <span class="hljs-built_in">pthread_cond_init</span>( &amp;tasks_cond, <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//初始化条件信号量  </span><br>    <span class="hljs-built_in">pthread_mutex_init</span>( &amp;tasks_mutex, <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//初始化互斥量  </span><br>    <span class="hljs-type">pthread_t</span> tid1, tid2; <span class="hljs-comment">//保存两个线程id  </span><br>    <span class="hljs-type">int</span> index1 = <span class="hljs-number">1</span>;  <br>    <span class="hljs-type">int</span> ret = <span class="hljs-built_in">pthread_create</span>( &amp;tid1, &amp;attr, say_hello1, ( <span class="hljs-type">void</span>* )&amp;index1 );  <br>    <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>    &#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>    &#125;  <br>    <span class="hljs-type">int</span> index2 = <span class="hljs-number">2</span>;  <br>    ret = <span class="hljs-built_in">pthread_create</span>( &amp;tid2, &amp;attr, say_hello2, ( <span class="hljs-type">void</span>* )&amp;index2 );  <br>    <span class="hljs-keyword">if</span>( ret != <span class="hljs-number">0</span> )  <br>    &#123;  <br>        cout &lt;&lt; <span class="hljs-string">&quot;pthread_create error:error_code=&quot;</span> &lt;&lt; ret &lt;&lt; endl;  <br>    &#125;  <br>    <span class="hljs-built_in">pthread_join</span>( tid1, <span class="hljs-literal">NULL</span> ); <span class="hljs-comment">//连接两个线程  </span><br>    <span class="hljs-built_in">pthread_join</span>( tid2, <span class="hljs-literal">NULL</span> );   <br>  <br>    <span class="hljs-built_in">pthread_attr_destroy</span>( &amp;attr ); <span class="hljs-comment">//释放内存   </span><br>    <span class="hljs-built_in">pthread_mutex_destroy</span>( &amp;tasks_mutex ); <span class="hljs-comment">//注销锁  </span><br>    <span class="hljs-built_in">pthread_cond_destroy</span>( &amp;tasks_cond ); <span class="hljs-comment">//正常退出  </span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>测试结果：<br>先在线程2中执行say_hello2，再跳转到线程1中执行say_hello1，直到tasks减到0为止。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs bash">jack@jack:~/coding/muti_thread$ ./pthread_chap6  <br>[3069823856] hello <span class="hljs-keyword">in</span> thread 2  <br>[3078216560] hello <span class="hljs-keyword">in</span> thread 1[3069823856] take task: 10 <span class="hljs-keyword">in</span> thread 2  <br>  <br>[3069823856] take task: 9 <span class="hljs-keyword">in</span> thread 2  <br>[3069823856] take task: 8 <span class="hljs-keyword">in</span> thread 2  <br>[3069823856] take task: 7 <span class="hljs-keyword">in</span> thread 2  <br>[3069823856] take task: 6 <span class="hljs-keyword">in</span> thread 2  <br>[3069823856] pthread_cond_signal <span class="hljs-keyword">in</span> thread 2  <br>[3078216560] take task: 5 <span class="hljs-keyword">in</span> thread 1  <br>[3078216560] take task: 4 <span class="hljs-keyword">in</span> thread 1  <br>[3078216560] take task: 3 <span class="hljs-keyword">in</span> thread 1  <br>[3078216560] take task: 2 <span class="hljs-keyword">in</span> thread 1  <br>[3078216560] take task: 1 <span class="hljs-keyword">in</span> thread 1  <br></code></pre></td></tr></table></figure>
+
+<p>到此，对多线程编程有了一个初步的了解，当然还有其他实现线程同步的机制，有待进一步探索。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Cpp/">Cpp</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Cpp/">Cpp</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Pthread/">Pthread</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/03/17/Cpp%E5%9B%9E%E8%B0%83%E5%87%BD%E6%95%B0%E7%9A%84%E6%96%B9%E5%BC%8F%E5%92%8C%E4%BD%9C%E7%94%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Cpp回调函数的方式和作用</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/03/12/Opencv%E5%9F%BA%E4%BA%8E%E7%89%B9%E5%BE%81%E7%82%B9%E7%9A%84%E5%9B%BE%E5%83%8F%E5%AF%B9%E9%BD%90/">
+                        <span class="hidden-mobile">Opencv基于特征点的图像对齐</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

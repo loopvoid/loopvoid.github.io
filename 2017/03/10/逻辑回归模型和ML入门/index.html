@@ -1,0 +1,610 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="简介(Introduction)问题：肿瘤医院提供了数据，并希望我们确定患者是否有致命的恶性肿瘤或良性肿瘤。 这被称为分类问题。 为了帮助分类每个患者，我们给出他们的年龄和肿瘤的大小。 直观地，可以想象年轻的患者和患有小的良性肿瘤的患者不太可能患有恶性癌症。 数据集模拟此应用程序，其中每个观察结果是表示为点（在下面的图中）的患者，其中红色表示恶性，蓝色表示良性。 注意：这是一个学习的玩具示例，在现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="逻辑回归模型和ML入门">
+<meta property="og:url" content="http://blog.home.io/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="简介(Introduction)问题：肿瘤医院提供了数据，并希望我们确定患者是否有致命的恶性肿瘤或良性肿瘤。 这被称为分类问题。 为了帮助分类每个患者，我们给出他们的年龄和肿瘤的大小。 直观地，可以想象年轻的患者和患有小的良性肿瘤的患者不太可能患有恶性癌症。 数据集模拟此应用程序，其中每个观察结果是表示为点（在下面的图中）的患者，其中红色表示恶性，蓝色表示良性。 注意：这是一个学习的玩具示例，在现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p5.qhimg.com/bdm/216_133_0/t0125cf0a4f29de065c.jpg">
+<meta property="article:published_time" content="2017-03-10T00:15:04.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:07:24.343Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="ML">
+<meta property="article:tag" content="逻辑回归模型">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p5.qhimg.com/bdm/216_133_0/t0125cf0a4f29de065c.jpg">
+  
+  
+  <title>逻辑回归模型和ML入门 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="逻辑回归模型和ML入门">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-03-10 08:15" pubdate>
+        2017年3月10日 早上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      11k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      92 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">逻辑回归模型和ML入门</h1>
+            
+            <div class="markdown-body">
+              <h1 id="简介-Introduction"><a href="#简介-Introduction" class="headerlink" title="简介(Introduction)"></a>简介(Introduction)</h1><p><strong>问题：</strong>肿瘤医院提供了数据，并希望我们确定患者是否有致命的恶性肿瘤或良性肿瘤。 这被称为分类问题。 为了帮助分类每个患者，我们给出他们的年龄和肿瘤的大小。 直观地，可以想象年轻的患者和患有小的良性肿瘤的患者不太可能患有恶性癌症。 数据集模拟此应用程序，其中每个观察结果是表示为点（在下面的图中）的患者，其中红色表示恶性，蓝色表示良性。 注意：这是一个学习的玩具示例，在现实生活中有大量来自不同测试(检查)源的特征和医生的经验，这些特征对患者的诊断(治疗)决定起作用。<br><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/cancer_data_plot.jpg" srcset="/img/loading.gif" lazyload alt="image1"><br><strong>目标：</strong>我们的目标是训练一个分类器，可以根据两个特征（年龄和肿瘤大小）自动将任何患者标记为良性或恶性类别。 本次，我们将创建一个线性分类器，它是深度网络中的一块基石。<br><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/cancer_classify_plot.jpg" srcset="/img/loading.gif" lazyload alt="image2"><br>在上图中，绿线表示从数据中学习的模型，并将蓝点与红点分离。<strong>注意：</strong>这个分类器确实犯错误，其中蓝色点在绿色线的错误一侧。 但是，有办法解决这个问题，既是用非线性分类来解决。<br><strong>方法：</strong>任何学习算法通常具有五个阶段。<strong>数据读取</strong>，<strong>数据预处理</strong>，<strong>模型创建</strong>，<strong>模型参数学习</strong>和<strong>模型评估</strong>(模型测试或模型预测)。</p>
+<blockquote>
+<ul>
+<li>1.**数据读取(Data reading)**：我们生成的模拟数据集，每个样品具有指示年龄和肿瘤大小的两个特征（绘制如下）。</li>
+<li>2.**数据预处理(Data Preprocessing)**：通常需要对尺寸或年龄等个别特征进行缩放。 通常，可以在0和1之间缩放数据。为了简单起见，本次不进行任何缩放（有关详细信息，请参阅：特征缩放）。</li>
+<li>3.**模型创建(Model creation)**：本次我们创建一个基本的线性模型。</li>
+<li>4.<strong>模型学习(Learing the model)<strong>：这也被称为训练。虽然拟合线性模型可以以各种方式（线性回归），在CNTK中，我们使用</strong>随机梯度下降</strong><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">SGD</a>。</li>
+<li>5.**评估(Evaluation)**：这也被称为测试，其中采用具有未曾用于训练的已知标签（也称ground-truth）的数据集。 这使我们能够评估模型在现实世界（以前看不到的）观察中的表现。</li>
+</ul>
+</blockquote>
+<h1 id="逻辑回归-Logistic-Regression"><a href="#逻辑回归-Logistic-Regression" class="headerlink" title="逻辑回归(Logistic Regression)"></a>逻辑回归(Logistic Regression)</h1><p><a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Logistic_regression">逻辑回归(Logistic Regression)</a>是使用特征的线性加权组合并且预测不同类的概率的基本机器学习技术。 在我们的情况下，分类器将在[0,1]中生成概率，然后与阈值（例如0.5）进行比较以产生二进制标签（0或1）。显然，所示的方法可以容易地扩展到多个类。<br><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/logistic_neuron.jpg" srcset="/img/loading.gif" lazyload alt="image3"><br>在上图中，来自不同输入特征的贡献被线性加权并且聚合。 所得的总和通过sigmoid函数映射到0-1范围。 对于具有多于两个输出标签的分类器，可以使用[softmax][]函数。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></div></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Import 相关组件</span><br><span class="hljs-keyword">from</span> __future__ <span class="hljs-keyword">import</span> print_function<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><span class="hljs-keyword">import</span> sys<br><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">from</span> cntk <span class="hljs-keyword">import</span> Trainer, learning_rate_schedule, UnitType<br><span class="hljs-keyword">from</span> cntk.learner <span class="hljs-keyword">import</span> sgd<br><span class="hljs-keyword">from</span> cntk.ops <span class="hljs-keyword">import</span> *<br><span class="hljs-comment"># 在测计算机时选择正确的目标设备：</span><br><span class="hljs-keyword">if</span> <span class="hljs-string">&#x27;TEST_DEVICE&#x27;</span> <span class="hljs-keyword">in</span> os.environ:<br>    <span class="hljs-keyword">import</span> cntk<br>    <span class="hljs-keyword">if</span> os.environ[<span class="hljs-string">&#x27;TEST_DEVICE&#x27;</span>] == <span class="hljs-string">&#x27;cpu&#x27;</span>:<br>        cntk.device.set_default_device(cntk.device.cpu())<br>    <span class="hljs-keyword">else</span>:<br>        cntk.device.set_default_device(cntk.device.gpu(<span class="hljs-number">0</span>))<br></code></pre></td></tr></table></figure>
+
+<h2 id="数据生成-Data-Generation"><a href="#数据生成-Data-Generation" class="headerlink" title="数据生成(Data Generation)"></a>数据生成(Data Generation)</h2><p>将使用numpy库生成一些模拟肿瘤示例的合成数据。我们有两个特征（以二维表示），每个特征都是两个类别中的一个（<strong>蓝色点:良性</strong>、<strong>红色点:恶性</strong>）。<br>训练数据中的每个表观(observation)具有对应于每个表观(observation)（特征 - 年龄和大小的集合）的标签（蓝色或红色）。 在这个例子中，我们有两个类由标签0或1表示，因此这是个二进制分类任务。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 定义该网络</span><br>input_dim = <span class="hljs-number">2</span><br>num_output_classes = <span class="hljs-number">2</span><br></code></pre></td></tr></table></figure>
+
+<h2 id="输入-Input-和标签-Labels"><a href="#输入-Input-和标签-Labels" class="headerlink" title="输入(Input)和标签(Labels)"></a>输入(Input)和标签(Labels)</h2><p>在本示例中，我们使用numpy库来生成合成数据。在现实世界的问题中，将使用读取器，其将读取对应于每个观察（患者）的特征值（特征：年龄和肿瘤大小）。模拟的年龄变量按比例缩小使其具有与其他变量类似的范围。这是数据预处理的一个关键方面。**注意:**每个表观(observation)可以处在更高维度的空间中（当更多特征可用时），并且将在CNTK中表示为张量(tensor)。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 确保我们总是获得相同的随机性</span><br>np.random.seed(<span class="hljs-number">0</span>)<br><br><span class="hljs-comment"># 辅助函数生成随机数据样本</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">generate_random_data_sample</span>(<span class="hljs-params">sample_size, feature_dim, num_classes</span>):<br>    <span class="hljs-comment"># 使用NumPy创建合成数据</span><br>    Y = np.random.randint(size=(sample_size, <span class="hljs-number">1</span>), low=<span class="hljs-number">0</span>, high=num_classes)<br><br>    <span class="hljs-comment"># 确保数据是可分离的 </span><br>    X = (np.random.randn(sample_size, feature_dim)+<span class="hljs-number">3</span>) * (Y+<span class="hljs-number">1</span>)<br>    <br>    <span class="hljs-comment"># 指定数据类型以匹配后面使用的输入变量 </span><br>    <span class="hljs-comment"># (默认double类型)</span><br>    X = X.astype(np.float32)    <br>    <br>    <span class="hljs-comment"># 将类 0 转换为向量 &#x27;1 0 0&#x27;</span><br>    <span class="hljs-comment"># 类 1 转换为向量 &#x27;0 1 0&#x27;, ...</span><br>    class_ind = [Y==class_number <span class="hljs-keyword">for</span> class_number <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(num_classes)]<br>    Y = np.asarray(np.hstack(class_ind), dtype=np.float32)<br>    <span class="hljs-keyword">return</span> X, Y   <br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 创建表征要素和标签数据的输入变量。 </span><br><span class="hljs-comment">#注意：input_variable不需要关于观察值（样本）的附加信息，因为CNTK首先仅创建网络拓扑</span><br>mysamplesize = <span class="hljs-number">32</span><br>features, labels = generate_random_data_sample(mysamplesize, input_dim, num_output_classes)<br></code></pre></td></tr></table></figure>
+
+<p>接下来可视化数据处理。<br><strong>注意：</strong>如果matplotlib.pyplot的导入失败，请运行conda install matplotlib，这将修复pyplot版本依赖性。 如果你在一个不同于Anaconda的python环境中，那么使用pip install。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 绘制数据</span><br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><span class="hljs-comment"># 给定一个2分类</span><br>colors = [<span class="hljs-string">&#x27;r&#x27;</span> <span class="hljs-keyword">if</span> l == <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;b&#x27;</span> <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> labels[:,<span class="hljs-number">0</span>]]<br><br>plt.scatter(features[:,<span class="hljs-number">0</span>], features[:,<span class="hljs-number">1</span>], c=colors)<br>plt.xlabel(<span class="hljs-string">&quot;Scaled age (in yrs)&quot;</span>)<br>plt.ylabel(<span class="hljs-string">&quot;Tumor size (in cm)&quot;</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/image4.png" srcset="/img/loading.gif" lazyload alt="image4"></p>
+<h2 id="模型创建-Model-Creation"><a href="#模型创建-Model-Creation" class="headerlink" title="模型创建(Model Creation)"></a>模型创建(Model Creation)</h2><p>逻辑回归网络（又名LR）是最简单的构建块，但x在过去十年中已经为许多ML应用程序提供了动力。 LR是一个简单的线性模型，它以一个数字向量作为输入，描述我们所分类的属性（也称为特征向量X，下图中的蓝色节点），并发出Evidence(Z)(从绿色节点发出，也称为激活）。输入层中的每个特征通过相应的权重w（由不同厚度的黑线表示）与输出节点连接。<br><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/logistic_neuron2.jpg" srcset="/img/loading.gif" lazyload alt="image5"></p>
+<p>第一步是计算观察的证据(evidence)。<br>$$z &#x3D; \sum_{i&#x3D;1}^n w_i \times x_i + b &#x3D; \textbf{w} \cdot \textbf{x} + b$$<br>$\bf{w}$ 是长度的权重向量.  $b$ 是偏差项.<br><strong>Note</strong>: 使用<strong>粗体</strong>表示法来表示向量。<br>使用<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Sigmoid_function">sigmoid</a>(当结果可以取两个值之一时)或softmax函数(当结果可以采用多于2个类别值中的一个时)，将所计算的证据映射到0-1标度。<br>**输入变量(a key CNTK概念)**：输入变量是面向用户代码的容器，其中用户提供的代码在模型学习(aka training)期间填充不同的观察(数据点或样本，在本示例中等同于蓝色&#x2F;红色点)作为模型函数的输入， 模型评价(测试)。 因此，input_variable的形状必须匹配将提供的数据的形状。 例如，当数据是高度10像素和宽度5像素的图像时，输入特征尺寸将是2(表示图像高度和宽度)。类似地，在我们的示例中，维度是年龄和肿瘤大小，因此input_dim&#x3D;2.更多关于数据及其维度，以显示在单独的教程中。</p>
+<p><code>input = input_variable(input_dim, np.float32)</code></p>
+<h2 id="网络设置-Network-Setup"><a href="#网络设置-Network-Setup" class="headerlink" title="网络设置(Network Setup)"></a>网络设置(Network Setup)</h2><p>linear_layer函数是上述方程的直接实现。 我们执行两个操作：</p>
+<blockquote>
+<ul>
+<li>1.使用CNTK乘法运算符将权重($\bf{w}$)与特征($\bf{x}$)相乘，并且添加个体特征的贡献(contribution)</li>
+<li>2.添加偏差项b</li>
+</ul>
+</blockquote>
+<p>这些CNTK操作被优化并在可用硬件上执行，并且隐藏了，实现减少用户使用的复杂性。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 定义字典以存储模型参数</span><br>mydict = &#123;<span class="hljs-string">&quot;w&quot;</span>:<span class="hljs-literal">None</span>,<span class="hljs-string">&quot;b&quot;</span>:<span class="hljs-literal">None</span>&#125; <br><span class="hljs-keyword">def</span> <span class="hljs-title function_">linear_layer</span>(<span class="hljs-params">input_var, output_dim</span>):<br>    input_dim = input_var.shape[<span class="hljs-number">0</span>]<br>    weight_param = parameter(shape=(input_dim, output_dim))<br>    bias_param = parameter(shape=(output_dim))<br>    mydict[<span class="hljs-string">&#x27;w&#x27;</span>], mydict[<span class="hljs-string">&#x27;b&#x27;</span>] = weight_param, bias_param<br>    <span class="hljs-keyword">return</span> times(input_var, weight_param) + bias_param   <br><br><span class="hljs-comment"># z代表网络的输出</span><br><br>output_dim = num_output_classes<br>z = linear_layer(<span class="hljs-built_in">input</span>, output_dim)<br></code></pre></td></tr></table></figure>
+
+<h2 id="训练模型参数-Learning-model-parameters"><a href="#训练模型参数-Learning-model-parameters" class="headerlink" title="训练模型参数(Learning model parameters)"></a>训练模型参数(Learning model parameters)</h2><p>现在网络已经建立，我们想学习我们的简单线性层的参数$\bf{w}$和b。 为此，我们使用softmax函数将计算的证据(evidence)z转换为一组预测概率($\bf{P}$)。</p>
+<p>$$ \textbf{p} &#x3D; \mathrm{softmax}(z)$$ </p>
+<p>softmax是将累积的证据(evidence)映射到类别上的概率分布(<a target="_blank" rel="noopener" href="https://www.cntk.ai/pythondocs/cntk.ops.html#cntk.ops.softmax">softmax</a>)的激活函数。 激活功能的其他选择可以在<a target="_blank" rel="noopener" href="https://github.com/Microsoft/CNTK/wiki/Activation-Functions">这里</a>找到。</p>
+<h3 id="训练-Training"><a href="#训练-Training" class="headerlink" title="训练(Training)"></a>训练(Training)</h3><p>softmax的输出是属于各个类别的观察(observation)的概率。 为了训练分类器，我们需要确定模型需要模拟的行为。 换句话说，我们希望生成的概率尽可能接近观察到的标签。 此函数称为成本或损失函数，并显示学习模型与由训练集生成的模型之间的差异。<br>交叉熵(<a target="_blank" rel="noopener" href="https://cntk.ai/pythondocs/cntk.ops.html#cntk.ops.cross_entropy_with_softmax">Cross-entropy</a>)是衡量损失的常用函数。 它定义为：<br>$$ H(p) &#x3D; - \sum_{j&#x3D;1}^C y_j \log (p_j) $$<br>其中$p$是我们从<code>softmax</code>函数的预测概率，$y$表示标签。 提供用于训练的数据的该标签也称为**地面真值(ground-truth)**标签。 在两类示例中，<code>标签</code>变量具有两个维度（等于<code>num_output_classes</code>或$C$）。 一般来说，如果手中的任务需要分类到$C$不同的类，则标签变量将具有除了由数据点表示的类别1之外的所有地方的$C$元素。强烈推荐到<a target="_blank" rel="noopener" href="http://colah.github.io/posts/2015-09-Visual-Information/">Blog</a>理解这个交叉熵函数的细节。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">label = input_variable((num_output_classes), np.float32)<br>loss = cross_entropy_with_softmax(z, label)<br></code></pre></td></tr></table></figure>
+
+<h3 id="测试-Evaluation"><a href="#测试-Evaluation" class="headerlink" title="测试(Evaluation)"></a>测试(Evaluation)</h3><p>为了评估分类，可以比较网络的输出，其对于每个观察发射(emits)具有等于类的数量的维度的证据的向量（可以使用softmax函数转换成概率）。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">eval_error = classification_error(z, label)<br></code></pre></td></tr></table></figure>
+<h2 id="配置训练-Configer-Training"><a href="#配置训练-Configer-Training" class="headerlink" title="配置训练(Configer Training)"></a>配置训练(Configer Training)</h2><p>训练者努力通过不同的优化方法减少损失函数，随机梯度下降（<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">sgd</a>）是最流行的一种。通常，可以从模型参数的随机初始化开始。sgd优化器将计算预测标签与相应的地面真值标签之间的损失或误差，并使用<a target="_blank" rel="noopener" href="http://www.statisticsviews.com/details/feature/5722691/Getting-to-the-Bottom-of-Regression-with-Gradient-Descent.html">gradient-decent</a>在单次迭代中生成新的集合模型参数。一次使用单个观察的上述模型参数更新是有吸引力的，因为其不需要将整个数据集（所有观察）加载到存储器中，并且还需要在较少数据点上的梯度计算，从而允许对大数据集进行训练。然而，使用单个观察样本一次产生的更新在迭代之间可以非常不同。中间点是加载一小组观测值，并使用来自该组的损失或误差的平均值来更新模型参数。这个子集称为minibatch。使用minibatches我们经常从较大的训练数据集采样观察。我们重复模型参数更新的过程，使用不同的训练样本组合，并在一段时间内使损失（和误差）最小化。当增量误差率不再显着变化或在预设数量的最大微型间隔训练之后，我们声称我们的模型是训练的。优化的关键参数之一称为learning_rate。现在，我们可以把它看作是一个缩放因子，它可以调节我们在任何迭代中改变参数的程度。我们将在后面的教程中介绍更多的细节。有了这些信息，我们随时准备创建我们的训练器。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># 实例化训练器对象以驱动模型训练</span><br>learning_rate = <span class="hljs-number">0.5</span><br>lr_schedule = learning_rate_schedule(learning_rate, UnitType.minibatch) <br>learner = sgd(z.parameters, lr_schedule)<br>trainer = Trainer(z, (loss, eval_error), [learner])<br></code></pre></td></tr></table></figure>
+<p>首先让我们创建一些帮助函数，可视化与训练相关的不同功能。 注意这些令人信服的功能是为了理解其内部机理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> cntk.utils <span class="hljs-keyword">import</span> get_train_eval_criterion, get_train_loss<br><br><span class="hljs-comment"># 定义一个效用函数来计算移动平均和。</span><br><span class="hljs-comment"># 使用np.cumsum（）函数可以实现更高效的实现</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">moving_average</span>(<span class="hljs-params">a, w=<span class="hljs-number">10</span></span>):<br>    <span class="hljs-keyword">if</span> <span class="hljs-built_in">len</span>(a) &lt; w: <br>        <span class="hljs-keyword">return</span> a[:]    <br>    <span class="hljs-keyword">return</span> [val <span class="hljs-keyword">if</span> idx &lt; w <span class="hljs-keyword">else</span> <span class="hljs-built_in">sum</span>(a[(idx-w):idx])/w <span class="hljs-keyword">for</span> idx, val <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(a)]<br><span class="hljs-comment"># 定义打印训练进度的函数</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">print_training_progress</span>(<span class="hljs-params">trainer, mb, frequency, verbose=<span class="hljs-number">1</span></span>):<br>    training_loss, eval_error = <span class="hljs-string">&quot;NA&quot;</span>, <span class="hljs-string">&quot;NA&quot;</span><br><br>    <span class="hljs-keyword">if</span> mb % frequency == <span class="hljs-number">0</span>:<br>        training_loss = get_train_loss(trainer)<br>        eval_error = get_train_eval_criterion(trainer)<br>        <span class="hljs-keyword">if</span> verbose: <br>            <span class="hljs-built_in">print</span> (<span class="hljs-string">&quot;Minibatch: &#123;0&#125;, Loss: &#123;1:.4f&#125;, Error: &#123;2:.2f&#125;&quot;</span>.<span class="hljs-built_in">format</span>(mb, training_loss, eval_error))<br>        <br>    <span class="hljs-keyword">return</span> mb, training_loss, eval_error<br></code></pre></td></tr></table></figure>
+
+<h2 id="运行训练器-Run-the-trainer"><a href="#运行训练器-Run-the-trainer" class="headerlink" title="运行训练器(Run the trainer)"></a>运行训练器(Run the trainer)</h2><p>我们现在准备训练我们的逻辑回归模型。 我们想决定我们需要将什么数据输入到训练引擎中。<br>在此示例中，优化程序的每次迭代将工作在25个样本（25点w.r.t.上面的图）a.k.a. minibatch_size。 我们想训练说20000个观察。 如果数据中的样本数量只有10000，训练器将使2次通过数据。 这由num_minibatches_to_train表示。<strong>注意：</strong>在现实世界的情况下，我们将被给予一定量的标记数据（在本示例的上下文中，观察（年龄，大小）及其意义（良性&#x2F;恶性）。 我们将使用大量的训练观察值表示70％，并留出余下的值用于评估训练模型。<br>利用这些参数，我们可以继续训练我们的简单前馈网络。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Initialize the parameters for the trainer</span><br>minibatch_size = <span class="hljs-number">25</span><br>num_samples_to_train = <span class="hljs-number">20000</span><br>num_minibatches_to_train = <span class="hljs-built_in">int</span>(num_samples_to_train  / minibatch_size)<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Run the trainer and perform model training</span><br>training_progress_output_freq = <span class="hljs-number">50</span><br><br>plotdata = &#123;<span class="hljs-string">&quot;batchsize&quot;</span>:[], <span class="hljs-string">&quot;loss&quot;</span>:[], <span class="hljs-string">&quot;error&quot;</span>:[]&#125;<br><br><span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, num_minibatches_to_train):<br>    features, labels = generate_random_data_sample(minibatch_size, input_dim, num_output_classes)<br>    <br>    <span class="hljs-comment"># Specify input variables mapping in the model to actual minibatch data to be trained with</span><br>    trainer.train_minibatch(&#123;<span class="hljs-built_in">input</span> : features, label : labels&#125;)<br>    batchsize, loss, error = print_training_progress(trainer, i, <br>                                                     training_progress_output_freq, verbose=<span class="hljs-number">1</span>)<br>    <br>    <span class="hljs-keyword">if</span> <span class="hljs-keyword">not</span> (loss == <span class="hljs-string">&quot;NA&quot;</span> <span class="hljs-keyword">or</span> error ==<span class="hljs-string">&quot;NA&quot;</span>):<br>        plotdata[<span class="hljs-string">&quot;batchsize&quot;</span>].append(batchsize)<br>        plotdata[<span class="hljs-string">&quot;loss&quot;</span>].append(loss)<br>        plotdata[<span class="hljs-string">&quot;error&quot;</span>].append(error)<br></code></pre></td></tr></table></figure>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python">Minibatch: <span class="hljs-number">0</span>, Loss: <span class="hljs-number">0.6931</span>, Error: <span class="hljs-number">0.32</span><br>Minibatch: <span class="hljs-number">50</span>, Loss: <span class="hljs-number">2.4317</span>, Error: <span class="hljs-number">0.36</span><br>Minibatch: <span class="hljs-number">100</span>, Loss: <span class="hljs-number">0.4701</span>, Error: <span class="hljs-number">0.20</span><br>Minibatch: <span class="hljs-number">150</span>, Loss: <span class="hljs-number">0.7732</span>, Error: <span class="hljs-number">0.40</span><br>Minibatch: <span class="hljs-number">200</span>, Loss: <span class="hljs-number">0.1273</span>, Error: <span class="hljs-number">0.04</span><br>Minibatch: <span class="hljs-number">250</span>, Loss: <span class="hljs-number">0.1316</span>, Error: <span class="hljs-number">0.08</span><br>Minibatch: <span class="hljs-number">300</span>, Loss: <span class="hljs-number">0.1012</span>, Error: <span class="hljs-number">0.04</span><br>Minibatch: <span class="hljs-number">350</span>, Loss: <span class="hljs-number">0.1071</span>, Error: <span class="hljs-number">0.04</span><br>Minibatch: <span class="hljs-number">400</span>, Loss: <span class="hljs-number">0.3085</span>, Error: <span class="hljs-number">0.08</span><br>Minibatch: <span class="hljs-number">450</span>, Loss: <span class="hljs-number">0.3214</span>, Error: <span class="hljs-number">0.12</span><br>Minibatch: <span class="hljs-number">500</span>, Loss: <span class="hljs-number">0.4114</span>, Error: <span class="hljs-number">0.20</span><br>Minibatch: <span class="hljs-number">550</span>, Loss: <span class="hljs-number">0.6799</span>, Error: <span class="hljs-number">0.20</span><br>Minibatch: <span class="hljs-number">600</span>, Loss: <span class="hljs-number">0.2982</span>, Error: <span class="hljs-number">0.12</span><br>Minibatch: <span class="hljs-number">650</span>, Loss: <span class="hljs-number">0.1675</span>, Error: <span class="hljs-number">0.12</span><br>Minibatch: <span class="hljs-number">700</span>, Loss: <span class="hljs-number">0.2770</span>, Error: <span class="hljs-number">0.12</span><br>Minibatch: <span class="hljs-number">750</span>, Loss: <span class="hljs-number">0.2308</span>, Error: <span class="hljs-number">0.04</span><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Compute the moving average loss to smooth out the noise in SGD</span><br>plotdata[<span class="hljs-string">&quot;avgloss&quot;</span>] = moving_average(plotdata[<span class="hljs-string">&quot;loss&quot;</span>])<br>plotdata[<span class="hljs-string">&quot;avgerror&quot;</span>] = moving_average(plotdata[<span class="hljs-string">&quot;error&quot;</span>])<br><br><span class="hljs-comment"># Plot the training loss and the training error</span><br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br>plt.figure(<span class="hljs-number">1</span>)<br>plt.subplot(<span class="hljs-number">211</span>)<br>plt.plot(plotdata[<span class="hljs-string">&quot;batchsize&quot;</span>], plotdata[<span class="hljs-string">&quot;avgloss&quot;</span>], <span class="hljs-string">&#x27;b--&#x27;</span>)<br>plt.xlabel(<span class="hljs-string">&#x27;Minibatch number&#x27;</span>)<br>plt.ylabel(<span class="hljs-string">&#x27;Loss&#x27;</span>)<br>plt.title(<span class="hljs-string">&#x27;Minibatch run vs. Training loss&#x27;</span>)<br><br>plt.show()<br><br>plt.subplot(<span class="hljs-number">212</span>)<br>plt.plot(plotdata[<span class="hljs-string">&quot;batchsize&quot;</span>], plotdata[<span class="hljs-string">&quot;avgerror&quot;</span>], <span class="hljs-string">&#x27;r--&#x27;</span>)<br>plt.xlabel(<span class="hljs-string">&#x27;Minibatch number&#x27;</span>)<br>plt.ylabel(<span class="hljs-string">&#x27;Label Prediction Error&#x27;</span>)<br>plt.title(<span class="hljs-string">&#x27;Minibatch run vs. Label Prediction Error&#x27;</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+
+<p><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/image6.png" srcset="/img/loading.gif" lazyload alt="image6"></p>
+<h1 id="评估测试-Evaluation-x2F-Testing"><a href="#评估测试-Evaluation-x2F-Testing" class="headerlink" title="评估测试(Evaluation&#x2F;Testing)"></a>评估测试(Evaluation&#x2F;Testing)</h1><p>现在我们已经训练了网络。 让我们评估训练网络对未用于训练的数据。 这称为测试。 让我们创建一些新的数据，并评估这个集合的平均错误和损失。 这是使用trainer.test_minibatch完成的。 注意，这个以前看不见的数据的错误与训练错误相当。 这是一个关键的检查。 如果误差大于训练误差大的幅度，则表明训练的模型在训练期间没有见到的数据上不能很好地执行。 这被称为<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Overfitting">过度拟合</a>。 有几种方法来解决超额配合，这超出了本教程的范围，但认知工具包提供了必要的组件来解决过度拟合。<br>注意：为了说明的目的，我们正在测试一个小型批次。 在实践中，运行几个测试数据的小型批次并报告平均值。<br>问题:为什么这是建议？ 尝试使用用于训练的绘图函数在多组生成的数据样本和绘图上绘制测试错误。 你看到一个模式吗？</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Run the trained model on newly generated dataset</span><br>test_minibatch_size = <span class="hljs-number">25</span><br>features, labels = generate_random_data_sample(test_minibatch_size, input_dim, num_output_classes)<br><br>trainer.test_minibatch(&#123;<span class="hljs-built_in">input</span> : features, label : labels&#125;) <br></code></pre></td></tr></table></figure>
+<p>输出:0.12</p>
+<h2 id="检查预测-x2F-评估-Checking-prediction-x2F-evaluation"><a href="#检查预测-x2F-评估-Checking-prediction-x2F-evaluation" class="headerlink" title="检查预测&#x2F;评估(Checking prediction&#x2F;evaluation)"></a>检查预测&#x2F;评估(Checking prediction&#x2F;evaluation)</h2><p>为了评估，我们将网络的输出在0-1之间映射，并将它们转换为两个类的概率。 这表明每次观察的机会是恶性和良性的。 我们使用softmax函数来获得每个类的概率。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">out = softmax(z)<br>result = out.<span class="hljs-built_in">eval</span>(&#123;<span class="hljs-built_in">input</span> : features&#125;)<br></code></pre></td></tr></table></figure>
+<p>让我们将地面真实标签与预测进行比较。 他们应该符合。</p>
+<p>Question:</p>
+<ul>
+<li>有多少预测被错误标记？ 您可以更改下面的代码，以确定哪些观察被错误分类？<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Label    :&quot;</span>, [np.argmax(label) <span class="hljs-keyword">for</span> label <span class="hljs-keyword">in</span> labels])<br><span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;Predicted:&quot;</span>, [np.argmax(result[i,:,:]) <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(result.shape[<span class="hljs-number">0</span>])])<br></code></pre></td></tr></table></figure>
+Label    : [1, 0, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1]<br>Predicted: [1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 0, 1]</li>
+</ul>
+<h2 id="可视化-Visualization"><a href="#可视化-Visualization" class="headerlink" title="可视化(Visualization)"></a>可视化(Visualization)</h2><p>期望可视化结果。 在该示例中，数据方便地在二维中并且可以被绘制。 对于具有较高尺寸的数据，可视化可能具有挑战性。 存在允许这种<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/T-distributed_stochastic_neighbor_embedding">可视化的先进的降维技术</a>。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Model parameters</span><br><span class="hljs-built_in">print</span>(mydict[<span class="hljs-string">&#x27;b&#x27;</span>].value)<br><br>bias_vector   = mydict[<span class="hljs-string">&#x27;b&#x27;</span>].value<br>weight_matrix = mydict[<span class="hljs-string">&#x27;w&#x27;</span>].value<br><br><span class="hljs-comment"># Plot the data </span><br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><br><span class="hljs-comment"># given this is a 2 class </span><br>colors = [<span class="hljs-string">&#x27;r&#x27;</span> <span class="hljs-keyword">if</span> l == <span class="hljs-number">0</span> <span class="hljs-keyword">else</span> <span class="hljs-string">&#x27;b&#x27;</span> <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> labels[:,<span class="hljs-number">0</span>]]<br>plt.scatter(features[:,<span class="hljs-number">0</span>], features[:,<span class="hljs-number">1</span>], c=colors)<br>plt.plot([<span class="hljs-number">0</span>, bias_vector[<span class="hljs-number">0</span>]/weight_matrix[<span class="hljs-number">0</span>][<span class="hljs-number">1</span>]], <br>         [ bias_vector[<span class="hljs-number">1</span>]/weight_matrix[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>], <span class="hljs-number">0</span>], c = <span class="hljs-string">&#x27;g&#x27;</span>, lw = <span class="hljs-number">3</span>)<br>plt.xlabel(<span class="hljs-string">&quot;Scaled age (in yrs)&quot;</span>)<br>plt.ylabel(<span class="hljs-string">&quot;Tumor size (in cm)&quot;</span>)<br>plt.show()<br></code></pre></td></tr></table></figure>
+<p>输出结果:[ 7.98766518 -7.988904 ]</p>
+<p><img src="/2017/03/10/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B%E5%92%8CML%E5%85%A5%E9%97%A8/image7.png" srcset="/img/loading.gif" lazyload alt="image7"></p>
+<h1 id="探索建议-Exploration-Suggestions"><a href="#探索建议-Exploration-Suggestions" class="headerlink" title="探索建议(Exploration Suggestions)"></a>探索建议(Exploration Suggestions)</h1><ul>
+<li>尝试探索分类器如何与不同的数据分布行为，建议更改minibatch_size参数从25到说64.为什么错误增加？</li>
+<li>尝试探索不同的激活功能</li>
+<li>尝试探索不同的学习模型</li>
+<li>可以探索训练<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Multinomial_logistic_regression">多类逻辑回归</a>分类器。</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Machine-Learning/">Machine Learning</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/ML/">ML</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%80%BB%E8%BE%91%E5%9B%9E%E5%BD%92%E6%A8%A1%E5%9E%8B/">逻辑回归模型</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/03/11/%E7%BB%93%E5%B7%B4Jieba%E5%88%86%E8%AF%8D/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">结巴Jieba分词</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/04/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7%E7%9A%84%E9%AB%98%E6%96%AF%E6%BB%A4%E6%B3%A2/">
+                        <span class="hidden-mobile">一维信号的高斯滤波</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

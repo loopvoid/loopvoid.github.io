@@ -1,0 +1,590 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="雅可比矩阵 (Jacobian matrix)在向量分析中, 雅可比矩阵是一阶偏导数以一定方式排列成的矩阵, 其行列式称为雅可比行列式. 还有, 在代数几何中, 代数曲线的雅可比量表示雅可比簇：伴随该曲线的一个代数群, 曲线可以嵌入其中. 它们全部都以数学家卡尔·雅可比(Carl Jacob, 1804年10月4日－1851年2月18日)命名；英文雅可比量”Jacobian”可以发音为[ja ˈk">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jacobian矩阵与Hessian矩阵与最小二乘">
+<meta property="og:url" content="http://blog.home.io/2018/04/28/Jacobian%E7%9F%A9%E9%98%B5%E4%B8%8EHessian%E7%9F%A9%E9%98%B5%E4%B8%8E%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="雅可比矩阵 (Jacobian matrix)在向量分析中, 雅可比矩阵是一阶偏导数以一定方式排列成的矩阵, 其行列式称为雅可比行列式. 还有, 在代数几何中, 代数曲线的雅可比量表示雅可比簇：伴随该曲线的一个代数群, 曲线可以嵌入其中. 它们全部都以数学家卡尔·雅可比(Carl Jacob, 1804年10月4日－1851年2月18日)命名；英文雅可比量”Jacobian”可以发音为[ja ˈk">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p8.qhimg.com/bdm/216_133_0/t0176f474f82fa23d21.jpg">
+<meta property="article:published_time" content="2018-04-28T08:15:17.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:10:13.686Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="最优化">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p8.qhimg.com/bdm/216_133_0/t0176f474f82fa23d21.jpg">
+  
+  
+  <title>Jacobian矩阵与Hessian矩阵与最小二乘 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Jacobian矩阵与Hessian矩阵与最小二乘">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-04-28 16:15" pubdate>
+        2018年4月28日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.2k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      44 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Jacobian矩阵与Hessian矩阵与最小二乘</h1>
+            
+            <div class="markdown-body">
+              <h1 id="雅可比矩阵-Jacobian-matrix"><a href="#雅可比矩阵-Jacobian-matrix" class="headerlink" title="雅可比矩阵 (Jacobian matrix)"></a>雅可比矩阵 (Jacobian matrix)</h1><p>在向量分析中, 雅可比矩阵是<strong>一阶偏导</strong>数以一定方式排列成的<strong>矩阵</strong>, 其行列式称为雅可比行列式. 还有, 在代数几何中, 代数曲线的雅可比量表示雅可比簇：伴随该曲线的一个代数群, 曲线可以嵌入其中. 它们全部都以数学家卡尔·雅可比(Carl Jacob, 1804年10月4日－1851年2月18日)命名；英文雅可比量”Jacobian”可以发音为[ja ˈko bi ən]或者[ʤə ˈko bi ən].</p>
+<p>雅可比矩阵的重要性在于它体现了一个可微方程与给出点的<strong>最优线性逼近</strong>. 因此, 雅可比矩阵类似于<strong>多元函数的导数</strong>.</p>
+<p>假设$F:R_n→R_m$是一个从欧式n维空间转换到欧式m维空间的函数。这个函数由m个实函数组成:$ y_1(x_1,…,x_n), …, y_m(x_1,…,x_n)$. 这些函数的偏导数(如果存在)可以组成一个m行n列的矩阵，这就是所谓的雅可比矩阵：<br>$$\begin{bmatrix} \frac{\partial y_1}{\partial x_1} &amp;  \cdots &amp; \frac{\partial y_1}{\partial x_n}\ \vdots &amp;  \ddots &amp; \vdots  \ \frac{\partial y_n}{\partial x_1} &amp;  \cdots &amp; \frac{\partial y_n}{\partial x_n} \end{bmatrix}$$</p>
+<p>此矩阵表示为：$J_F(x_1,\cdots ,x_2)$，或者:$\frac{\partial (y_1,\cdots,y_n)}{\partial (x_1, \cdots ,x_n)}$</p>
+<p>这个矩阵的第$i$行是由梯度函数的转置$y_i(i&#x3D;1,…,m)$表示的。</p>
+<p>如果$p$是$R_n$中的一点, $F$在$p$点可<strong>微分</strong>, 那么在$p$这一点的导数由$J_{F(p)}$给出(这是求该点导数最简便的方法). 在此情况下, 由$F_(p)$描述的<strong>线性算子</strong>即接近点$p$的$F$的<strong>最优线性逼近</strong>, $x$逼近于$p$:$F_(x) \approx F_{(p)} + J_{F(p)} \cdot (x-p)$</p>
+<p>从数学意义上来解释雅可比矩阵，我们可以想象有6个函数，每个函数对应着有6个变量。那么针对每个输入变量$x_i$，就会能够得到对应的$y_i$.<br>$$y_1&#x3D;f_1(x_1,x_2,x_3,x_4,x_5,x_6)$$<br>$$y_2&#x3D;f_2(x_1,x_2,x_3,x_4,x_5,x_6)$$<br>$$y_3&#x3D;f_3(x_1,x_2,x_3,x_4,x_5,x_6)$$<br>$$y_4&#x3D;f_4(x_1,x_2,x_3,x_4,x_5,x_6)$$<br>$$y_5&#x3D;f_5(x_1,x_2,x_3,x_4,x_5,x_6)$$<br>$$y_6&#x3D;f_6(x_1,x_2,x_3,x_4,x_5,x_6)$$<br>因此$y_i$的导数可以被写成：<br>$${\mathrm{d} y_i} &#x3D; \frac{\partial f_i}{\partial x_1}{\mathrm{d} x_1}+\frac{\partial f_i}{\partial x_2}{\mathrm{d} x_2}+\frac{\partial f_i}{\partial x_3}{\mathrm{d} x_3}+\frac{\partial f_i}{\partial x_4}{\mathrm{d} x_4}+\frac{\partial f_i}{\partial x_5}{\mathrm{d} x_5}+\frac{\partial f_i}{\partial x_6}{\mathrm{d} x_6}$$<br>因此结合上面的方程，我们可以将上面的方程写为向量的形式：<br>$${\mathrm{d} Y}&#x3D;\frac{\partial F}{\partial X}{\mathrm{d} X}$$<br>函数F对于X的偏导数矩阵，就被称为雅可比矩阵(Jacobian)。</p>
+<p>换句话说，雅可比矩阵就是X的速度到Y的速度的映射：$\dot{Y}&#x3D;J(X)\dot{X}$<br>在某个时间步长，雅可比矩阵其实也就是针对于$x_i$的函数。在下一个时间步长的时候，$x$改变了，因此雅可比矩阵也进行了改变。</p>
+<p>在某个给定点的雅可比行列式提供了<strong>在接近该点时的表现的重要信息</strong>. 例如, 如果连续可微函数$F$在$p$点的雅可比行列式不是零, 那么它在该点附近具有反函数. 这称为反函数定理. 更进一步, 如果pp点的雅可比行列式是正数, 则$F$在$p$点的取向不变；如果是负数, 则FF的取向相反. 而从雅可比行列式的绝对值, 就可以知道函数$F$在$p$点的缩放因子；这就是为什么它出现在换元积分法中.</p>
+<p>对于取向问题可以这么理解, 例如一个物体在平面上匀速运动, 如果施加一个正方向的力$F$, 即取向相同, 则加速运动, 类比于速度的导数加速度为正；如果施加一个反方向的力$F$, 即取向相反, 则减速运动, 类比于速度的导数加速度为负.</p>
+<p><a href="ttp://jacoxu.com/jacobian%E7%9F%A9%E9%98%B5%E5%92%8Chessian%E7%9F%A9%E9%98%B5/">Jacobian矩阵和Hessian矩阵</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/noahzuo/article/details/54314112">使用雅可比矩阵(Jacobian)来结算IK</a><br><a target="_blank" rel="noopener" href="https://www.zhihu.com/question/22586361">如何理解雅克比矩阵?—知乎</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011494690/article/details/43274301">雅克比矩阵、海森矩阵与非线性最小二乘间的关系与在SFM和Pose Estimation中的应用</a><br><a href="ttp://jacoxu.com/jacobian%E7%9F%A9%E9%98%B5%E5%92%8Chessian%E7%9F%A9%E9%98%B5/">acobian矩阵和Hessian矩阵</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/noahzuo/article/details/54314112">动画研究 – 使用雅可比矩阵(Jacobian)来结算IK</a></p>
+<h1 id="海森矩阵（Hessian-matrix）"><a href="#海森矩阵（Hessian-matrix）" class="headerlink" title="海森矩阵（Hessian matrix）"></a>海森矩阵（Hessian matrix）</h1><p><strong>海森矩阵</strong>是一个自变量为向量的实值函数的<strong>二阶偏导数</strong>组成的<strong>方块矩阵</strong>.</p>
+<p>此函数如下：$$f(x_1,\cdots,x_n)$$</p>
+<p>如果 <em>f</em> 所有的二阶导数都存在，那么 <em>f</em> 的海森矩阵即：$H(f)_{ij}(x)&#x3D;D_iD_jf(x)$其中$x&#x3D;(x_1,x_2,\cdots,x_n)$，即是：</p>
+<p>$$H(f)&#x3D;\begin{bmatrix} \frac{\partial^2 f}{\partial x_1^2} &amp;\frac{\partial^2 f}{\partial x_1\partial x_2}  &amp;\cdots &amp;\frac{\partial^2 f}{\partial x_1\partial x_n} \ \frac{\partial^2 f}{\partial x_2\partial x_1} &amp;\frac{\partial^2 f}{\partial x_2^2}  &amp;\cdots &amp;\frac{\partial^2 f}{\partial x_2\partial x_n} \ \vdots  &amp;\vdots   &amp;\ddots   &amp;\vdots  \ \frac{\partial^2 f}{\partial x_n\partial x_1} &amp;\frac{\partial^2 f}{\partial x_n\partial x_2}  &amp;\cdots &amp;\frac{\partial^2 f}{\partial x_n^2} \end{bmatrix}$$</p>
+<p>(也有人把海森定义为以上矩阵的行列式)海森矩阵被应用于牛顿法解决的大规模优化问题.</p>
+<h2 id="海森矩阵在牛顿法中的应用"><a href="#海森矩阵在牛顿法中的应用" class="headerlink" title="海森矩阵在牛顿法中的应用"></a>海森矩阵在牛顿法中的应用</h2><p>一般来说, 牛顿法主要应用在两个方面:</p>
+<ul>
+<li>求方程的根</li>
+<li>最优化</li>
+</ul>
+<h3 id="求根"><a href="#求根" class="headerlink" title="求根"></a>求根</h3><p>并不是所有的方程都有求根公式, 或者求根公式很复杂, 导致求解困难. 利用牛顿法, 可以迭代求解.</p>
+<p>原理是利用泰勒公式, 在$x_0$处展开, 且展开到一阶, 即$f(x)&#x3D;f(x_0)+(x-x_0)f’(x_0)$</p>
+<p>求解方程$f(x)&#x3D;0$，即求解$f(x_0)+(x-x_0)f’(x_0) &#x3D; 0$</p>
+<p>即是求解$$x&#x3D;x_1&#x3D;x_0-\frac{f(x_0)}{f’(x_0)}$$</p>
+<p>因为这是利用泰勒公式的一阶展开,$f(x)$的值是近似相等，这里求得的$x_1$，只能让$f(x_1) \approx 0$。于是乎, 迭代求解的想法就很自然了, 可以进而推出：$x_{n+1}&#x3D;x_n-\frac{f(x_n)}{f’(x_n)}$， 通过迭代, 这个式子必然在$f(x^*)&#x3D;0$的时候收敛.过程如下图：</p>
+<p><img src="/2018/04/28/Jacobian%E7%9F%A9%E9%98%B5%E4%B8%8EHessian%E7%9F%A9%E9%98%B5%E4%B8%8E%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98/hessian.jpg" srcset="/img/loading.gif" lazyload alt="hessian"></p>
+<h3 id="最优化"><a href="#最优化" class="headerlink" title="最优化"></a>最优化</h3><p>在最优化的问题中, 线性最优化至少可以使用单纯形法(或称**<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Fixed-point_arithmetic">不动点算法</a>**)求解, 但对于非线性优化问题, 牛顿法提供了一种求解的办法.假设任务是优化一个目标函数$f$,求函数$f$的极大极小问题可以转化为求解函数$f$的导数${f}’&#x3D;0$的问题。, 这样求可以把优化问题看成方程(${f}’&#x3D;0$)求解问题。剩下的问题就和前面提到的牛顿法求解很相似了。</p>
+<p>这次为了求解${f}’&#x3D;0$的根, 首先把$f(x)$在探索点$x_n$处泰勒展开, 展开到2阶形式进行近似：</p>
+<p>$$f(x)&#x3D;f(x_n)+f’(x_n)(x-x_n)+\frac{f’’(x_n)}{2}(x-x_n)^2$$</p>
+<p>然后用$f(x)$的最小点做为新的探索点$f(x+1)$，据此，令：</p>
+<p>$$f’(x)&#x3D;f’(x_n)+f’’(x_n)(x-x_n)&#x3D;0$$</p>
+<p>求得出迭代公式:</p>
+<p>$$x_{n+1}&#x3D;x_n-\frac{f’(n)}{f’’(n)},n&#x3D;0,1,…$$</p>
+<p>一般认为牛顿法可以利用到曲线本身的信息, 比梯度下降法更容易收敛（迭代更少次数）, 如下图是一个最小化一个目标方程的例子, 红色曲线是利用牛顿法迭代求解, 绿色曲线是利用梯度下降法求解.</p>
+<p><img src="/2018/04/28/Jacobian%E7%9F%A9%E9%98%B5%E4%B8%8EHessian%E7%9F%A9%E9%98%B5%E4%B8%8E%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98/optimize.jpg" srcset="/img/loading.gif" lazyload alt="optimize"></p>
+<p>在上面讨论的是2维情况, 高维情况的牛顿迭代公式是：</p>
+<p>$$x_{n+1}&#x3D;x_n-[\bigtriangledown ^2f(x_n)]^{-1}\bigtriangledown f(x_n),n\geqslant 0$$</p>
+<p>其中$\bigtriangledown ^2$是<strong>Hessian矩阵</strong>，$\bigtriangledown$为$f$的<strong>梯度向量</strong>，$f$的矢量微分运算。</p>
+<p>高维情况依然可以用牛顿迭代求解, 但是问题是Hessian矩阵引入的复杂性, 使得牛顿迭代求解的难度大大增加, 但是已经有了解决这个问题的办法就是Quasi-Newton method, 不再直接计算Hessian矩阵, 而是每一步的时候使用<strong>梯度向量</strong>更新Hessian矩阵的近似.</p>
+<p><strong>Reference：</strong><br><a href="ttp://jacoxu.com/jacobian%E7%9F%A9%E9%98%B5%E5%92%8Chessian%E7%9F%A9%E9%98%B5/">Jacobian矩阵和Hessian矩阵</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/u011494690/article/details/43274301">雅克比矩阵、海森矩阵与非线性最小二乘间的关系与在SFM和Pose Estimation中的应用</a><br><a target="_blank" rel="noopener" href="https://my.oschina.net/u/3579120/blog/1508433">最优化方法:牛顿迭代法和拟牛顿迭代法</a></p>
+<h1 id="最小二乘"><a href="#最小二乘" class="headerlink" title="最小二乘"></a>最小二乘</h1><p>最小二乘法的本质是最小化系数矩阵所张成的向量空间到观测向量的欧式误差距离.</p>
+<p>最小二乘法的一种常见的描述是残差满足正态分布的最大似然估计</p>
+<p>现行的最小二乘法是勒让德( A. M. Legendre)于1805年在其著作《计算慧星轨道的新方法》中提出的。它的主要思想就是选择未知参数，使得<strong>理论值</strong>与<strong>观测值</strong>之差的平方和达到最小：$H &#x3D; \sum_{0}^{m}(y-y_i)^2$</p>
+<p>##线性最小二乘问题</p>
+<p>采用线性模型去拟合数据，即$y(x)&#x3D;Jx$，则目标函数为$f(x)&#x3D;\frac{1}{2}||Jx-y||^2$，同时$\bigtriangledown f(x)&#x3D;J^T(Jx-y)$，</p>
+<p>$\bigtriangledown^2 f(x)&#x3D;J^TJ$。</p>
+<p>根据最优化定理，该问题的最优解满足如下条件：$\bigtriangledown f(x)&#x3D;0$，即是$J^TJx&#x3D;J^Ty$。</p>
+<p>求解该方程，有如下方法:</p>
+<ol>
+<li>**<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Cholesky_decomposition">Cholesky分解</a>**：当m&gt;&gt;n时，并且J比较稀疏时比较实用，但是其精度和条件数的平方相关 </li>
+<li>**<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/QR_decomposition">QR分解</a>**：精度和条件数相关 </li>
+<li>**<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Singular-value_decomposition">SVD分解</a>**：相对比较鲁棒，同时也可以添加正则项避免J是个病态矩阵。 </li>
+<li><strong>数值迭代算法</strong>：对于大规模数据比较实用。</li>
+</ol>
+<h2 id="非线性最小二乘问题"><a href="#非线性最小二乘问题" class="headerlink" title="非线性最小二乘问题"></a>非线性最小二乘问题</h2><p>采用非线性模型拟合数据，模型本身可能矢量梯度或者Hessian矩阵不容易得到。</p>
+<h3 id="高斯牛顿方法（Gauss-Newton方法）"><a href="#高斯牛顿方法（Gauss-Newton方法）" class="headerlink" title="高斯牛顿方法（Gauss-Newton方法）"></a>高斯牛顿方法（Gauss-Newton方法）</h3><p>根据标准牛顿方程，$\bigtriangledown f(x_k)p&#x3D;-\bigtriangledown f(x_k) $可以得到该问题的需要满</p>
+<p>足的条件，即$J^TJP^{GN}&#x3D;-J^Tr_K$</p>
+<p>此时Hessian矩阵用第一项代替，即$\bigtriangledown^2f(x) \approx J^TJ$</p>
+<p>得到搜索方向后，可以使用线搜索的方法得到步长，重复进行可以得到最优解。</p>
+<p><strong>Reference:</strong><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/fangqingan_java/article/details/48948487">最小二乘问题(Least-Squares)</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/bitcarmanlee/article/details/51589143">最小二乘法 来龙去脉</a><br><a target="_blank" rel="noopener" href="http://lanbing510.info/2016/03/28/Least-Squares-Parameter-Estimation.html">最小二乘法的参数估计</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qll125596718/article/details/8248249">一元线性回归模型与最小二乘法及其C++实现</a><br><a target="_blank" rel="noopener" href="http://blog.sciencenet.cn/home.php?mod=space&uid=465130&do=blog&id=1001688">机器视觉中的非线性最小二乘法</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/ivysister/article/details/45438413">最小二乘法，牛顿法，梯度下降法以及比较</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/iamccme/archive/2013/05/15/3080737.html">机器学习经典算法之—–最小二乘法</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%9C%80%E4%BC%98%E5%8C%96/">最优化</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/10/15/%E8%87%AA%E5%8A%A8%E5%BE%AE%E5%88%86%E6%B3%95/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">自动微分法</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/03/17/C-%E5%B9%B6%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-std-mutex-%E8%AF%A6%E8%A7%A3/">
+                        <span class="hidden-mobile">C++并发学习笔记(三)(std::mutex 详解)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

@@ -1,0 +1,560 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="二维图像之间的单应变换图像中的2D点(x,y)(x,y)可以被表示成3D向量的形式$(x_1,x_2,x_3)$，其中$x&#x3D;\frac{x_1}{x_3}$，$y&#x3D;\frac{x_2}{x_3}$。它被叫做点的齐次表达，位于投影平面$P^2$上。所谓单应就是发生在投影平面$P^2$上的点和线可逆的映射。其它叫法包括射影变换、投影变换和平面投影变换等。 单应变换矩阵是一个3*3的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Opencv基于特征点的图像对齐">
+<meta property="og:url" content="http://blog.home.io/2018/03/12/Opencv%E5%9F%BA%E4%BA%8E%E7%89%B9%E5%BE%81%E7%82%B9%E7%9A%84%E5%9B%BE%E5%83%8F%E5%AF%B9%E9%BD%90/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="二维图像之间的单应变换图像中的2D点(x,y)(x,y)可以被表示成3D向量的形式$(x_1,x_2,x_3)$，其中$x&#x3D;\frac{x_1}{x_3}$，$y&#x3D;\frac{x_2}{x_3}$。它被叫做点的齐次表达，位于投影平面$P^2$上。所谓单应就是发生在投影平面$P^2$上的点和线可逆的映射。其它叫法包括射影变换、投影变换和平面投影变换等。 单应变换矩阵是一个3*3的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p4.qhimg.com/bdm/216_133_0/t01ca0797355082541c.jpg">
+<meta property="article:published_time" content="2018-03-12T10:22:33.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:09:39.125Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Opencv">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p4.qhimg.com/bdm/216_133_0/t01ca0797355082541c.jpg">
+  
+  
+  <title>Opencv基于特征点的图像对齐 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Opencv基于特征点的图像对齐">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-03-12 18:22" pubdate>
+        2018年3月12日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      5.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      46 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Opencv基于特征点的图像对齐</h1>
+            
+            <div class="markdown-body">
+              <h1 id="二维图像之间的单应变换"><a href="#二维图像之间的单应变换" class="headerlink" title="二维图像之间的单应变换"></a>二维图像之间的单应变换</h1><p>图像中的2D点(x,y)(x,y)可以被表示成3D向量的形式$(x_1,x_2,x_3)$，其中$x&#x3D;\frac{x_1}{x_3}$，$y&#x3D;\frac{x_2}{x_3}$。它被叫做点的齐次表达，位于投影平面$P^2$上。所谓单应就是发生在投影平面$P^2$上的点和线可逆的映射。其它叫法包括射影变换、投影变换和平面投影变换等。</p>
+<p>单应变换矩阵是一个3*3的矩阵H。这个变换可以被任意乘上一个非零常数，而不改变变换本身。它虽然具有9个元素，但是具有8个自由度。这意味这它里面有8个未知参数待求。</p>
+<p>典型地，可以通过图像之间的特征匹配来估计单应矩阵。</p>
+<h2 id="单应和齐次坐标"><a href="#单应和齐次坐标" class="headerlink" title="单应和齐次坐标"></a>单应和齐次坐标</h2><p>一个单应矩阵是大小为3*3的矩阵$H &#x3D; \begin{bmatrix} h_{11} &amp; h_{12} &amp; h_{13}\ h_{21} &amp; h_{22} &amp; h_{23}\ h_{31} &amp; h_{32} &amp; h_{33}\end{bmatrix}$，满足给定一个点 $P_1 &#x3D; \left[ \begin{matrix}   x_1 \   y_1 \  w_1  \end{matrix} \right]$ ,矩阵H把点$P_1$变换成一个新的点$P_2 &#x3D; \left[ \begin{matrix}   x_2 \   y_2 \  w_2  \end{matrix} \right] &#x3D; \begin{bmatrix} h_{11} &amp; h_{12} &amp; h_{13}\  h_{21} &amp; h_{22} &amp; h_{23}\ h_{31} &amp; h_{32} &amp; h_{33}\end{bmatrix}\cdot  \left[ \begin{matrix}   x_1 \   y_1 \  w_1  \end{matrix} \right]$ 。由于他们都是齐次坐标，对应在图像上的两个点分别是$\left[ \begin{matrix}   \frac{x_1}{w_1}  \  \frac{y_1}{w_1}\end{matrix} \right]$，$\left[ \begin{matrix}   \frac{x_2}{w_2}  \  \frac{y_2}{w_2}\end{matrix} \right]$ 。</p>
+<h2 id="单应的自由度"><a href="#单应的自由度" class="headerlink" title="单应的自由度"></a>单应的自由度</h2><p>如果给定一个单位$H&#x3D;{h_{ij}}$，给H的每个元素乘上a，得到的单应$aH$和$H$作用相同，因为新的单应无非把齐次点$P_1$变成了齐次点$aP_2$，$aP_2$和$P_2$在图像上对应的点是相同的。所以一个单应中只有8个自由度，一般令$h_{33}&#x3D;1$来归一化。</p>
+<h2 id="求解单应"><a href="#求解单应" class="headerlink" title="求解单应"></a>求解单应</h2><p>8个未知数需要8个方程来求解，之所以4对点能求解，因为他们一个点能提供两个方程。</p>
+<p>假设图像上有两个点$(x_1,y_1)$，$(x_2,y_2)$，他们的齐次坐标为$\left[ \begin{matrix}   x_1 \   y_1 \  1  \end{matrix} \right]$，$\left[ \begin{matrix}   x_2 \   y_2 \  1  \end{matrix} \right]$。</p>
+<p>带入上述的推导可以得到：</p>
+<p>$$<br>x_2&#x3D;x_1h_{11}+y_1h_{12}+h_{13}<br>$$</p>
+<p>$$<br>y_2&#x3D;x_1h_{21}+y_1h_{22}+h_{23}<br>$$</p>
+<p>$$<br>1&#x3D;x_1h_{31}+y_1h_{32}+h_{33}<br>$$</p>
+<p>一般令$h_{33}&#x3D;1$来归一化，可得到：</p>
+<p>$$<br>x_2&#x3D;\frac{x_1h_{11}+y_1h_{12}+h_{13}}{x_1h_{31}+y_1h_{32}+1}<br>$$</p>
+<p>$$<br>y_2&#x3D;\frac{x_1h_{21}+y_1h_{22}+h_{23}}{x_1h_{31}+y_1h_{32}+1}<br>$$</p>
+<p>把这两个式子重新组织一下，得到等价的矩阵形式：</p>
+<p>$$<br>Au&#x3D;v<br>$$</p>
+<p>$$<br>A &#x3D; \left[ \begin{matrix}   x_1 \  y_1 \  1 \  0 \  0 \  0  \ -x_1x_2  \  -x_2y_1 \ 0 \ 0 \ 0 \ x_1 \ y_1 \ 1 \ -x_1y_2 \ -y_1y_2  \end{matrix} \right]<br>$$</p>
+<p>$$<br>u&#x3D;\left[ \begin{matrix}   h_{11} \  h_{12} \  h_{13} \  h_{21} \  h_{22} \  h_{23} \  h_{31} \  h_{32} \  h_{33}  \end{matrix} \right]^T<br>$$</p>
+<p>$$<br>v&#x3D;\left[ \begin{matrix} x_2 \ y_2  \end{matrix} \right]^T<br>$$</p>
+<p>如果有四对不共线匹配点对，这个方程组就能够垒到8行，存在唯一解。</p>
+<p>如果多于四对点，比如有n对点，方程就垒到2n行，用最小二乘法或SVD分解就可以求解$H$。</p>
+<p>由于点对中可能存在不少错误匹配，一般使用RANSAC算法剔除错误匹配点对。</p>
+<h1 id="Opencv中单应性矩阵H的计算"><a href="#Opencv中单应性矩阵H的计算" class="headerlink" title="Opencv中单应性矩阵H的计算"></a>Opencv中单应性矩阵H的计算</h1><p>如果在两幅对应的图像中已知4个映射点的坐标，就可以使用 <a target="_blank" rel="noopener" href="https://docs.opencv.org/3.4.1/d9/d0c/group__calib3d.html#gafd3ef89257e27d5235f4467cbb1b6a63">findHomography</a>函数如下：</p>
+<p>**C++:  ** <code>Mat cv::findHomography(InputArray srcPoints,InputArray dstPoints,OutputArray mask,int method = 0,double ransacReprojThreshold = 3)</code><br><strong>Python:</strong> <code>retval,mask=cv.findHomography(srcPoints,dstPoints[,method[,ransacReprojThreshold[,mask[,maxIters[,confidence]]]]])</code></p>
+<h1 id="自动寻找对应点-corresponding-points"><a href="#自动寻找对应点-corresponding-points" class="headerlink" title="自动寻找对应点(corresponding points)"></a>自动寻找对应点(corresponding points)</h1><p>由上文知道知道两对对应点(4个映射点)的坐标即可求得单应性矩阵H。</p>
+<p>我们可以使用在OpenCV中的几个关键点检测器（例如SIFT，SURF和ORB）。</p>
+<p>本文将采用ORB关键点检测器，SIFT和SURF已经注册专利。</p>
+<p>一个特征点检测器由两个部分组成：</p>
+<p><strong>定位器(Locator)：</strong>它可以识别图像上在平移（移位），缩放（缩小增大&#x2F;缩小）和旋转等图像变换下稳定的点。 定位器查找这些点的x，y坐标。 ORB检测器使用的定位器叫做<a target="_blank" rel="noopener" href="https://docs.opencv.org/3.0-beta/doc/py_tutorials/py_feature2d/py_fast/py_fast.html">FAST</a>。<br><strong>描述符(Descriptor)：</strong>上述步骤中的定位器仅告诉我们特征点在哪里。 特征检测器的第二部分是对点的外观进行编码的描述符，以便我们可以从另幅图中指出同一个特征点。 在特征点处评定的描述符只是一个数字数组。 理想情况下，两幅图像中的相同物理点应具有相同的描述符。 ORB使用的是<a target="_blank" rel="noopener" href="https://www.robots.ox.ac.uk/~vgg/rg/papers/brisk.pdf">BRISK</a>特征描述符的修改版本。</p>
+<h1 id="总结：图像对齐思路"><a href="#总结：图像对齐思路" class="headerlink" title="总结：图像对齐思路"></a>总结：图像对齐思路</h1><p>1、读取图像</p>
+<p>2、特征点检测</p>
+<p>3、匹配特征点</p>
+<p>4、计算单应矩阵参数</p>
+<p>5、矫正图像</p>
+<h1 id="C-Code"><a href="#C-Code" class="headerlink" title="C++ Code"></a>C++ Code</h1><figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/opencv.hpp&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opencv2/xfeatures2d.hpp&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opencv2/features2d.hpp&quot;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv::xfeatures2d;<br><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> MAX_FEATURES = <span class="hljs-number">500</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">float</span> GOOD_MATCH_PERCENT = <span class="hljs-number">0.15f</span>;<br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">alignImages</span><span class="hljs-params">(Mat &amp;im1, Mat &amp;im2, Mat &amp;im1Reg, Mat &amp;h)</span></span><br><span class="hljs-function"></span><br><span class="hljs-function"></span>&#123;<br><br>  <span class="hljs-comment">// Convert images to grayscale</span><br>  Mat im1Gray, im2Gray;<br>  <span class="hljs-built_in">cvtColor</span>(im1, im1Gray, CV_BGR2GRAY);<br>  <span class="hljs-built_in">cvtColor</span>(im2, im2Gray, CV_BGR2GRAY);<br><br>  <span class="hljs-comment">// Variables to store keypoints and descriptors</span><br>  std::vector&lt;KeyPoint&gt; keypoints1, keypoints2;<br>  Mat descriptors1, descriptors2;<br><br>  <span class="hljs-comment">// Detect ORB features and compute descriptors.</span><br>  Ptr&lt;Feature2D&gt; orb = ORB::<span class="hljs-built_in">create</span>(MAX_FEATURES);<br>  orb-&gt;<span class="hljs-built_in">detectAndCompute</span>(im1Gray, <span class="hljs-built_in">Mat</span>(), keypoints1, descriptors1);<br>  orb-&gt;<span class="hljs-built_in">detectAndCompute</span>(im2Gray, <span class="hljs-built_in">Mat</span>(), keypoints2, descriptors2);<br><br>  <span class="hljs-comment">// Match features.</span><br>  std::vector&lt;DMatch&gt; matches;<br>  Ptr&lt;DescriptorMatcher&gt; matcher = DescriptorMatcher::<span class="hljs-built_in">create</span>(<span class="hljs-string">&quot;BruteForce-Hamming&quot;</span>);<br>  matcher-&gt;<span class="hljs-built_in">match</span>(descriptors1, descriptors2, matches, <span class="hljs-built_in">Mat</span>());<br><br>  <span class="hljs-comment">// Sort matches by score</span><br>  std::<span class="hljs-built_in">sort</span>(matches.<span class="hljs-built_in">begin</span>(), matches.<span class="hljs-built_in">end</span>());<br><br>  <span class="hljs-comment">// Remove not so good matches</span><br>  <span class="hljs-type">const</span> <span class="hljs-type">int</span> numGoodMatches = matches.<span class="hljs-built_in">size</span>() * GOOD_MATCH_PERCENT;<br>  matches.<span class="hljs-built_in">erase</span>(matches.<span class="hljs-built_in">begin</span>()+numGoodMatches, matches.<span class="hljs-built_in">end</span>());<br><br><br>  <span class="hljs-comment">// Draw top matches</span><br>  Mat imMatches;<br>  <span class="hljs-built_in">drawMatches</span>(im1, keypoints1, im2, keypoints2, matches, imMatches);<br>  <span class="hljs-built_in">imwrite</span>(<span class="hljs-string">&quot;matches.jpg&quot;</span>, imMatches);<br><br><br>  <span class="hljs-comment">// Extract location of good matches</span><br>  std::vector&lt;Point2f&gt; points1, points2;<br><br>  <span class="hljs-keyword">for</span>( <span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; matches.<span class="hljs-built_in">size</span>(); i++ )<br>  &#123;<br>    points1.<span class="hljs-built_in">push_back</span>( keypoints1[ matches[i].queryIdx ].pt );<br>    points2.<span class="hljs-built_in">push_back</span>( keypoints2[ matches[i].trainIdx ].pt );<br>  &#125;<br><br>  <span class="hljs-comment">// Find homography</span><br>  h = <span class="hljs-built_in">findHomography</span>( points1, points2, RANSAC );<br><br>  <span class="hljs-comment">// Use homography to warp image</span><br>  <span class="hljs-built_in">warpPerspective</span>(im1, im1Reg, h, im2.<span class="hljs-built_in">size</span>());<br><br>&#125;<br><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> **argv)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-comment">// Read reference image</span><br>  <span class="hljs-function">string <span class="hljs-title">refFilename</span><span class="hljs-params">(<span class="hljs-string">&quot;form.jpg&quot;</span>)</span></span>; <br>  cout &lt;&lt; <span class="hljs-string">&quot;Reading reference image : &quot;</span> &lt;&lt; refFilename &lt;&lt; endl; <br>  Mat imReference = <span class="hljs-built_in">imread</span>(refFilename);<br><br><br>  <span class="hljs-comment">// Read image to be aligned</span><br>  <span class="hljs-function">string <span class="hljs-title">imFilename</span><span class="hljs-params">(<span class="hljs-string">&quot;scanned-form.jpg&quot;</span>)</span></span>;<br>  cout &lt;&lt; <span class="hljs-string">&quot;Reading image to align : &quot;</span> &lt;&lt; imFilename &lt;&lt; endl; <br>  Mat im = <span class="hljs-built_in">imread</span>(imFilename);<br><br><br>  <span class="hljs-comment">// Registered image will be resotred in imReg. </span><br>  <span class="hljs-comment">// The estimated homography will be stored in h. </span><br>  Mat imReg, h;<br><br>  <span class="hljs-comment">// Align images</span><br>  cout &lt;&lt; <span class="hljs-string">&quot;Aligning images ...&quot;</span> &lt;&lt; endl; <br>  <span class="hljs-built_in">alignImages</span>(im, imReference, imReg, h);<br><br>  <span class="hljs-comment">// Write aligned image to disk. </span><br>  <span class="hljs-function">string <span class="hljs-title">outFilename</span><span class="hljs-params">(<span class="hljs-string">&quot;aligned.jpg&quot;</span>)</span></span>;<br>  cout &lt;&lt; <span class="hljs-string">&quot;Saving aligned image : &quot;</span> &lt;&lt; outFilename &lt;&lt; endl; <br>  <span class="hljs-built_in">imwrite</span>(outFilename, imReg);<br><br>  <span class="hljs-comment">// Print estimated homography</span><br>  cout &lt;&lt; <span class="hljs-string">&quot;Estimated homography : \n&quot;</span> &lt;&lt; h &lt;&lt; endl; <br>&#125;<br></code></pre></td></tr></table></figure>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/03/16/Linux%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%E7%AC%94%E8%AE%B0/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux多线程编程入门笔记</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/03/09/%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95/">
+                        <span class="hidden-mobile">查找算法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

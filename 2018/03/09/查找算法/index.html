@@ -1,0 +1,593 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="顺序查找(Sequential Search)说明：顺序查找适合于存储结构为顺序存储或链接存储的线性表 复杂度：O(n) 基本思想：顺序查找也称线性查找(Liner Search)，属于无序查找算法。 从数据结构线性表的一端开始，顺序扫描，依次比较扫描到的结点，若相等则表示查找成功； 若扫描结束仍没有找到目标，则查找失败； 查找失败则需要进行n+1次比较，则时间复杂度为 O(n) C++实现 Co">
+<meta property="og:type" content="article">
+<meta property="og:title" content="查找算法">
+<meta property="og:url" content="http://blog.home.io/2018/03/09/%E6%9F%A5%E6%89%BE%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="顺序查找(Sequential Search)说明：顺序查找适合于存储结构为顺序存储或链接存储的线性表 复杂度：O(n) 基本思想：顺序查找也称线性查找(Liner Search)，属于无序查找算法。 从数据结构线性表的一端开始，顺序扫描，依次比较扫描到的结点，若相等则表示查找成功； 若扫描结束仍没有找到目标，则查找失败； 查找失败则需要进行n+1次比较，则时间复杂度为 O(n) C++实现 Co">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p3.qhimg.com/bdm/216_133_0/t01d5d40cbbfff7a7a9.jpg">
+<meta property="article:published_time" content="2018-03-09T13:57:31.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:16.882Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Cpp">
+<meta property="article:tag" content="Algorithm">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p3.qhimg.com/bdm/216_133_0/t01d5d40cbbfff7a7a9.jpg">
+  
+  
+  <title>查找算法 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="查找算法">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-03-09 21:57" pubdate>
+        2018年3月9日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      6.2k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      52 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">查找算法</h1>
+            
+            <div class="markdown-body">
+              <h1 id="顺序查找-Sequential-Search"><a href="#顺序查找-Sequential-Search" class="headerlink" title="顺序查找(Sequential Search)"></a>顺序查找(Sequential Search)</h1><p><strong>说明：顺序查找适合于存储结构为顺序存储或链接存储的线性表</strong></p>
+<p><strong>复杂度：O(n)</strong></p>
+<p><strong>基本思想：</strong>顺序查找也称线性查找(Liner Search)，属于无序查找算法。</p>
+<p>从数据结构线性表的一端开始，顺序扫描，依次比较扫描到的结点，若相等则表示查找成功；</p>
+<p>若扫描结束仍没有找到目标，则查找失败；</p>
+<p>查找失败则需要进行n+1次比较，则时间复杂度为 <strong>O(n)</strong></p>
+<h2 id="C-实现"><a href="#C-实现" class="headerlink" title="C++实现"></a>C++实现</h2><ul>
+<li>Code Example 1<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;stdafx.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T,<span class="hljs-keyword">typename</span> V&gt; <span class="hljs-type">int</span> <span class="hljs-title">sequential_search</span><span class="hljs-params">(<span class="hljs-type">const</span> T *arr, V key, <span class="hljs-type">size_t</span> len)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; len; i++)<br>	&#123;<br>		<span class="hljs-keyword">if</span> (key == arr[i])<br>			<span class="hljs-keyword">return</span> i;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> arr1[] = &#123; <span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">5</span>,<span class="hljs-number">8</span>,<span class="hljs-number">13</span> &#125;;<br>	<span class="hljs-type">int</span> len1 = (<span class="hljs-type">int</span>)<span class="hljs-built_in">sizeof</span>(arr1) / <span class="hljs-built_in">sizeof</span>(*arr1);<br>	<span class="hljs-type">int</span> key1 = <span class="hljs-number">8</span>;<br>	std::cout &lt;&lt; <span class="hljs-string">&quot;Index: &quot;</span> &lt;&lt; <span class="hljs-built_in">sequential_search</span>(arr1, key1, len1) &lt;&lt; std::endl;<br><br>	<span class="hljs-type">char</span> arr2[] = &#123; <span class="hljs-string">&#x27;a&#x27;</span>,<span class="hljs-string">&#x27;b&#x27;</span>,<span class="hljs-string">&#x27;c&#x27;</span>,<span class="hljs-string">&#x27;d&#x27;</span>,<span class="hljs-string">&#x27;e&#x27;</span>,<span class="hljs-string">&#x27;f&#x27;</span>,<span class="hljs-string">&#x27;g&#x27;</span> &#125;;<br>	<span class="hljs-type">int</span> len2 = (<span class="hljs-type">int</span>)<span class="hljs-built_in">sizeof</span>(arr2) / <span class="hljs-built_in">sizeof</span>(*arr2);<br>	<span class="hljs-type">char</span> key2 = <span class="hljs-string">&#x27;e&#x27;</span>;<br>	std::cout &lt;&lt; <span class="hljs-string">&quot;Index: &quot;</span> &lt;&lt; <span class="hljs-built_in">sequential_search</span>(arr2, key2, len2) &lt;&lt; std::endl;<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+<li>Code Example 2<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> arr[] = &#123; <span class="hljs-number">1</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">5</span>,<span class="hljs-number">8</span>,<span class="hljs-number">13</span> &#125;;<br>	<span class="hljs-type">int</span> count = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">int</span> key = <span class="hljs-number">13</span>;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span> elem : arr)<br>	&#123;<br>		<span class="hljs-keyword">if</span> (key == elem)<br>		&#123;<br>			<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>			<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>		&#125;<br>		count++;<br>	&#125;<br>	std::cout &lt;&lt; <span class="hljs-string">&quot;not fund !&quot;</span> &lt;&lt; std::endl;<br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>	<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<h1 id="二分查找-Binary-Search"><a href="#二分查找-Binary-Search" class="headerlink" title="二分查找(Binary Search)"></a>二分查找(Binary Search)</h1><p><strong>说明：元素必须是有序的，若无序则需先排序</strong></p>
+<p><strong>复杂度：O(log2n)</strong></p>
+<p><strong>基本思想：</strong>将n个元素分成大致相等的两部分，取a[n&#x2F;2]与x做比较，如果x&#x3D;a[n&#x2F;2],则找到x,算法中止；</p>
+<p>如果x&lt;a[n&#x2F;2],则只要在数组a的左半部分继续搜索x</p>
+<p>如果x&gt;a[n&#x2F;2],则只要在数组a的右半部搜索x.</p>
+<p>时间复杂度无非就是while循环的次数,总共有n个元素，</p>
+<p>渐渐跟下去就是n,n&#x2F;2,n&#x2F;4,….n&#x2F;2^k（接下来操作元素的剩余个数），其中k就是循环的次数</p>
+<p>由于你n&#x2F;2^k取整后&gt;&#x3D;1，即令n&#x2F;2^k&#x3D;1</p>
+<p>可得k&#x3D;log2n,（是以2为底，n的对数）</p>
+<p>所以时间复杂度可以表示O(h)&#x3D;O(log2n)</p>
+<h2 id="C-实现-1"><a href="#C-实现-1" class="headerlink" title="C++实现"></a>C++实现</h2><ul>
+<li>随机数生成</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;ctime&gt;</span></span><br><br><span class="hljs-built_in">srand</span>((<span class="hljs-type">unsigned</span>)<span class="hljs-built_in">time</span>(<span class="hljs-literal">NULL</span>));<br>std::cout&lt;&lt;<span class="hljs-built_in">rand</span>()&lt;&lt;std::endl;<br><br>取得(<span class="hljs-number">0</span>,x)的随机整数：<span class="hljs-built_in">rand</span>()%x；<br>取得(a,b)的随机整数：<span class="hljs-built_in">rand</span>()%(b-a)；<br>取得[a,b)的随机整数：<span class="hljs-built_in">rand</span>()%(b-a)+a；<br>取得[a,b]的随机整数：<span class="hljs-built_in">rand</span>()%(b-a+<span class="hljs-number">1</span>)+a；<br>取得(a,b]的随机整数：<span class="hljs-built_in">rand</span>()%(b-a)+a+<span class="hljs-number">1</span>；<br>取得<span class="hljs-number">0</span><span class="hljs-number">-1</span>之间的浮点数：<span class="hljs-built_in">rand</span>()/<span class="hljs-built_in">double</span>(RAND_MAX)<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>每次都从中间分，完成查找次数相对稳定</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> mid = (left + right) / <span class="hljs-number">2</span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>每次的mid值由左右界限来生成随机值</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> mid = <span class="hljs-built_in">rand</span>() % (right - left + <span class="hljs-number">1</span>) + left;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>Code</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;math.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;ctime&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T,<span class="hljs-keyword">typename</span> V&gt; <span class="hljs-type">int</span> <span class="hljs-title">binary_search</span><span class="hljs-params">(V *arr,T key, <span class="hljs-type">size_t</span> len)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> left = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">int</span> right = len - <span class="hljs-number">1</span>;<br>	<span class="hljs-type">int</span> count = <span class="hljs-number">0</span>;<br>	<span class="hljs-built_in">srand</span>((<span class="hljs-type">unsigned</span>)<span class="hljs-built_in">time</span>(<span class="hljs-literal">NULL</span>));<br>	<span class="hljs-keyword">while</span> (left &lt;= right)<br>	&#123;<br>		<span class="hljs-comment">//int mid = (left + right) / 2;</span><br>		<span class="hljs-type">int</span> mid = <span class="hljs-built_in">rand</span>() % (right - left + <span class="hljs-number">1</span>) + left;<br>		<span class="hljs-keyword">if</span> (arr[mid] == key)<br>		&#123;<br>			std::cout &lt;&lt; <span class="hljs-string">&quot;real times to target:&quot;</span> &lt;&lt; <span class="hljs-string">&quot;\t\t&quot;</span> &lt;&lt; count &lt;&lt; std::endl;<br>			<span class="hljs-keyword">return</span> mid;<br>		&#125;<br>		<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(key &gt; arr[mid])<br>			left = mid + <span class="hljs-number">1</span>;<br>		<span class="hljs-keyword">else</span><br>			right = mid - <span class="hljs-number">1</span>;<br>		<br>		count++;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv )</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">char</span> key = <span class="hljs-string">&#x27;a&#x27;</span>+ <span class="hljs-number">29</span>;<br>	<span class="hljs-type">const</span> <span class="hljs-type">int</span> len = <span class="hljs-number">30</span>;<br>	<span class="hljs-type">char</span> arr[len];<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; len; i++)<br>		arr[i] = <span class="hljs-string">&#x27;a&#x27;</span> + i;<br><br>	std::cout &lt;&lt; <span class="hljs-string">&quot;expected times to target:&quot;</span> &lt;&lt; <span class="hljs-string">&quot;\t&quot;</span> &lt;&lt; <span class="hljs-built_in">log2</span>(len) &lt;&lt; std::endl;<br>	std::cout &lt;&lt; <span class="hljs-built_in">binary_search</span>(arr, key, len) &lt;&lt; std::endl;<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="插值查找-Interpolation-Search"><a href="#插值查找-Interpolation-Search" class="headerlink" title="插值查找(Interpolation Search)"></a>插值查找(Interpolation Search)</h1><p>在二分查找的基础上，二分查找是每次都分一办查找。但是我们查字典的时候并不会是一半一半的翻页。</p>
+<p>比如查c开头的单词，我们会从字典的**(c-a)&#x2F;(z-a)**部分打开。</p>
+<p>这种折半的查找方式并不是每次折半<strong>1&#x2F;2</strong>，因此我们将二分法的折<strong>1&#x2F;2</strong>的方式优化为自适应的**(c-a)&#x2F;(z-a)**的比例。</p>
+<p>二分法：<em><em>mid&#x3D;(left+right )&#x2F;2, 即mid&#x3D;left+1&#x2F;2</em>(right -left);</em>*</p>
+<p>插值法则是： <strong>mid &#x3D; left+ (key - arr[left])&#x2F;(arr[right] - key) * (right - left)</strong></p>
+<p><strong>基本思想：基于二分法，改进查找点的自适应性，从而提高效率。插值查找也属于有序查找。</strong></p>
+<p><strong>复杂度：查找成功&#x2F;失败都是$O(log_2(log_2^n))$。</strong></p>
+<p>注：<strong>对于表长较大，而关键字分布又比较均匀的查找表来说，插值查找算法的平均性能比折半查找要好的多。反之，数组中如果分布非常不均匀，那么插值查找未必是很合适的选择。</strong></p>
+<h2 id="C-实现-2"><a href="#C-实现-2" class="headerlink" title="C++实现"></a>C++实现</h2><ul>
+<li>Code<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;stdafx.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;math.h&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span> V&gt; <span class="hljs-type">size_t</span> <span class="hljs-title">interpolation_search</span><span class="hljs-params">(V *arr, T key, <span class="hljs-type">size_t</span> len, <span class="hljs-type">size_t</span> &amp;count)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> left = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">int</span> right = len - <span class="hljs-number">1</span>;<br>	<span class="hljs-type">int</span> mid = <span class="hljs-number">0</span>;<br><br>	<span class="hljs-keyword">while</span> ((arr[left]!=arr[right]) &amp;&amp; (key&gt;arr[left]) &amp;&amp; (key&lt;arr[right]))<br>	&#123;<br>		count++;<br>		mid = left + (right - left) * (key - arr[left]) / (arr[right] - arr[left]);<br>		<span class="hljs-keyword">if</span> (key &gt; arr[mid])<br>			left = mid + <span class="hljs-number">1</span>;<br>		<span class="hljs-keyword">else</span><br>			right = mid - <span class="hljs-number">1</span>;<br>	&#125;<br>	<span class="hljs-keyword">if</span> (arr[mid] == key)<br>		<span class="hljs-keyword">return</span> mid;<br>	<span class="hljs-keyword">else</span><br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">char</span> key = <span class="hljs-string">&#x27;a&#x27;</span> + <span class="hljs-number">10</span>;<br>	<span class="hljs-type">const</span> <span class="hljs-type">size_t</span> len = <span class="hljs-number">29</span>;<br>	<span class="hljs-type">size_t</span> count = <span class="hljs-number">0</span>;<br>	<span class="hljs-type">char</span> arr[len];<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; len; i++)<br>		arr[i] = <span class="hljs-string">&#x27;a&#x27;</span> + i;<br><br>	std::cout &lt;&lt; <span class="hljs-string">&quot;expected times to target:\t&quot;</span> &lt;&lt; <span class="hljs-built_in">log2</span>(<span class="hljs-built_in">log2</span>(len)) &lt;&lt; std::endl;<br>	std::cout &lt;&lt; <span class="hljs-string">&quot;position: \t&quot;</span> &lt;&lt; <span class="hljs-built_in">interpolation_search</span>(arr, key, len, count) &lt;&lt; std::endl;<br>	std::cout &lt;&lt; <span class="hljs-string">&quot;real times to target:\t&quot;</span> &lt;&lt; count &lt;&lt; std::endl;<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure></li>
+</ul>
+<p>**输出： **</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">expected <span class="hljs-built_in">times</span> to target:       2.28036<br>position:       				10<br>real <span class="hljs-built_in">times</span> to target:   		1<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="分块查找-Block-Search"><a href="#分块查找-Block-Search" class="headerlink" title="分块查找(Block Search)"></a>分块查找(Block Search)</h1><p><strong>分块有序：</strong>整个表中的元素未必有序，但若划分为若干块后，每一块中的所有元素均小于（或大于）其后面块中的所有元素。</p>
+<p>分块查找又称<strong>索引顺序查找</strong>，它是顺序查找的一种改进方法。首先须要对数组进行分块，分块查找须要建立一个“索引表”。索引表分为m块，每块含有N&#x2F;m个元素，块内是无序的，块间是有序的，比如块2中最大元素小于块3中最小元素。先用二分查找索引表。确定须要查找的keyword在哪一块，然后再在对应的块内用顺序查找。</p>
+<p><strong>操作步骤：</strong></p>
+<p>　　step1 先选取各块中的最大关键字构成一个索引表；</p>
+<p>　　step2 查找分两个部分：先对索引表进行二分查找或顺序查找，以确定待查记录在哪一块中；然后，在已确定的块中用顺序法进行查找。</p>
+<p><strong>时间复杂度：</strong>O(log(m)+N&#x2F;m)</p>
+<h2 id="C-实现-Block-search"><a href="#C-实现-Block-search" class="headerlink" title="C++实现(Block search)"></a>C++实现(Block search)</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;stdafx.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">//索引表--结构体模板</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt; <span class="hljs-keyword">struct</span> <span class="hljs-title class_">Index_table</span><br>&#123;<br>	T key;<br>	<span class="hljs-type">int</span> link;<br>&#125;;<br><br><span class="hljs-comment">// index_able为索引表,x为原数组,N为数组大小，m为块大小, keyword为查找目标</span><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;  <span class="hljs-type">int</span> <span class="hljs-title">index_order_search</span><span class="hljs-params">(Index_table&lt;T&gt; *index_able, T *x, <span class="hljs-type">int</span> N, <span class="hljs-type">int</span> m, T keyword)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-type">int</span> L = (N + m - <span class="hljs-number">1</span>) / m;<br>	<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">while</span> (i &lt; L &amp;&amp; index_able[i].key &lt; keyword)<br>		i++;<br>	<span class="hljs-keyword">if</span> (i == L)<br>		<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>	<span class="hljs-keyword">else</span><br>	&#123;<br>		<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = index_able[i].link; j &lt; index_able[i].link + m; j++)<br>			<span class="hljs-keyword">if</span> (x[j] == keyword)<br>				<span class="hljs-keyword">return</span> j;<br>	&#125;<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>** argv)</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-comment">//block1(22,0)    |block2(48,6)      |block3(86,12)</span><br>	<span class="hljs-comment">//22,12,13,8,9,20,|33,42,44,38,24,48,|60,58,74,49,86,53</span><br>	<span class="hljs-comment">//0 ,1 ,2 ,3,4,5 ,|6 ,7 ,8 ,9 ,10,11,|12,13,14,15,16,17</span><br>	<span class="hljs-type">int</span> arr[] = &#123;<span class="hljs-number">22</span>,<span class="hljs-number">12</span>,<span class="hljs-number">13</span>,<span class="hljs-number">8</span>,<span class="hljs-number">9</span>,<span class="hljs-number">20</span>,<span class="hljs-number">33</span>,<span class="hljs-number">42</span>,<span class="hljs-number">44</span>,<span class="hljs-number">38</span>,<span class="hljs-number">24</span>,<span class="hljs-number">48</span>,<span class="hljs-number">60</span>,<span class="hljs-number">58</span>,<span class="hljs-number">74</span>,<span class="hljs-number">49</span>,<span class="hljs-number">86</span>,<span class="hljs-number">53</span>&#125;;<br>	<span class="hljs-type">int</span> len = (<span class="hljs-type">unsigned</span>)<span class="hljs-built_in">sizeof</span>(arr) / <span class="hljs-built_in">sizeof</span>(*arr);<br>	<span class="hljs-type">int</span> block_size = <span class="hljs-number">6</span>;<br>	<span class="hljs-type">int</span> target = <span class="hljs-number">33</span>;<br><br>	Index_table&lt;<span class="hljs-type">int</span>&gt; index_table[<span class="hljs-number">3</span>];<br>	index_table[<span class="hljs-number">0</span>].key = <span class="hljs-number">22</span>;<br>	index_table[<span class="hljs-number">0</span>].link = <span class="hljs-number">0</span>;<br>	index_table[<span class="hljs-number">1</span>].key = <span class="hljs-number">48</span>;<br>	index_table[<span class="hljs-number">1</span>].link = <span class="hljs-number">6</span>; <br>	index_table[<span class="hljs-number">2</span>].key = <span class="hljs-number">86</span>;<br>	index_table[<span class="hljs-number">2</span>].link = <span class="hljs-number">12</span>;<br><br>	std::cout &lt;&lt; <span class="hljs-built_in">index_order_search</span>(index_table, arr, len, block_size, target) &lt;&lt; std::endl;<br><br>	<span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Algorithm/">Algorithm</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Cpp/">Cpp</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Algorithm/">Algorithm</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/03/12/Opencv%E5%9F%BA%E4%BA%8E%E7%89%B9%E5%BE%81%E7%82%B9%E7%9A%84%E5%9B%BE%E5%83%8F%E5%AF%B9%E9%BD%90/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv基于特征点的图像对齐</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/03/06/Google-C-Style-Guide/">
+                        <span class="hidden-mobile">Google C++ Style Guide</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

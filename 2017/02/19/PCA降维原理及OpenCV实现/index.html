@@ -1,0 +1,535 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="介绍PCA（principal component analysis）就是主分量分析，是一种常用的数据分析方法。PCA通过线性变换将原始数据变换为一组各维度线性无关的表示，可用于提取数据的主要特征分量，常用于高维数据的降维。通过数据降维可以实现数据的压缩，同时方便数据分析和提高算法的处理速度。PCA的原理就是通过正交变换，最大化样本协方差阵的对角元素，最小化非对角元素。但是PCA应用本身是基于一定">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PCA降维原理及OpenCV实现">
+<meta property="og:url" content="http://blog.home.io/2017/02/19/PCA%E9%99%8D%E7%BB%B4%E5%8E%9F%E7%90%86%E5%8F%8AOpenCV%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="介绍PCA（principal component analysis）就是主分量分析，是一种常用的数据分析方法。PCA通过线性变换将原始数据变换为一组各维度线性无关的表示，可用于提取数据的主要特征分量，常用于高维数据的降维。通过数据降维可以实现数据的压缩，同时方便数据分析和提高算法的处理速度。PCA的原理就是通过正交变换，最大化样本协方差阵的对角元素，最小化非对角元素。但是PCA应用本身是基于一定">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p4.qhimg.com/bdm/216_133_0/t01ff3941eae3a1e843.jpg">
+<meta property="article:published_time" content="2017-02-19T11:24:29.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:44.505Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Opencv">
+<meta property="article:tag" content="PCA">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p4.qhimg.com/bdm/216_133_0/t01ff3941eae3a1e843.jpg">
+  
+  
+  <title>PCA降维原理及OpenCV实现 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="PCA降维原理及OpenCV实现">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-02-19 19:24" pubdate>
+        2017年2月19日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      26 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">PCA降维原理及OpenCV实现</h1>
+            
+            <div class="markdown-body">
+              <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><strong>PCA（principal component analysis）</strong>就是主分量分析，是一种常用的数据分析方法。PCA通过线性变换将原始数据变换为一组各维度线性无关的表示，可用于提取数据的主要特征分量，常用于高维数据的降维。通过数据降维可以实现数据的压缩，同时方便数据分析和提高算法的处理速度。PCA的原理就是通过正交变换，最大化样本协方差阵的对角元素，最小化非对角元素。但是PCA应用本身是基于一定假设的：<br><strong>1、</strong>线性。即特征的变换是线性变换，作用有限，目前也有非线性的特征变换kernel PCA。<br><strong>2、</strong>处理的数据分布式服从指数族概率密度函数，即能通过均值和协方差来表征数据的分布，因为只有在这个情况下信噪比和协方差矩阵才能表示噪声和数据冗余。（好在实际应用中常见的数据是服从高斯分布或近似高斯分布）。</p>
+<h2 id="PCA原理"><a href="#PCA原理" class="headerlink" title="PCA原理"></a>PCA原理</h2><p>关于PCA的理论与公式推导网络上很多，尴尬的是本人功底有限，理论方面这里就不列出啦。下面主要从Opencv应用的角度大概来讲讲自己对PCA具体怎么实现数据集降维的理解。<br><strong>1、</strong>把原始数据中每个样本用一个向量表示，然后把所有样本组合起来构成一个矩阵，避免样本单位的影响，样本集需要标准化。<br><strong>2、</strong>求该矩阵的协方差矩阵。(关于协方差矩阵的理解大家可以看看这篇文章)<br><strong>3、</strong>求步骤2中得到的协方差矩阵的特征值和特征向量。<br>（再将求出的特征向量按照特征值的大小进行组合形成一个映射矩阵，并根据指定的PCA保留的特征个数取出映射矩阵的前n行或者前n列作为最终的映射矩阵。映射矩阵是对原始数据的映射，从而来达到从高维度降维的目的）。</p>
+<h2 id="代码帮助理解"><a href="#代码帮助理解" class="headerlink" title="代码帮助理解"></a>代码帮助理解</h2><p>直接上代码吧，当作自己的备忘，有注释便于理解如何使用Opencv简单的实现PCA。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2\opencv.hpp&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2\highgui\highgui.hpp&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2\ml\ml.hpp&gt;</span>  </span><br>   <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DoPca</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat &amp;_data, <span class="hljs-type">int</span> dim, Mat &amp;eigenvalues, Mat &amp;eigenvectors)</span></span>;  <br>   <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printMat</span><span class="hljs-params">( Mat _data )</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    Mat data = cv::<span class="hljs-built_in">Mat_</span>&lt;<span class="hljs-type">double</span>&gt;(_data);  <br>    <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;data.rows; i++ )  <br>    &#123;  <br>        <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> j=<span class="hljs-number">0</span>; j&lt; data.cols; j++ )  <br>        &#123;  <br>            cout &lt;&lt; data.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">double</span>&gt;(i,j) &lt;&lt; <span class="hljs-string">&quot;  &quot;</span>;  <br>        &#125;  <br>        cout &lt;&lt; endl;  <br>    &#125;  <br>&#125;  <br>   <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-type">float</span> A[ <span class="hljs-number">60</span> ]=&#123;   <br>    <span class="hljs-number">1.5</span> , <span class="hljs-number">2.3</span> , <span class="hljs-number">1.5</span> , <span class="hljs-number">2.3</span> , <span class="hljs-number">1.5</span> , <span class="hljs-number">2.3</span> ,   <br>    <span class="hljs-number">3.0</span> , <span class="hljs-number">1.7</span> , <span class="hljs-number">3.0</span> , <span class="hljs-number">1.7</span> , <span class="hljs-number">3.0</span> , <span class="hljs-number">1.7</span> ,   <br>    <span class="hljs-number">1.2</span> , <span class="hljs-number">2.9</span> , <span class="hljs-number">1.2</span> , <span class="hljs-number">2.9</span> , <span class="hljs-number">1.2</span> , <span class="hljs-number">2.9</span> ,   <br>    <span class="hljs-number">2.1</span> , <span class="hljs-number">2.2</span> , <span class="hljs-number">2.1</span> , <span class="hljs-number">2.2</span> , <span class="hljs-number">2.1</span> , <span class="hljs-number">2.2</span> ,  <br>    <span class="hljs-number">3.1</span> , <span class="hljs-number">3.1</span> , <span class="hljs-number">3.1</span> , <span class="hljs-number">3.1</span> , <span class="hljs-number">3.1</span> , <span class="hljs-number">3.1</span> ,   <br>    <span class="hljs-number">1.3</span> , <span class="hljs-number">2.7</span> , <span class="hljs-number">1.3</span> , <span class="hljs-number">2.7</span> , <span class="hljs-number">1.3</span> , <span class="hljs-number">2.7</span> ,   <br>    <span class="hljs-number">2.0</span> , <span class="hljs-number">1.7</span> , <span class="hljs-number">2.0</span> , <span class="hljs-number">1.7</span> , <span class="hljs-number">2.0</span> , <span class="hljs-number">1.7</span> ,   <br>    <span class="hljs-number">1.0</span> , <span class="hljs-number">2.0</span> , <span class="hljs-number">1.0</span> , <span class="hljs-number">2.0</span> , <span class="hljs-number">1.0</span> , <span class="hljs-number">2.0</span> ,   <br>    <span class="hljs-number">0.5</span> , <span class="hljs-number">0.6</span> , <span class="hljs-number">0.5</span> , <span class="hljs-number">0.6</span> , <span class="hljs-number">0.5</span> , <span class="hljs-number">0.6</span> ,   <br>    <span class="hljs-number">1.0</span> , <span class="hljs-number">0.9</span> , <span class="hljs-number">1.0</span> , <span class="hljs-number">0.9</span> , <span class="hljs-number">1.0</span> , <span class="hljs-number">0.9</span> &#125;;   <br>   <br>    Mat DataMat = Mat::<span class="hljs-built_in">zeros</span>( <span class="hljs-number">10</span>, <span class="hljs-number">6</span>, CV_32F );  <br>   <br>    <span class="hljs-comment">//将数组A里的数据放入DataMat矩阵中  </span><br>    <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">10</span>; i++ )  <br>    &#123;  <br>        <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> j=<span class="hljs-number">0</span>; j&lt;<span class="hljs-number">6</span>; j++ )  <br>        &#123;  <br>            DataMat.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(i, j) = A[i * <span class="hljs-number">6</span> + j];  <br>        &#125;  <br>    &#125;  <br>   <br>    <span class="hljs-comment">// OPENCV PCA  </span><br>    <span class="hljs-function">PCA <span class="hljs-title">pca</span><span class="hljs-params">(DataMat, noArray(), CV_PCA_DATA_AS_ROW)</span></span>;  <br>   <br>    Mat eigenvalues;<span class="hljs-comment">//特征值  </span><br>    Mat eigenvectors;<span class="hljs-comment">//特征向量  </span><br>   <br>    <span class="hljs-built_in">DoPca</span>(DataMat, <span class="hljs-number">3</span>, eigenvalues, eigenvectors);  <br>   <br>    cout &lt;&lt; <span class="hljs-string">&quot;eigenvalues:&quot;</span> &lt;&lt; endl;  <br>    <span class="hljs-built_in">printMat</span>( eigenvalues );  <br>    cout &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span> &lt;&lt; endl;  <br>    cout &lt;&lt; <span class="hljs-string">&quot;eigenvectors:&quot;</span> &lt;&lt; endl;  <br>    <span class="hljs-built_in">printMat</span>( eigenvectors );  <br>   <br>    <span class="hljs-built_in">system</span>(<span class="hljs-string">&quot;pause&quot;</span>);  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br>   <br>   <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DoPca</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat &amp;_data, <span class="hljs-type">int</span> dim, Mat &amp;eigenvalues, Mat &amp;eigenvectors)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-built_in">assert</span>( dim&gt;<span class="hljs-number">0</span> );  <br>    Mat data =  cv::<span class="hljs-built_in">Mat_</span>&lt;<span class="hljs-type">double</span>&gt;(_data);  <br>   <br>    <span class="hljs-type">int</span> R = data.rows;  <br>    <span class="hljs-type">int</span> C = data.cols;  <br>   <br>    <span class="hljs-keyword">if</span> ( dim&gt;C )  <br>        dim = C;  <br>  <br>    <span class="hljs-comment">//计算均值  </span><br>    Mat m = Mat::<span class="hljs-built_in">zeros</span>( <span class="hljs-number">1</span>, C, data.<span class="hljs-built_in">type</span>() );  <br>   <br>    <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> j=<span class="hljs-number">0</span>; j&lt;C; j++ )  <br>    &#123;  <br>        <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;R; i++ )  <br>        &#123;  <br>            m.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">double</span>&gt;(<span class="hljs-number">0</span>,j) += data.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">double</span>&gt;(i,j);  <br>        &#125;  <br>    &#125;  <br>  <br>    m = m/R;   <br>    <span class="hljs-comment">//求取6列数据对应的均值存放在m矩阵中，均值： [1.67、2.01、1.67、2.01、1.67、2.01]  </span><br>      <br>  <br>    <span class="hljs-comment">//计算协方差矩阵  </span><br>    Mat S =  Mat::<span class="hljs-built_in">zeros</span>( R, C, data.<span class="hljs-built_in">type</span>() );  <br>    <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;R; i++ )  <br>    &#123;  <br>        <span class="hljs-keyword">for</span> ( <span class="hljs-type">int</span> j=<span class="hljs-number">0</span>; j&lt;C; j++ )  <br>        &#123;  <br>            S.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">double</span>&gt;(i,j) = data.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">double</span>&gt;(i,j) - m.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">double</span>&gt;(<span class="hljs-number">0</span>,j); <span class="hljs-comment">// 数据矩阵的值减去对应列的均值  </span><br>        &#125;  <br>    &#125;  <br>      <br>    Mat Average = S.<span class="hljs-built_in">t</span>() * S /(R);  <br>    <span class="hljs-comment">//计算协方差矩阵的方式----(S矩阵的转置 * S矩阵)/行数  </span><br>  <br>  <br>    <span class="hljs-comment">//使用opencv提供的eigen函数求特征值以及特征向量  </span><br>    <span class="hljs-built_in">eigen</span>(Average, eigenvalues, eigenvectors);  <br>&#125;  <br></code></pre></td></tr></table></figure>
+<p>同时贴出结果图，可以看到6个列(维度)的<strong>特征值</strong>以及<strong>特征向量</strong>：<br><img src="/2017/02/19/PCA%E9%99%8D%E7%BB%B4%E5%8E%9F%E7%90%86%E5%8F%8AOpenCV%E5%AE%9E%E7%8E%B0/PCA.png" srcset="/img/loading.gif" lazyload alt="PCA维"></p>
+<h2 id="推荐"><a href="#推荐" class="headerlink" title="推荐"></a>推荐</h2><p>顺便给大家推荐一个<a target="_blank" rel="noopener" href="http://www.cse.cuhk.edu.hk/~leojia/deblurring.htm">图像去模糊算法</a>，香港大学的<a target="_blank" rel="noopener" href="http://www.cse.cuhk.edu.hk/~leojia/">贾佳亚</a>大牛发明的，处于世界领先水平，而且个人主页上有丰富的源码。</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Opencv/">Opencv</a>
+                    
+                      <a class="hover-with-bg" href="/tags/PCA/">PCA</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/02/19/Opencv%E7%94%9F%E6%88%90%E6%91%84%E5%83%8F%E5%A4%B4%E6%A0%87%E5%AE%9A%E6%A3%8B%E7%9B%98/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv生成摄像头标定棋盘</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/02/19/Opencv%E9%9C%8D%E5%A4%AB%E7%9B%B4%E7%BA%BF%E6%A3%80%E6%B5%8B/">
+                        <span class="hidden-mobile">Opencv霍夫直线检测</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

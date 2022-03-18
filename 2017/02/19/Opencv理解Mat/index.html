@@ -1,0 +1,867 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="数据类型 CV_8UC1*&#x2F;&#x2F; 8位无符号单通道* CV_8UC3*&#x2F;&#x2F; 8位无符号3通道* CV_8UC4 CV_32FC1*&#x2F;&#x2F; 32位浮点型单通道* CV_32FC3*&#x2F;&#x2F; 32位浮点型3通道*  包括数据位深度8位、32位，数据类型U:uchar、F:float型以及通道数C1：单通道、C3：三通道、C4：四">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Opencv理解Mat与基本操作">
+<meta property="og:url" content="http://blog.home.io/2017/02/19/Opencv%E7%90%86%E8%A7%A3Mat/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="数据类型 CV_8UC1*&#x2F;&#x2F; 8位无符号单通道* CV_8UC3*&#x2F;&#x2F; 8位无符号3通道* CV_8UC4 CV_32FC1*&#x2F;&#x2F; 32位浮点型单通道* CV_32FC3*&#x2F;&#x2F; 32位浮点型3通道*  包括数据位深度8位、32位，数据类型U:uchar、F:float型以及通道数C1：单通道、C3：三通道、C4：四">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p7.qhimg.com/bdm/432_266_0/t0158a975fa57d6150f.jpg">
+<meta property="article:published_time" content="2017-02-19T10:43:26.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:09:14.944Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Opencv">
+<meta property="article:tag" content="Mat">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p7.qhimg.com/bdm/432_266_0/t0158a975fa57d6150f.jpg">
+  
+  
+  <title>Opencv理解Mat与基本操作 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Opencv理解Mat与基本操作">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-02-19 18:43" pubdate>
+        2017年2月19日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      62 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Opencv理解Mat与基本操作</h1>
+            
+            <div class="markdown-body">
+              <hr>
+<h2 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h2><blockquote>
+<p>CV_8UC1*&#x2F;&#x2F; 8位无符号单通道*</p>
+<p>CV_8UC3*&#x2F;&#x2F; 8位无符号3通道*</p>
+<p>CV_8UC4</p>
+<p>CV_32FC1*&#x2F;&#x2F; 32位浮点型单通道*</p>
+<p>CV_32FC3*&#x2F;&#x2F; 32位浮点型3通道*</p>
+</blockquote>
+<p>包括数据位深度8位、32位，数据类型U:uchar、F:float型以及通道数C1：单通道、C3：三通道、C4：四通道。</p>
+<h2 id="构造函数"><a href="#构造函数" class="headerlink" title="构造函数"></a>构造函数</h2><figure class="highlight c++"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></div></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function">cv::Mat <span class="hljs-title">a</span><span class="hljs-params">(cv::Size(<span class="hljs-number">5</span>,<span class="hljs-number">5</span>),CV_8UC1)</span></span>; <span class="hljs-comment">// 单通道</span><br>cv::Mat b = cv::<span class="hljs-built_in">Mat</span>(cv::<span class="hljs-built_in">Size</span>(<span class="hljs-number">5</span>,<span class="hljs-number">5</span>),CV_8UC3); <span class="hljs-comment">//3通道每个矩阵元素包含3个uchar值</span><br><span class="hljs-function">cv::Mat <span class="hljs-title">img</span><span class="hljs-params">(<span class="hljs-number">20</span>, <span class="hljs-number">20</span>, CV_8UC3, cv::Scalar(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">255</span>))</span></span>; <br>Mat m =(<span class="hljs-built_in">Mat_</span>(<span class="hljs-number">3</span>,<span class="hljs-number">3</span>)&lt;&lt;<span class="hljs-number">-3</span>,<span class="hljs-number">-2</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>);<br>cv::Mat e = cv::Mat::<span class="hljs-built_in">eye</span>(<span class="hljs-number">4</span>,<span class="hljs-number">4</span>,CV_64F);<br>cv::Mat o = cv::Mat::<span class="hljs-built_in">ones</span>(<span class="hljs-number">2</span>,<span class="hljs-number">2</span>,CV_32F);<br>cv::Mat z = cv::Mat::<span class="hljs-built_in">zeros</span>(<span class="hljs-number">3</span>,<span class="hljs-number">3</span>,CV_8UC1);<br></code></pre></td></tr></table></figure>
+
+<h3 id="Create方法"><a href="#Create方法" class="headerlink" title="Create方法"></a>Create方法</h3><p>该方法不能为矩阵设置初始值，只是在改变尺寸时为矩阵数据重新分配内存。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">//创建一个4行4列有2个通道的矩阵：</span><br>Mat img;<br>img.<span class="hljs-built_in">create</span>(<span class="hljs-number">4</span>, <span class="hljs-number">4</span>, CV_8UC2);<br></code></pre></td></tr></table></figure>
+
+<h3 id="几种特殊矩阵初始化方式的说明"><a href="#几种特殊矩阵初始化方式的说明" class="headerlink" title="几种特殊矩阵初始化方式的说明"></a>几种特殊矩阵初始化方式的说明</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++">cv::Mat e = cv::Mat::<span class="hljs-built_in">eye</span>(<span class="hljs-number">4</span>,<span class="hljs-number">4</span>,CV_64F);<span class="hljs-comment">// 4行4列的对角矩阵 </span><br>cv::Mat o = cv::Mat::<span class="hljs-built_in">ones</span>(<span class="hljs-number">2</span>,<span class="hljs-number">2</span>,CV_32F);<span class="hljs-comment">// 2行2列的单位矩阵</span><br>cv::Mat z = cv::Mat::<span class="hljs-built_in">zeros</span>(<span class="hljs-number">3</span>,<span class="hljs-number">3</span>,CV_8UC1);<span class="hljs-comment">// 3行3列的零矩阵</span><br></code></pre></td></tr></table></figure>
+<h3 id="小矩阵的初始化"><a href="#小矩阵的初始化" class="headerlink" title="小矩阵的初始化"></a>小矩阵的初始化</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">Mat m =(<span class="hljs-built_in">Mat_</span>(<span class="hljs-number">3</span>,<span class="hljs-number">3</span>)&lt;&lt;<span class="hljs-number">-3</span>,<span class="hljs-number">-2</span>,<span class="hljs-number">-1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">3</span>,<span class="hljs-number">4</span>,<span class="hljs-number">5</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="矩阵运算"><a href="#矩阵运算" class="headerlink" title="矩阵运算"></a>矩阵运算</h2><h3 id="加减法"><a href="#加减法" class="headerlink" title="加减法"></a>加减法</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c++">cv::Mat a= Mat::<span class="hljs-built_in">eye</span>(<span class="hljs-built_in">Size</span>(<span class="hljs-number">3</span>,<span class="hljs-number">2</span>), CV_32F);<br>cv::Mat b= Mat::<span class="hljs-built_in">ones</span>(<span class="hljs-built_in">Size</span>(<span class="hljs-number">3</span>,<span class="hljs-number">2</span>), CV_32F);<br>cv::Mat c= a+b;<br>cv::Mat d= a-b;<br></code></pre></td></tr></table></figure>
+
+<p>$$<br>\begin{bmatrix}<br>1 &amp; 0 &amp; 0 \<br>0 &amp; 1 &amp; 0<br>\end{bmatrix}+<br>\begin{bmatrix}<br>1 &amp; 1 &amp; 1 \<br>1 &amp; 1 &amp; 1<br>\end{bmatrix}&#x3D;<br>\begin{bmatrix}<br>2 &amp; 1 &amp; 1 \<br>1 &amp; 2 &amp; 1<br>\end{bmatrix} \\<br>\begin{bmatrix}<br>1 &amp; 0 &amp; 0 \<br>0 &amp; 1 &amp; 0<br>\end{bmatrix}-<br>\begin{bmatrix}<br>1 &amp; 1 &amp; 1 \<br>1 &amp; 1 &amp; 1<br>\end{bmatrix}&#x3D;<br>\begin{bmatrix}<br>0 &amp; -1 &amp; -1 \<br>-1 &amp; 0 &amp; -1<br>\end{bmatrix}<br>$$</p>
+<h3 id="矩阵乘法"><a href="#矩阵乘法" class="headerlink" title="矩阵乘法"></a>矩阵乘法</h3><p>1.按位相乘（$A_{m*n}.<em>B_{m</em>n}$）</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++">Mat in = Mat::<span class="hljs-built_in">eye</span>(<span class="hljs-built_in">Size</span>(<span class="hljs-number">3</span>,<span class="hljs-number">2</span>), CV_32F);<br>Mat out = Mat::<span class="hljs-built_in">eye</span>(<span class="hljs-built_in">Size</span>(<span class="hljs-number">3</span>,<span class="hljs-number">2</span>), CV_32F);<br>cv::<span class="hljs-built_in">multiply</span>(in,out);<br></code></pre></td></tr></table></figure>
+
+<p>2.点乘法($A_{m<em>n}B_{n</em>p}$)</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++">Mat res = A*B;<br></code></pre></td></tr></table></figure>
+
+<p>$$<br>\begin{bmatrix}<br>1 &amp; 0 &amp; 0 \<br>0 &amp; 1 &amp; 0<br>\end{bmatrix}<em>2&#x3D;<br>\begin{bmatrix}<br>2 &amp; 0 &amp; 0 \<br>0 &amp; 2 &amp; 0<br>\end{bmatrix} \\<br>\begin{bmatrix}<br>2 &amp; 1 &amp; 1 \<br>1 &amp; 2 &amp; 1<br>\end{bmatrix}.</em><br>\begin{bmatrix}<br>4 &amp; 3 &amp; 3 \<br>3 &amp; 4 &amp; 3<br>\end{bmatrix}&#x3D;<br>\begin{bmatrix}<br>8 &amp; 3 &amp; 3 \<br>3 &amp; 8 &amp; 3<br>\end{bmatrix}\\<br>\begin{bmatrix}<br>1 &amp; 0 &amp; 0 \<br>0 &amp; 1 &amp; 0<br>\end{bmatrix}*<br>\begin{bmatrix}<br>1 &amp; 1 \<br>1 &amp; 1 \<br>1 &amp; 1<br>\end{bmatrix}&#x3D;<br>\begin{bmatrix}<br>1 &amp; 1 \<br>1 &amp; 1<br>\end{bmatrix}<br>$$</p>
+<h3 id="矩阵的转置"><a href="#矩阵的转置" class="headerlink" title="矩阵的转置"></a>矩阵的转置</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++">Mat m1= Mat::<span class="hljs-built_in">eye</span>(<span class="hljs-number">2</span>,<span class="hljs-number">3</span>, CV_32F);<br>Mat <span class="hljs-type">m1_t</span> = m1.<span class="hljs-built_in">t</span>();<br><span class="hljs-built_in">transpose</span>(m1, <span class="hljs-type">m1_t</span>);<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="矩阵的逆"><a href="#矩阵的逆" class="headerlink" title="矩阵的逆"></a>矩阵的逆</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++">Mat me_inv = me.<span class="hljs-built_in">inv</span>();<br><span class="hljs-built_in">invert</span>(in, out);<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="计算矩阵非零元素个数"><a href="#计算矩阵非零元素个数" class="headerlink" title="计算矩阵非零元素个数"></a>计算矩阵非零元素个数</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-type">int</span> nonZerosNum = <span class="hljs-built_in">countNonZero</span>(me);<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="矩阵的均值和标准差"><a href="#矩阵的均值和标准差" class="headerlink" title="矩阵的均值和标准差"></a>矩阵的均值和标准差</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-built_in">meanStdDev</span>(src, mean, stddev);<br>* src - 输入矩阵或图像<br>* mean - 均值，OutputArray<br>* stddev - 标准差,OutputArray<br>    <br>Mat mean, stddev;<br><span class="hljs-built_in">meanStdDev</span>(me, mean, stddev);<br><br><br><br><span class="hljs-comment">//多通道矩阵,则分别计算不同通道的均值与标准差</span><br><span class="hljs-function">Mat <span class="hljs-title">m3</span><span class="hljs-params">(cv::Size(<span class="hljs-number">5</span>,<span class="hljs-number">5</span>),CV_8UC3,Scalar(<span class="hljs-number">255</span>,<span class="hljs-number">200</span>,<span class="hljs-number">100</span>))</span></span>;<br>Mat mean3,stddev3;<br><span class="hljs-built_in">meanStdDev</span>(m3, mean3, stddev3);<br></code></pre></td></tr></table></figure>
+
+
+
+<h3 id="求最大最小值"><a href="#求最大最小值" class="headerlink" title="求最大最小值"></a>求最大最小值</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">minMaxLoc</span><span class="hljs-params">(InputArray src, CV_OUT <span class="hljs-type">double</span>* minVal,</span></span><br><span class="hljs-params"><span class="hljs-function">                           CV_OUT <span class="hljs-type">double</span>* maxVal=<span class="hljs-number">0</span>, CV_OUT Point* minLoc=<span class="hljs-number">0</span>,</span></span><br><span class="hljs-params"><span class="hljs-function">                           CV_OUT Point* maxLoc=<span class="hljs-number">0</span>, InputArray mask=noArray())</span></span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>src – 输入单通道矩阵（图像）.</li>
+<li>minVal – 指向最小值的指针， 如果未指定则使用NULL</li>
+<li>maxVal – 指向最大值的指针， 如果未指定则使用NULL</li>
+<li>minLoc – 指向最小值位置（2维情况）的指针， 如果未指定则使用NULL</li>
+<li>maxLoc – 指向最大值位置（2维情况）的指针， 如果未指定则使用NULL</li>
+<li>mask – 可选的蒙版，用于选择待处理子区域</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-comment">// 求极值 最大、最小值及其位置</span><br>	Mat img = <span class="hljs-built_in">imread</span>(<span class="hljs-string">&quot;Lena.jpg&quot;</span>,<span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">imshow</span>(<span class="hljs-string">&quot;original image&quot;</span>,img);<br> <br>	<span class="hljs-type">double</span> minVal=<span class="hljs-number">0</span>,maxVal=<span class="hljs-number">0</span>;<br>	cv::Point minPt, maxPt;<br>	<span class="hljs-built_in">minMaxLoc</span>(img,&amp;minVal,&amp;maxVal,&amp;minPt,&amp;maxPt);<br>	cout&lt;&lt;<span class="hljs-string">&quot;min value  = &quot;</span>&lt;&lt;minVal&lt;&lt;endl;<br>	cout&lt;&lt;<span class="hljs-string">&quot;max value  = &quot;</span>&lt;&lt;maxVal&lt;&lt;endl;<br>	cout&lt;&lt;<span class="hljs-string">&quot;minPt = (&quot;</span>&lt;&lt;minPt.x&lt;&lt;<span class="hljs-string">&quot;,&quot;</span>&lt;&lt;minPt.y&lt;&lt;<span class="hljs-string">&quot;)&quot;</span>&lt;&lt;endl;<br>	cout&lt;&lt;<span class="hljs-string">&quot;maxPt = (&quot;</span>&lt;&lt;maxPt.x&lt;&lt;<span class="hljs-string">&quot;,&quot;</span>&lt;&lt;maxPt.y&lt;&lt;<span class="hljs-string">&quot;)&quot;</span>&lt;&lt;endl;<br>	cout&lt;&lt;endl;<br> <br>	<span class="hljs-function">cv::Rect <span class="hljs-title">rectMin</span><span class="hljs-params">(minPt.x<span class="hljs-number">-10</span>,minPt.y<span class="hljs-number">-10</span>,<span class="hljs-number">20</span>,<span class="hljs-number">20</span>)</span></span>;<br>	<span class="hljs-function">cv::Rect <span class="hljs-title">rectMax</span><span class="hljs-params">(maxPt.x<span class="hljs-number">-10</span>,maxPt.y<span class="hljs-number">-10</span>,<span class="hljs-number">20</span>,<span class="hljs-number">20</span>)</span></span>;<br> <br>	cv::<span class="hljs-built_in">rectangle</span>(img,rectMin,cv::<span class="hljs-built_in">Scalar</span>(<span class="hljs-number">200</span>),<span class="hljs-number">2</span>);<br>	cv::<span class="hljs-built_in">rectangle</span>(img,rectMax,cv::<span class="hljs-built_in">Scalar</span>(<span class="hljs-number">255</span>),<span class="hljs-number">2</span>);<br> <br>	<span class="hljs-built_in">imshow</span>(<span class="hljs-string">&quot;image with min max location&quot;</span>,img);<br>	cv::<span class="hljs-built_in">waitKey</span>();<br></code></pre></td></tr></table></figure>
+
+<h2 id="其他矩阵运算"><a href="#其他矩阵运算" class="headerlink" title="其他矩阵运算"></a>其他矩阵运算</h2><table>
+<thead>
+<tr>
+<th>Function (函数名)</th>
+<th>Use (函数用处)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>add</td>
+<td>矩阵加法，A+B的更高级形式，支持mask</td>
+</tr>
+<tr>
+<td>scaleAdd</td>
+<td>矩阵加法，一个带有缩放因子dst(I) &#x3D; scale * src1(I) + src2(I)</td>
+</tr>
+<tr>
+<td>addWeighted</td>
+<td>矩阵加法，两个带有缩放因子dst(I) &#x3D; saturate(src1(I) * alpha + src2(I) * beta + gamma)</td>
+</tr>
+<tr>
+<td>subtract</td>
+<td>矩阵减法，A-B的更高级形式，支持mask</td>
+</tr>
+<tr>
+<td>multiply</td>
+<td>矩阵逐元素乘法，同Mat::mul()函数，与A*B区别，支持mask</td>
+</tr>
+<tr>
+<td>gemm</td>
+<td>一个广义的矩阵乘法操作</td>
+</tr>
+<tr>
+<td>divide</td>
+<td>矩阵逐元素除法，与A&#x2F;B区别，支持mask</td>
+</tr>
+<tr>
+<td>abs</td>
+<td>对每个元素求绝对值</td>
+</tr>
+<tr>
+<td>absdiff</td>
+<td>两个矩阵的差的绝对值</td>
+</tr>
+<tr>
+<td>exp</td>
+<td>求每个矩阵元素 src(I) 的自然数 e 的 src(I) 次幂 dst[I] &#x3D; esrc(I)</td>
+</tr>
+<tr>
+<td>pow</td>
+<td>求每个矩阵元素 src(I) 的 p 次幂 dst[I] &#x3D; src(I)p</td>
+</tr>
+<tr>
+<td>log</td>
+<td>求每个矩阵元素的自然数底 dst[I] &#x3D; log</td>
+</tr>
+<tr>
+<td>sqrt</td>
+<td>求每个矩阵元素的平方根</td>
+</tr>
+<tr>
+<td>min, max</td>
+<td>求每个元素的最小值或最大值返回这个矩阵 dst(I) &#x3D; min(src1(I), src2(I)), max同</td>
+</tr>
+<tr>
+<td>minMaxLoc</td>
+<td>定位矩阵中最小值、最大值的位置</td>
+</tr>
+<tr>
+<td>compare</td>
+<td>返回逐个元素比较结果的矩阵</td>
+</tr>
+<tr>
+<td>bitwise_and, bitwise_not, bitwise_or, bitwise_xor</td>
+<td>每个元素进行位运算，分别是和、非、或、异或</td>
+</tr>
+<tr>
+<td>cvarrToMat</td>
+<td>旧版数据CvMat,IplImage,CvMatND转换到新版数据Mat</td>
+</tr>
+<tr>
+<td>extractImageCOI</td>
+<td>从旧版数据中提取指定的通道矩阵给新版数据Mat</td>
+</tr>
+<tr>
+<td>randu</td>
+<td>以Uniform分布产生随机数填充矩阵，同 RNG::fill(mat, RNG::UNIFORM)</td>
+</tr>
+<tr>
+<td>randn</td>
+<td>以Normal分布产生随机数填充矩阵，同 RNG::fill(mat, RNG::NORMAL)</td>
+</tr>
+<tr>
+<td>randShuffle</td>
+<td>随机打乱一个一维向量的元素顺序</td>
+</tr>
+<tr>
+<td>theRNG()</td>
+<td>返回一个默认构造的RNG类的对象 theRNG()::fill(…)</td>
+</tr>
+<tr>
+<td>reduce</td>
+<td>矩阵缩成向量</td>
+</tr>
+<tr>
+<td>repeat</td>
+<td>矩阵拷贝的时候指定按x&#x2F;y方向重复</td>
+</tr>
+<tr>
+<td>split</td>
+<td>多通道矩阵分解成多个单通道矩阵</td>
+</tr>
+<tr>
+<td>merge</td>
+<td>多个单通道矩阵合成一个多通道矩阵</td>
+</tr>
+<tr>
+<td>mixChannels</td>
+<td>矩阵间通道拷贝，如Rgba[]到Rgb[]和Alpha[]</td>
+</tr>
+<tr>
+<td>sort, sortIdx</td>
+<td>为矩阵的每行或每列元素排序</td>
+</tr>
+<tr>
+<td>setIdentity</td>
+<td>设置单元矩阵</td>
+</tr>
+<tr>
+<td>completeSymm</td>
+<td>矩阵上下三角拷贝</td>
+</tr>
+<tr>
+<td>inRange</td>
+<td>检查元素的取值范围是否在另两个矩阵的元素取值之间，返回验证矩阵</td>
+</tr>
+<tr>
+<td>checkRange</td>
+<td>检查矩阵的每个元素的取值是否在最小值与最大值之间，返回验证结果bool</td>
+</tr>
+<tr>
+<td>sum</td>
+<td>求矩阵的元素和</td>
+</tr>
+<tr>
+<td>mean</td>
+<td>求均值</td>
+</tr>
+<tr>
+<td>meanStdDev</td>
+<td>均值和标准差</td>
+</tr>
+<tr>
+<td>countNonZero</td>
+<td>统计非零值个数</td>
+</tr>
+<tr>
+<td>cartToPolar, polarToCart</td>
+<td>笛卡尔坐标与极坐标之间的转换</td>
+</tr>
+<tr>
+<td>flip</td>
+<td>矩阵翻转</td>
+</tr>
+<tr>
+<td>transpose</td>
+<td>矩阵转置，比较 Mat::t() AT</td>
+</tr>
+<tr>
+<td>trace</td>
+<td>矩阵的迹</td>
+</tr>
+<tr>
+<td>determinant</td>
+<td>行列式</td>
+</tr>
+<tr>
+<td>eigen</td>
+<td>矩阵的特征值和特征向量</td>
+</tr>
+<tr>
+<td>invert</td>
+<td>矩阵的逆或者伪逆，比较 Mat::inv()</td>
+</tr>
+<tr>
+<td>magnitude</td>
+<td>向量长度计算 dst(I) &#x3D; sqrt(x(I)2 + y(I)2)</td>
+</tr>
+<tr>
+<td>Mahalanobis</td>
+<td>Mahalanobis距离计算</td>
+</tr>
+<tr>
+<td>phase</td>
+<td>相位计算，即两个向量之间的夹角</td>
+</tr>
+<tr>
+<td>norm</td>
+<td>求范数，1-范数、2-范数、无穷范数</td>
+</tr>
+<tr>
+<td>normalize</td>
+<td>标准化</td>
+</tr>
+<tr>
+<td>mulTransposed</td>
+<td>矩阵和它自己的转置相乘 AT * A, dst &#x3D; scale(src - delta)T(src - delta)</td>
+</tr>
+<tr>
+<td>convertScaleAbs</td>
+<td>先缩放元素再取绝对值，最后转换格式为8bit型</td>
+</tr>
+<tr>
+<td>calcCovarMatrix</td>
+<td>计算协方差阵</td>
+</tr>
+<tr>
+<td>solve</td>
+<td>求解1个或多个线性系统或者求解最小平方问题(least-squares problem)</td>
+</tr>
+<tr>
+<td>solveCubic</td>
+<td>求解三次方程的根</td>
+</tr>
+<tr>
+<td>solvePoly</td>
+<td>求解多项式的实根和重根</td>
+</tr>
+<tr>
+<td>dct, idct</td>
+<td>正、逆离散余弦变换，idct同dct(src, dst, flags</td>
+</tr>
+<tr>
+<td>dft, idft</td>
+<td>正、逆离散傅立叶变换, idft同dft(src, dst, flags</td>
+</tr>
+<tr>
+<td>LUT</td>
+<td>查表变换</td>
+</tr>
+<tr>
+<td>getOptimalDFTSize</td>
+<td>返回一个优化过的DFT大小</td>
+</tr>
+<tr>
+<td>mulSpecturms</td>
+<td>两个傅立叶频谱间逐元素的乘法</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="Mat基础"><a href="#Mat基础" class="headerlink" title="Mat基础"></a>Mat基础</h2><ul>
+<li>1、在计算机内存中，数字图像是采用矩阵的方式保存的。Opencv2中，保存图像像素信息的是数据结构Mat阵，它包含两部分：矩阵头和一个指向像素数据的矩阵针。矩阵头主要包含：矩阵尺寸、存储方式、存储地址、引用计数等。矩阵头的大小是一定的，不会随着图像的大小改变而改变，通常图像像素数据都会很大。因此，在图像的复制和传递过程中不需要复制整个Mat数据，只复制矩阵头和指向像素矩阵的指针即可。        </li>
+<li>2、由此会出现多个Mat共用一个矩阵数据的情况，那么内存回收的时候会存在什么时候释放矩阵数据的问题，对于释放内存的时候引用计数就会起作用了，当Mat对象被复制一次时，引用计数会加一，而销毁一个Mat对象(共用同一个图像矩阵数据)时引用计数减一，当引用计数为0的时候，矩阵数据就会被除。</li>
+<li>3、在使用Mat的时候：<br> a、OpenCV中内存通常是自动分配，特殊情况需要特别指定。<br> b、使用OpenCV的C++接口时不用考虑内存释放问题。<br> c、需要复制矩阵数据，可以使用Image.clone()和Image1.copyTo(Image2)。</li>
+</ul>
+<h2 id="Mat存储方法"><a href="#Mat存储方法" class="headerlink" title="Mat存储方法"></a>Mat存储方法</h2><p>Mat矩阵中不同的每个元素可以使用不同数据类型，最小的数据类型是char型，占用一个字节(1byte&#x3D;8bits),可以是有符号(0到255)和无符号(-127到127)的。在RGB颜色空间中，使用三个char型可以表示1600万种颜色.在Opencv中可以使用cv::Scalar(b,g,r)或者CV_RGB(r,g,b)表示。</p>
+<h2 id="Mat的创建"><a href="#Mat的创建" class="headerlink" title="Mat的创建"></a>Mat的创建</h2><h3 id="1、构造函数"><a href="#1、构造函数" class="headerlink" title="1、构造函数"></a>1、构造函数</h3><p>官方文档指定规则如下：</p>
+<blockquote>
+<p>CV_[The number of bits per item][Signed or Unsigned][TypePrefix]C[The channel number]<br>四部分分别指定：元素的大小，是有符号还是无符号，数据类型以及通道数。<br>cv::Mat img(20, 20, CV_8UC3, cv::Scalar(0,0,255));<br>上述代码创建了一个20行20列的矩阵，矩阵元素使用8位无符号char类型保存，具有3通道，每个像素的初始值是（0，0，255）即红色，Scalar是short型的vector，提供矩阵的初始化。</p>
+</blockquote>
+<h3 id="2、Create方法"><a href="#2、Create方法" class="headerlink" title="2、Create方法"></a>2、Create方法</h3><p>该方法不能为矩阵设置初始值，只是在改变尺寸时为矩阵数据重新分配内存。创建一个4行4列有2个通道的矩阵：</p>
+<blockquote>
+<p>img.create(4, 4, CV_8UC2);</p>
+</blockquote>
+<h3 id="3、几种特殊矩阵初始化方式的说明"><a href="#3、几种特殊矩阵初始化方式的说明" class="headerlink" title="3、几种特殊矩阵初始化方式的说明"></a>3、几种特殊矩阵初始化方式的说明</h3><blockquote>
+<p>cv::Mat e &#x3D; cv::Mat::eye(4,4,CV_64F);<br>cv::Mat o &#x3D; cv::Mat::ones(2,2,CV_32F);<br>cv::Mat z &#x3D; cv::Mat::zeros(3,3,CV_8UC1);<br>Mat e是4行4列的对角矩阵<br>Mat z是2行2列的单位矩阵<br>Mat o是3行3列的零矩阵</p>
+</blockquote>
+<h3 id="4、小矩阵的初始化"><a href="#4、小矩阵的初始化" class="headerlink" title="4、小矩阵的初始化"></a>4、小矩阵的初始化</h3><blockquote>
+<p>Mat m &#x3D;(Mat_<double>(3,3)&lt;&lt;-3,-2,-1,0,1,2,3,4,5);</p>
+</blockquote>
+<h2 id="Mat的输入输出"><a href="#Mat的输入输出" class="headerlink" title="Mat的输入输出"></a>Mat的输入输出</h2><p>使用imread函数，向Mat对象中写入一个图像：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Mat m = cv::<span class="hljs-built_in">imread</span>(<span class="hljs-string">&quot;.//res//lena.png&quot;</span>);<span class="hljs-comment">//读入图像imread的原型：</span><br><span class="hljs-function">cv::Mat <span class="hljs-title">imread</span><span class="hljs-params">(<span class="hljs-type">const</span> string&amp; filename,<span class="hljs-type">int</span> flags=<span class="hljs-number">1</span>)</span></span><br></code></pre></td></tr></table></figure>
+<p>filename指定要读取图像的位置flags指定图像的颜色空间<br>​        <strong>flags &gt; 0</strong> 三通道的彩色图像<br>​        <strong>flags &#x3D; 0</strong> 灰度图像<br>​        <strong>flags &lt; 0</strong> 不作改变也可以有以下的枚举值<br>​        <strong>CV_LOAD_IMAGE_ANYDEPTH</strong>、<br>​        <strong>CV_LOAD_IMAGE_COLOR</strong>、<br>​        <strong>CV_LOAD_IMAGE_GRAYSCALE</strong><br>使用imwrite函数，将Mat对象保存到指定的文件中。imwrite的函数原型如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">imwrite</span><span class="hljs-params">(<span class="hljs-type">const</span> string&amp; filename,InputArray img,constvector&lt;<span class="hljs-type">int</span>&gt;&amp; params=vector&lt;<span class="hljs-type">int</span>&gt;())</span></span><br></code></pre></td></tr></table></figure>
+<p><strong>filename</strong>，指定的文件<br><strong>img</strong>  要保存的Mat对象<br><strong>params</strong> 用来指定图像的保存编码方式。<br>使用filename的扩展名来指定图像的保存格式（.jpg  .png  .bmp），对于不同的图像保存类型，params是不同的值</p>
+<blockquote>
+<ul>
+<li>JPEG，params用来指定图像的质量（0到100），CV_IMWRITE_JPEG_QUALITY<br>默认的是95 .</li>
+<li>PNG，params用来指定图像的压缩级别（0到9），压缩级别越高图像占用的空间越小，保存图像所用的时间越久。默认值是3. CV_IMWRITE_PNG_COMPRESSION</li>
+<li>PPM,PGM,PBM，params是一个标记（0或者1）,CV_IMWRITE_PXM_BINARY<br>默认的是1。imwrite只能保存8位（或者是16位无符号（CV_16UC）的PNG,JPEG200或者TIFF图像）单通道或者三通道的图像，如果要保存的不是这样的图片，可以使用convertTo或者cvtColor来进行转变。</li>
+</ul>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Opencv/">Opencv</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Mat/">Mat</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/02/19/Opencv%E9%9C%8D%E5%A4%AB%E7%9B%B4%E7%BA%BF%E6%A3%80%E6%B5%8B/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv霍夫直线检测</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/02/19/%E7%9F%A2%E9%87%8F%E7%9A%84%E5%8F%89%E7%A7%AF/">
+                        <span class="hidden-mobile">矢量的叉积</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

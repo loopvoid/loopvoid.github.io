@@ -1,0 +1,657 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="前言原作主页：https:&#x2F;&#x2F;kpzhang93.github.io&#x2F;MTCNN_face_detection_alignment&#x2F;index.html arxiv论文：https:&#x2F;&#x2F;arxiv.org&#x2F;abs&#x2F;1604.02878 代码：官方matlab版、C++ caffe版  其他框架代码：pytorch、tensorflow、mxnet MTCNN 《Joint Face Detecti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MTCNN算法与代码理解">
+<meta property="og:url" content="http://blog.home.io/2019/10/14/MTCNN%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%90%86%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="前言原作主页：https:&#x2F;&#x2F;kpzhang93.github.io&#x2F;MTCNN_face_detection_alignment&#x2F;index.html arxiv论文：https:&#x2F;&#x2F;arxiv.org&#x2F;abs&#x2F;1604.02878 代码：官方matlab版、C++ caffe版  其他框架代码：pytorch、tensorflow、mxnet MTCNN 《Joint Face Detecti">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p8.qhimg.com/bdm/480_296_0/t0133a2d1e4bba00de8.jpg">
+<meta property="article:published_time" content="2019-10-14T10:52:28.000Z">
+<meta property="article:modified_time" content="2022-03-18T03:47:14.371Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p8.qhimg.com/bdm/480_296_0/t0133a2d1e4bba00de8.jpg">
+  
+  
+  <title>MTCNN算法与代码理解 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="MTCNN算法与代码理解">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-10-14 18:52" pubdate>
+        2019年10月14日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      62 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MTCNN算法与代码理解</h1>
+            
+            <div class="markdown-body">
+              <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><strong>原作主页</strong>：<a target="_blank" rel="noopener" href="https://kpzhang93.github.io/MTCNN_face_detection_alignment/index.html">https://kpzhang93.github.io/MTCNN_face_detection_alignment/index.html</a></p>
+<p><strong>arxiv论文</strong>：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1604.02878">https://arxiv.org/abs/1604.02878</a></p>
+<p><strong>代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/kpzhang93/MTCNN_face_detection_alignment">官方matlab版</a>、<a target="_blank" rel="noopener" href="https://github.com/kpzhang93/MTCNN_face_detection_alignment">C++ caffe版</a> </p>
+<p><strong>其他框架代码</strong>：<a target="_blank" rel="noopener" href="https://github.com/TropComplique/mtcnn-pytorch">pytorch</a>、<a target="_blank" rel="noopener" href="https://github.com/AITTSMD/MTCNN-Tensorflow">tensorflow</a>、<a target="_blank" rel="noopener" href="https://github.com/Seanlinx/mtcnn">mxnet</a></p>
+<p>MTCNN 《<a target="_blank" rel="noopener" href="https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</a>》,采用级联CNN结构，通过多任务学习，同时完成–人脸检测和人脸对齐，输出人脸的BoundingBox和人脸5个关键点（双眼、鼻子、双嘴角）的位置。</p>
+<p>MTCNN在提出时在<a target="_blank" rel="noopener" href="http://vis-www.cs.umass.edu/fddb/">FDDB</a>、<a target="_blank" rel="noopener" href="http://mmlab.ie.cuhk.edu.hk/projects/WIDERFace/">WIDER FACE</a>和AFLW数据集上取得了当时(2016年4月)的<strong>SOTA</strong>速度又快，现在仍被广泛使用作为人脸识别的前端，如InsightFace和facenet。</p>
+<p>论文提到，MTCNN的效果主要来自3个主要原因：</p>
+<blockquote>
+<p>1.精心设计的级联CNN结构（carefully designed cascaded CNNs architecture）</p>
+<p>2.在线难样本挖掘策略（online hard sample mining strategy）</p>
+<p>3.人脸检测与对其联合学习（joint face alignment learning）</p>
+</blockquote>
+<p> <strong>Tips：</strong>个人建议在看这篇文章的时候，对照着<a target="_blank" rel="noopener" href="https://github.com/TropComplique/mtcnn-pytorch">pytorch</a>的实现代码理解，尤其是里面的 <a target="_blank" rel="noopener" href="https://github.com/TropComplique/mtcnn-pytorch/blob/master/try_mtcnn_step_by_step.ipynb">try_mtcnn_step_by_step.ipynb</a>非常有助于理解整个文章的流程。 </p>
+<h1 id="算法流程（概略）"><a href="#算法流程（概略）" class="headerlink" title="算法流程（概略）"></a>算法流程（概略）</h1><p><strong>Inference阶段</strong></p>
+<p><strong>图像金字塔</strong></p>
+<blockquote>
+<p>1、对于给定的输入图像进行scale操作， 得到若干个不同scale的输入图像，这一步的目的是能够针对不同大小人脸进行候选框的检测。</p>
+</blockquote>
+<p><strong>P-Net</strong></p>
+<blockquote>
+<p>2.1、将不同scale的图像输入到P-Net中。</p>
+<p>2.2、 设定阈值，根据face classification的结果，选出可能含有目标框的点 。</p>
+<p>2.3、 将这些在不同尺度下可能是目标框的点映射到原始没有经过scale的图中，得到了很多候选区域。 </p>
+<p>2.4、 使用nms算法对目标框进行筛选，并且根据P-Net中输出的offset（对应bounding box regression）对候选框进行微调，校准。 </p>
+</blockquote>
+<p><strong>R-Net</strong></p>
+<blockquote>
+<p>3、 将上一步得到所有候选框提取出来，并resize到24*24的大小，输入至R-Net中，并根据face classification的值，进一步对候选进行筛选，类似于2-4中的操作，对目标框位置进行筛选校准 </p>
+</blockquote>
+<p><strong>O-Net</strong></p>
+<blockquote>
+<p>4、 类似于第3步的操作，进一步对目标框进行筛选，并得到最终的输出结果，并且根据Facial landmark的输出得到5个landmark。 </p>
+</blockquote>
+<blockquote>
+<p>PS: 在P-Net和R-Net中，都没有输出Facial landmark localization，只在最终的O-Net中输出了 。</p>
+</blockquote>
+<h1 id="算法流程（详解）"><a href="#算法流程（详解）" class="headerlink" title="算法流程（详解）"></a>算法流程（详解）</h1><p>MTCNN方法主要为：<strong>图像金字塔+3个级联CNN网络</strong>。</p>
+<p>算法流程图如下所示：</p>
+<p><img src="/2019/10/14/MTCNN%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%90%86%E8%A7%A3/pipeline.png" srcset="/img/loading.gif" lazyload alt="pipeline"></p>
+<h2 id="图像金字塔"><a href="#图像金字塔" class="headerlink" title="图像金字塔"></a>图像金字塔</h2><p><strong>图像金字塔(<a target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Pyramid_(image_processing)">image pyramid</a>)</strong> ：主要是保证了多尺度的人脸数据的训练和检测（其中也有很多的trick）</p>
+<p>Q：请问为什么输入PNET为什么是图片金字塔吗？能简单解释一下吗？ A：我的理解是:train的时候并不是图片金字塔，而是在predict或者说inference时是图片金字塔，因为训练的时候每个样本大小是12×12，而predict时是原图大小可能很大比如1920×1080，在图片中人脸占用像素可能200×200，这样使用训练好的模型去识别就识别不了，这时如果缩小图片使得人脸大概是12×12左右的话，就可以识别了。而由于我们并不知道实际原图中人脸大小是多少，也就不知道图片需要缩小多少倍，所以会按不同的比例缩放多种尺寸，形成图片金字塔，这样总有几种尺寸可以满足要求</p>
+<p>3个阶段的级联的CNN网络作为主要的任务网络分别是<strong>P-Net,R-Net,O-Net</strong>，三个网络级联前一个网络的输出是后一个网络的输入，从而完成对人脸<strong>由粗到细(coarse-to-fine)<strong>的检测。并且可以看到随着</strong>网络层数逐渐加深</strong>，<strong>输入图像的尺寸（感受野）在逐渐变大12→24→48</strong>，<strong>最终输出的特征维数也在增加32→128→256</strong>，意味着利用的信息越来越多。</p>
+<p><img src="/2019/10/14/MTCNN%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%90%86%E8%A7%A3/nets.png" srcset="/img/loading.gif" lazyload alt="nets"></p>
+<p>其中 <code>P-Net：Fast Proposal Network</code>，<code>R-Net：Refinement Network</code>，<code>O-Net：Output Network</code>，<code>MP：max pooling</code>，<code>Conv：convolution</code></p>
+<h2 id="P-Net"><a href="#P-Net" class="headerlink" title="P-Net"></a>P-Net</h2><p>该网络的主要任务是获得人脸区域的<strong>候选窗口</strong>和<strong>边界框的回归向量</strong>。并用该边界框做回归，对候选窗口进行校准，然后通过非极大值抑制（NMS）来合并高度重叠的候选框。该网络是整个网络的起始输入端，是一个**全卷积神经网络(<a target="_blank" rel="noopener" href="https://www.dogedoge.com/rd/ewRpxetiNIuimF6YaBgH13FvU2Re6VBxbkb3XYTg8VhOLWAUP62tfXkOt32sV7BJyqqVSYQRgH6eklGRNjca31uN2Kvhjh2%2Bhw6gC9S7Hbg%3D">FNC</a>)<strong>，前向传播得到的特征图在每个位置是个32维的特征向量，用于判断每个位置处约12×12大小的区域内是否包含人脸，如果包含人脸，则回归出人脸的Bounding Box，进一步获得Bounding Box对应到原图中的区域，通过</strong><a target="_blank" rel="noopener" href="http://www.vision.ee.ethz.ch/publications/papers/proceedings/eth_biwi_01126.pdf">NMS</a>**保留分数最高的Bounding box以及移除重叠区域过大的Bounding Box。</p>
+<h3 id="网络结构"><a href="#网络结构" class="headerlink" title="网络结构"></a>网络结构</h3><p>P-Net的网络结构是一个<strong>全卷积神经网络</strong>的网络结构。</p>
+<blockquote>
+<p>FCN（全卷积神经网络）</p>
+<p>全卷积网络就是去除了传统卷积网络的全连接层，然后对其进行反卷积对最后一个卷积层（或者其他合适的卷积层）的feature map进行上采样，使其恢复到原有图像的尺寸（或者其他），并对反卷积图像的每个像素点都可以进行一个类别的预测，同时保留了原有图像的空间信息。同时，在反卷积对图像进行操作的过程中，也可以通过提取其他卷积层的反卷积结果对最终图像进行预测，合适的选择会使得结果更好、更精细。</p>
+<p><strong>输入(Input)可以是任意大小的图片</strong></p>
+</blockquote>
+<p>输入是一个$12\times 12$大小的图片，所以训练前需要把生成的训练数据(通过生成bounding box，然后把该bounding box 剪切成$12\times 12$大小的图片)，转换成$12\times 12\times 3$的结构。</p>
+<p>1.通过10个$3\times 3\times 3$的卷积核，$2\times 2$的Max Pooling(stride&#x3D;2)操作，生成10个$5\times 5$的特征图。</p>
+<p>2.通过16个$3\times 3\times 10$的卷积核，生成16个$3\times 3$的特征图。</p>
+<p>3.通过32个$3\times 3\times 16$的卷积核，生成32个$1\times 1$的特征图</p>
+<p>4.针对32个$1\times 1$的特征图</p>
+<ul>
+<li>通过2个$1\times 1\times 32$的卷积核，生成2个$1\times 1$的特征图用于人脸的分类；</li>
+<li>通过4个$1\times 1\times 32$的卷积核，生成4个$1\times 1$的特征图用于回归框判断；</li>
+<li>通过10个$1\times 1\times 32$的卷积核，生成10个$1\times 1$的特征图用于人脸关键点的判断。</li>
+</ul>
+<h3 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h3><p><strong>1、</strong>P-Net 的层数很浅，主要作用是尽可能多的把人脸框都选进来，宁愿错误拿来好多个，也不丢掉一个。 </p>
+<p><strong>2、</strong>P-Net的训练数据主要由4部分组成：其中比例为$pos:part:neg:landmark&#x3D;1:1:3:2$</p>
+<ul>
+<li><code>pos</code>正label数据(IoU&gt;0.65，面部Landmark特征值为0)</li>
+<li><code>neg</code>负label数据(IoU&lt;0.40，面部Landmark特征值为0，回归框值为0)</li>
+<li><code>part</code>中间数据(0.40&lt;IoU&lt;0.65，面部Landmark特征值为0)</li>
+<li><code>landmark</code>面部Landmark数据（回归框值为0)</li>
+</ul>
+<p><strong>3、</strong>训练数据的由来：</p>
+<p>pos,part,neg是随机和人脸的数据裁剪得到的，裁剪图片与人脸框最大的iou值大于0.65的为pos图像，大于0.4的为part图像，小于0.4的为neg图像，landmark截取的是带有关键点的图像。</p>
+<ul>
+<li><p>pos,part的label含有它们的类别1,-1还有人脸框相对于图像左上角的偏移量，偏移量除以图像大小做了归一化;</p>
+</li>
+<li><p>neg的label只含有类别0;</p>
+</li>
+<li><p>landmark的label含有类别-2和5个关键点的坐标偏移也是进行了归一化的。</p>
+</li>
+</ul>
+<p> 这四种图像都resize成$12\times 12$作为PNet的输入，通过P-Net得到了是否有人脸的概率[batch,2]，人脸框的偏移量[batch,4]，关键点的偏移量[batch,10]。 </p>
+<p><strong>4、</strong>四种不同数据的训练方式：</p>
+<ul>
+<li>对于是否存在人脸的类别损失只通过neg和pos数据来对参数进行更新，具体办法是通过label中的类别值做了一个遮罩来划分数据，只计算neg和pos的损失，不计算其他数据的损失; </li>
+<li>人脸框的损失只计算pos和part数据的; </li>
+<li>关键点的损失只计算landmark的 </li>
+<li><strong>Tips: Online Hard Example Mining(OHEM)</strong> 在训练过程中，对每个mini-batch，取loss最大的70%进行反向传播，忽略那些简单的样本。说是模型准确率会有提升，在代码中也都有体现，具体实现可以参考代码。</li>
+</ul>
+<h2 id="R-Net"><a href="#R-Net" class="headerlink" title="R-Net"></a>R-Net</h2><p>该网络的主要任务还是通过边界框回归和NMS来去掉那些false-positive区域。该网络是单纯的卷积神经网络(CNN)，先将P-Net认为可能包含人脸的Bounding Box <strong>双线性插值</strong>到24×24，输入<strong>R-Net</strong>，判断是否包含人脸，如果包含人脸，也回归出Bounding Box，同样经过NMS过滤。只是由于该网络结构和P-Net网络结构有差异，多了一个全连接层，所以会取得更好的抑制false-positive的作用。</p>
+<h2 id="O-Net"><a href="#O-Net" class="headerlink" title="O-Net"></a>O-Net</h2><p>该网络的主要任务是对人脸区域进行了更多的监督，同时输出5个人脸landmark。该网络也是单纯的卷积神经网络(CNN)，该网络比<strong>R-Net</strong>又多了一层卷基层，所以处理的结果会更加精细。作用和<strong>R-Net</strong>层作用一样，并输出5个人脸landmark。</p>
+<h2 id="Face-classification"><a href="#Face-classification" class="headerlink" title="Face classification"></a>Face classification</h2><p>人脸的检测可以看作是一个局部二分类问题（该区域存在&#x2F;不存在人脸）。</p>
+<p>MTCNN采用的是交叉熵作为loss：</p>
+<p>$$L_i^{det}&#x3D;-(y_i^{det}log(p_i)+(1-y_i^{det})(1-log(p_i)))$$</p>
+<p>其中，$p_i$为该网络表示样本$x_i$是人脸的概率，$y_i^{det}\in {0,1}$为该区域的真实标签。</p>
+<h2 id="Bounding-box-regression"><a href="#Bounding-box-regression" class="headerlink" title="Bounding box regression"></a>Bounding box regression</h2><p>MTCNN通过每个样本$x_i$的欧氏距离作回归损失：</p>
+<p>$$L_i^{box}&#x3D;||\hat y_i^{box}-y_i^{box}||_2^2$$</p>
+<p>其中，$\hat y_i^{box}$为对于第$i$个样本该网络预测得到的回归目标，$y_i^{box}$为第$i$个样本实际的真实的背景坐标。其中$y_i$为(左上角x，左上角y，长，宽)&#x2F;(left,top,height,width)组成的四元组。</p>
+<p>在训练过程中，$\hat y_i^{box}$和$y_i^{box}$的交并集IoU(<a target="_blank" rel="noopener" href="https://loopvoid.github.io/2019/10/13/IoU-Intersection-over-Union/">Intersection-over-Union</a>)比例为：</p>
+<table>
+<thead>
+<tr>
+<th>训练样本比例</th>
+<th>负样本：正样本：part样本:Landmark &#x3D; 3:1:1:2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>非人脸</td>
+<td>(0，0.3)</td>
+</tr>
+<tr>
+<td>Part人脸</td>
+<td>(0.4，0.65)</td>
+</tr>
+<tr>
+<td>人脸</td>
+<td>(0.65，1.00)</td>
+</tr>
+<tr>
+<td>Landmark</td>
+<td>(0.3，0.4)</td>
+</tr>
+</tbody></table>
+<h2 id="Facial-Landmark-Localization"><a href="#Facial-Landmark-Localization" class="headerlink" title="Facial Landmark Localization"></a>Facial Landmark Localization</h2><p>与bounding box regression任务类似人脸特征点定位也是一个回归问题采用同样的欧式距离作为loss：</p>
+<p>$$L_i^{landmark}&#x3D;||\hat y_i^{landmark}-y_i^{landmark}||_2^2$$ </p>
+<p>其中，$\hat y_i^{landmark}$为对于第$i$个样本该网络预测得到的回归目标，$y_i^{landmark}$为第$i$个样本实际的真实的坐标。人脸特征点包括（left eye, right eye, nose, left mouse corner, right mouse corner），即$y_i^{landmark}\in \mathbb{R}^{10}$.</p>
+<h2 id="Multi-source-training"><a href="#Multi-source-training" class="headerlink" title="Multi-source training"></a>Multi-source training</h2><p>整个训练可以表示为：</p>
+<p>$$min\sum _{i&#x3D;1}^N\sum _{j\in {det,box,landmark}}\alpha _j\beta_i^jL_i^j，\beta_i^j\in{0,1}$$</p>
+<p>$$P-Net,R-Net: (\alpha _{det}&#x3D;1，\alpha _{box}&#x3D;0.5，\alpha _{landmark}&#x3D;0.5)$$</p>
+<p>$$O-Net：(\alpha_{det}&#x3D;1，\alpha_{box}&#x3D;0.5，\alpha_{landmark}&#x3D;1)$$</p>
+<p>其中，<strong>N</strong>为训练样本数，$\alpha_j$为任务的重要性，$\beta_j$为样本标签，$L_j$为前面三个任务（face classification、bounding box regression、facial landmark localization）对应的loss函数。</p>
+<p>在<strong>训练阶段</strong>，3个网络都会将关键点位置作为监督信号来引导网络的学习， 但在<strong>预测阶段</strong>，P-Net和R-Net仅做人脸检测，不输出关键点位置（因为这时人脸检测都是不准的），关键点位置仅在O-Net中输出。</p>
+<p><strong>Bounding box</strong>和<strong>关键点</strong>输出均为<strong>归一化后的相对坐标</strong>，Bounding Box是相对待检测区域（R-Net和O-Net是相对输入图像），归一化是相对坐标除以检测区域的宽高，关键点坐标是相对Bounding box的坐标，归一化是相对坐标除以Bounding box的宽高，这里先建立起初步的印象，具体可以参看后面准备训练数据部分和预测部分的代码细节。</p>
+<h1 id="优点-改进"><a href="#优点-改进" class="headerlink" title="优点(改进)"></a>优点(改进)</h1><ul>
+<li>减少卷积核数量（每层内部）</li>
+<li>将$5\times5$的卷积核替换为$3\times3$，并增加网络深度 </li>
+<li>在线难样本挖掘（Online hard sample mining）<ul>
+<li>传统的难样本的处理方法是检测过一次以后，手动检测哪些困难的样本无法被分类，本文采用online hard sample mining的方法。具体就是在每个mini-batch中，取loss最大的70%进行反向传播，忽略那些简单的样本。</li>
+</ul>
+</li>
+<li>人脸检测和对齐联合学习（joint face detecion and alignment）</li>
+</ul>
+<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><p><a target="_blank" rel="noopener" href="https://github.com/loopvoid/mtcnn">mtcnn人脸检测</a></p>
+<h1 id="实现效果"><a href="#实现效果" class="headerlink" title="实现效果"></a>实现效果</h1><p>环境：<br>Intel(R) Core(TM) i7-4790K CPU @ 4.00GHz<br>Logitech HD Pro Webcam c920<br>图像大小：640*640<br>效果：(compressed gif)<br><img src="/2019/10/14/MTCNN%E7%AE%97%E6%B3%95%E4%B8%8E%E4%BB%A3%E7%A0%81%E7%90%86%E8%A7%A3/mtcnn.gif" srcset="/img/loading.gif" lazyload alt="mtcnn"></p>
+<hr>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="https://kpzhang93.github.io/MTCNN_face_detection_alignment/paper/spl.pdf">Joint Face Detection and Alignment using Multi-task Cascaded Convolutional Networks</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/shine-lee/p/10115582.html">https://www.cnblogs.com/shine-lee/p/10115582.html</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/31913064">https://zhuanlan.zhihu.com/p/31913064</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/shine-lee/p/10115582.html">https://www.cnblogs.com/shine-lee/p/10115582.html</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_14845119/article/details/52680940">https://blog.csdn.net/qq_14845119/article/details/52680940</a><br><a target="_blank" rel="noopener" href="http://www.sfinst.com/?p=1683">http://www.sfinst.com/?p=1683</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_36782182/article/details/83624357">https://blog.csdn.net/qq_36782182/article/details/83624357</a></p>
+<p>训练：<br><a target="_blank" rel="noopener" href="https://github.com/dlunion/mtcnn/tree/master/train">https://github.com/dlunion/mtcnn/tree/master/train</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/helloworld0604/p/9808795.html">https://www.cnblogs.com/helloworld0604/p/9808795.html</a><br><a target="_blank" rel="noopener" href="https://joshua19881228.github.io/2018-09-11-training-mtcnn/">https://joshua19881228.github.io/2018-09-11-training-mtcnn/</a><br><a target="_blank" rel="noopener" href="https://github.com/dlunion/mtcnn">https://github.com/dlunion/mtcnn</a><br><a target="_blank" rel="noopener" href="https://github.com/BobLiu20/mtcnn_tf">https://github.com/BobLiu20/mtcnn_tf</a></p>
+<p>实现<br><a target="_blank" rel="noopener" href="https://github.com/imistyrain/MTCNN/blob/master/MTCNN-light/src/main.cpp">https://github.com/imistyrain/MTCNN/blob/master/MTCNN-light/src/main.cpp</a><br><a target="_blank" rel="noopener" href="https://github.com/cpuimage/MTCNN">https://github.com/cpuimage/MTCNN</a><br><a target="_blank" rel="noopener" href="https://github.com/AITTSMD/MTCNN-Tensorflow/blob/master/train_models/mtcnn_model.py">https://github.com/AITTSMD/MTCNN-Tensorflow/blob/master/train_models/mtcnn_model.py</a><br><a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet/blob/master/src/align/detect_face.py">https://github.com/davidsandberg/facenet/blob/master/src/align/detect_face.py</a><br><a target="_blank" rel="noopener" href="https://github.com/TropComplique/mtcnn-pytorch">https://github.com/TropComplique/mtcnn-pytorch</a><br><a target="_blank" rel="noopener" href="https://github.com/LeslieZhoa/tensorflow-MTCNN">https://github.com/LeslieZhoa/tensorflow-MTCNN</a><br><a target="_blank" rel="noopener" href="https://github.com/imistyrain/MTCNN">https://github.com/imistyrain/MTCNN</a><br><a target="_blank" rel="noopener" href="https://github.com/davidsandberg/facenet">https://github.com/davidsandberg/facenet</a><br><a target="_blank" rel="noopener" href="https://github.com/AlphaQi/MTCNN-light">https://github.com/AlphaQi/MTCNN-light</a><br><a target="_blank" rel="noopener" href="https://github.com/BobLiu20/mtcnn_tf">https://github.com/BobLiu20/mtcnn_tf</a><br><a target="_blank" rel="noopener" href="https://github.com/LucyLu-LX/MTCNN_face_detection_caffe">https://github.com/LucyLu-LX/MTCNN_face_detection_caffe</a><br><a target="_blank" rel="noopener" href="https://github.com/pangyupo/mxnet_mtcnn_face_detection">https://github.com/pangyupo/mxnet_mtcnn_face_detection</a><br><a target="_blank" rel="noopener" href="https://github.com/Longqi-S/ncnn-mtcnn">https://github.com/Longqi-S/ncnn-mtcnn</a><br><a target="_blank" rel="noopener" href="https://github.com/githublet/mtcnn/blob/master/caffemodel2txt/caffemodel2txt.py">https://github.com/githublet/mtcnn/blob/master/caffemodel2txt/caffemodel2txt.py</a> </p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/10/21/%E7%A7%BB%E5%8A%A8%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98%E7%9A%84%E6%9B%B2%E7%BA%BF%E6%9B%B2%E9%9D%A2%E6%8B%9F%E5%90%88/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">移动最小二乘的曲线曲面拟合</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2019/10/13/IoU-Intersection-over-Union/">
+                        <span class="hidden-mobile">IoU(Intersection over Union)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

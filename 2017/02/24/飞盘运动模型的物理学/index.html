@@ -1,0 +1,574 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="飞盘的物理学  V. R. Morrison Physics Department, Mount Allison University, Sackville, NB Canada E4L 1E6 (&amp;#118;&amp;#x72;&amp;#109;&amp;#114;&amp;#x72;&amp;#115;&amp;#x6e;&amp;#64;&amp;#x6d;&amp;#x74;&amp;#x61;&amp;#x2e;&amp;#x63;&amp;#97;) 参考原文   摘要飞盘是常见的娱乐">
+<meta property="og:type" content="article">
+<meta property="og:title" content="飞盘运动模型的物理学">
+<meta property="og:url" content="http://blog.home.io/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="飞盘的物理学  V. R. Morrison Physics Department, Mount Allison University, Sackville, NB Canada E4L 1E6 (&amp;#118;&amp;#x72;&amp;#109;&amp;#114;&amp;#x72;&amp;#115;&amp;#x6e;&amp;#64;&amp;#x6d;&amp;#x74;&amp;#x61;&amp;#x2e;&amp;#x63;&amp;#97;) 参考原文   摘要飞盘是常见的娱乐">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p2.qhimg.com/bdm/216_133_0/t01a422cb486e7ae6e9.jpg">
+<meta property="article:published_time" content="2017-02-24T09:16:48.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:01.203Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="飞盘">
+<meta property="article:tag" content="建模">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p2.qhimg.com/bdm/216_133_0/t01a422cb486e7ae6e9.jpg">
+  
+  
+  <title>飞盘运动模型的物理学 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="飞盘运动模型的物理学">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-02-24 17:16" pubdate>
+        2017年2月24日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      7.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      62 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">飞盘运动模型的物理学</h1>
+            
+            <div class="markdown-body">
+              <h2 id="飞盘的物理学"><a href="#飞盘的物理学" class="headerlink" title="飞盘的物理学"></a>飞盘的物理学</h2><blockquote>
+<ul>
+<li>V. R. Morrison Physics Department, Mount Allison University, Sackville, NB Canada E4L 1E6 (<a href="mailto:&#118;&#x72;&#109;&#114;&#x72;&#115;&#x6e;&#64;&#x6d;&#x74;&#x61;&#x2e;&#x63;&#97;">&#118;&#x72;&#109;&#114;&#x72;&#115;&#x6e;&#64;&#x6d;&#x74;&#x61;&#x2e;&#x63;&#97;</a>)</li>
+<li><a target="_blank" rel="noopener" href="http://web.mit.edu/womens-ult/www/smite/frisbee_physics.pdf?origin=publication_detail">参考原文</a></li>
+</ul>
+</blockquote>
+<h2 id="摘要"><a href="#摘要" class="headerlink" title="摘要"></a>摘要</h2><p>飞盘是常见的娱乐方式和运动，虽然这些飞盘背后的物理常常被视为是理所当然。飞盘的运转主要基于两个主要物理概念，<strong>空气动力学升降</strong>和**陀螺稳定性(陀螺仪惯性)**。当飞盘在空中飞行时，可以被看作是一个翼，通过伯努利原理来控制提升力的大小，使飞盘悬浮在空中。 施加的各种力不在盘的中心，因此需要防止飞盘在高角动量上翻转。该角动量抑制由各种力引起的扭矩。 编写了使用欧拉方法的计算机程序来模拟飞盘飞行的轨迹。用不同的攻角和不同的距离和高度观察到飞盘达到不同位置的试验。</p>
+<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>几十年来，飞盘已经成为所有年龄段人们广泛使用的娱乐源。他们创造了许多新的运动（终极飞盘，高尔夫球和其他），飞盘每年的销售量比棒球，篮球和足球加起来还多。这些简单的塑料飞盘可以飞行很长的距离，似乎飞盘悬停在空中时能抵抗重力。大多数人认为飞盘背后的物理是理所当然的，但飞盘的运动模型一般可以只使用<strong>气动升降</strong>和<strong>陀螺稳定性</strong>两个物理概念来解释。现代飞盘的历史可以追溯到1871年William Russell Frisbie在Bridgeportd的Connecticut开了一个名叫The Frisbie Pie的小面包公司。Frisbie的馅饼在附近的耶鲁大学很受欢迎，学生们开始享受折腾空的饼罐。这开始变得受欢迎，学生开始称罐子为“Frisbies”和抛罐子的行为叫“Frisbieing”。第一次生产实际的塑料飞盘是在1958年Fred Morrison买了“飞盘”的专利后，但直到1958年当Wham-O发布了他们的商标“飞盘”时才真正流行起来。最近，Hummel已经对飞盘进行了研究以确定作用在飞盘上的所有力的大小以及涉及投掷飞盘的生物力学的系数<a target="_blank" rel="noopener" href="http://biosport.ucdavis.edu/research-projects/frisbee-flight-simulation-and-throw-biomechanics/HummelThesis.pdf">Hummel（2003）</a>。此外，还有一个未发表的研究，研究飞盘的其他方面，包含直接从飞盘飞行获取数据的方法。</p>
+<h2 id="飞盘飞行理论"><a href="#飞盘飞行理论" class="headerlink" title="飞盘飞行理论"></a>飞盘飞行理论</h2><p>飞盘包含的两个主要物理概念是空气动力学升降（或伯努利原理）和陀螺稳定性。旋转飞盘可以被看作是自由飞行中的机翼，伯努利原理是提供升力的原因，并且飞盘的角动量提供其稳定性。</p>
+<h3 id="空气动力"><a href="#空气动力" class="headerlink" title="空气动力"></a>空气动力</h3><p>作用在飞盘上的两个主要空气动力是阻力和升力。为了确定这些力的大小，将使用两种非常常见的物理关系来描述。为了计算阻力，我们首先必须找到系统的雷诺数，以便知道应用哪个阻力关系。雷诺数<code>R</code>由下式给出：<br>$$ \mathbf{R} &#x3D; \mathbf{\frac{ρvd}{η}} \tag1 $$</p>
+<blockquote>
+<ul>
+<li><strong>ρ</strong> 表示流体的密度(对于飞盘，流体即空气)<br>(海平面，空气的密度约等于$1.23 kg&#x2F;m^3$)</li>
+<li><strong>v</strong> 表示飞盘与流体(空气)的相对速度</li>
+<li><strong>d</strong> 表示物体的特征尺寸（对于飞盘，特征尺寸是它的直径）</li>
+<li><strong>η</strong> 表示流体(空气)的粘稠度<br>通常取$η&#x3D;1.73×10^−5 Ns&#x2F;m^2$</li>
+</ul>
+</blockquote>
+<p>对于这个量级的雷诺数，将使用Prandtl关系来计算阻力$F_d$，并且由下式给出:<br>$$ \mathbf{F}_{d} &#x3D; \mathbf{\frac{-\mathbf{C_{D}}ρπ r^2v^2}{2}} &#x3D; \mathbf{\frac{-\mathbf{C_{D}}ρπ Av^2}{2}} \tag2 $$<br>系数$C_{D}$是随物体变化的阻力系数，并且在<a target="_blank" rel="noopener" href="http://biosport.ucdavis.edu/research-projects/frisbee-flight-simulation-and-throw-biomechanics/HummelThesis.pdf">Hummel（2003）</a>中给出为仅取决于攻角α的二次函数。攻角α是飞盘平面和相对速度矢量之间的夹角。<br>$$ \mathbf{C_{D}} &#x3D; \mathbf{C_{D0}}+\mathbf{C_{Dα}}(\mathbf{α}-\mathbf{α_{0}}) \tag3$$<br>系数$C_{D0}$，$α_{0}$和$C_{Dα}$是常数并且取决于飞盘本身。<br>飞盘受到的升力与飞机机翼上的升力非常相似，并且使用伯努利原理计算。伯努利原理众所周知，它表明流体在同一流线上的任何点的速度，压力和高度之间存在着关系。流体以快速流动的那一侧压力比慢速流动的那一侧压力更低。公式:<br>$$ \frac{\mathbf{v^2_{1}}}{2} + \frac{\mathbf{p}<em>{1}}{ρ} + \mathbf{g}\mathbf{h</em>{1}} &#x3D; \frac{\mathbf{v^2_{2}}}{2} + \frac{\mathbf{p_{2}}}{ρ} + \mathbf{g}\mathbf{h_{2}} \tag4 $$</p>
+<blockquote>
+<ul>
+<li><strong>v</strong> 流体速度</li>
+<li><strong>p</strong> 流体压力</li>
+<li><strong>ρ</strong> 流体密度</li>
+<li><strong>g</strong> 重力加速度</li>
+<li><strong>h</strong> 流体高度</li>
+</ul>
+</blockquote>
+<p>下标1和2指沿着相同流线的流体中的不同点。这个方程通常被称为伯努利方程。在上方流动的空气和在飞盘下方流动的空气之间的高度差是可忽略的，因此两个高度相关项抵消。我们还假定飞盘上面流动的空气的速度与飞盘下面的空气的速度成正比，因为路径长度的差是恒定的(i.e. $v_{1}&#x3D;C_{v_{2}}$),等式如下:<br>$$ \frac{\mathbf{C^2v^2_{2}}}{2} + \frac{\mathbf{p_{1}}}{ρ} &#x3D; \frac{\mathbf{v^2_{2}}}{2} + \frac{\mathbf{p_{2}}}{ρ} \tag5 $$</p>
+<p>设置$F_{L}&#x2F;A&#x3D;p_{1}-p_{2}，F_{L}-升力，A-飞盘面积,F_{L}$等式:<br>$$ \mathbf{F_{L}}&#x3D;\frac{1}{2}\mathbf{ρ}\mathbf{v^2A}\mathbf{C_{L}} \tag6 $$<br>在确定（6）所需的整个步骤中，系数C是并入系数C_{L}。C_{L}是<a target="_blank" rel="noopener" href="http://biosport.ucdavis.edu/research-projects/frisbee-flight-simulation-and-throw-biomechanics/HummelThesis.pdf">Hummel（2003）</a>给出的攻角α的线性函数。$$ \mathbf{C_{L}}&#x3D;\mathbf{C_{L0}}+\mathbf{C_{Lα}}\mathbf{α} \tag7 $$</p>
+<blockquote>
+<p>$C_{L0}$和$C_{Lα}$是取决于飞盘物理特性的常数。</p>
+</blockquote>
+<h3 id="陀螺稳定性"><a href="#陀螺稳定性" class="headerlink" title="陀螺稳定性"></a>陀螺稳定性</h3><p>人们发现趣飞盘的旋转是飞盘飞行的机制中的必要组成部分，没有旋转，飞盘只会像落叶一样飘向地面，不能产生长距离，稳定的飞行。 这是由于前面部分中描述的空气动力不直接集中在飞盘上的事实造成的。一般来说，盘前半部的升力稍大于后半部的升力，这会在飞盘上产生扭矩（见图1）。<br> <img src="/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/frisbee_1.png" srcset="/img/loading.gif" lazyload alt="frisbee"><br> 图1.偏心中心压力（COP）和质心（COM）导致施加在飞盘上的扭矩<br>当飞盘不旋转时，这个小扭矩会使飞盘前半部分翻转，会使飞盘稳定性降低。当飞盘高速旋转抛出的，那么它有较大角动量，使其具有在正或负垂直方向上的向量。当施加小扭矩时，扭矩矢量指向右侧侧面（当从后面观察时）。这可以使用righthad规则：<br>$$ \vec{\tau}&#x3D;\vec{r}×\vec{F} \tag8 $$<br>来源于:<br>$$ \vec{\tau} &#x3D; \frac{d\vec{L}}{dt} \tag{9}$$<br>角动量向量将开始向右驱动，即投掷飞盘时飞盘会靠右或者靠左飞行，正是这个原因。因此，给予飞盘的初始角动量越大，它的飞行会更稳定。</p>
+<h2 id="飞盘飞行的数值建模"><a href="#飞盘飞行的数值建模" class="headerlink" title="飞盘飞行的数值建模"></a>飞盘飞行的数值建模</h2><p>为了模拟飞盘的飞行，编写了一个<strong>C++<strong>程序，该程序使用了应用于上一节中所描述的力的数值技术欧拉法（参见附录中的代码）。 为了实现这一点，不同的力被分成水平和垂直分量，并且每个分量应用欧拉方法。应当注意，在该模型中，假设飞盘被给予足够的初始旋转，以便保持稳定的飞行。 在应用欧拉方法中，飞盘的轨迹被分成离散的时间步长</strong>Δt</strong>，并且在每个步骤处新的水平速度v和水平位置x，定义:<br>$$ \mathbf{v_{i+1}} &#x3D; \mathbf{v_{i}} + \mathbf{Δv} \tag{10} $$<br>$$ \mathbf{x}_{i+1} &#x3D; \mathbf{x}_{i} + \mathbf{Δx} \tag{11}$$<br>其中<strong>Δv</strong>和<strong>Δx</strong>分别是速度和位置的变化。与方程（11）类似的方程可以与垂直方向一起使用位置y，而不是x。<br>通过求解得到<strong>Δv</strong>以下关系:<br>$$ \mathbf{F_{x}} &#x3D; \mathbf{F_{D}} \tag{12}$$<br>$$ \mathbf{m}\frac{Δ\mathbf{v_{x}}}{Δt} &#x3D; \frac{1}{2}\mathbf{ρ}{\mathbf{v_{x}}}^2\mathbf{A}\mathbf{C_{D} }\tag{13} $$<br>$$ \mathbf{Δv_{x}} &#x3D; \frac{1}{2m}\mathbf{ρ}{\mathbf{v_{x}}}^2\mathbf{A}\mathbf{C_{D}}\mathbf{Δt} \tag{14} $$<br>其中<strong>F_{D}<strong>是阻力,那么:<br>$$ \mathbf{F_{y}} &#x3D; \mathbf{F_{g}} + \mathbf{F_{l}} \tag{15}$$<br>$$ \mathbf{m}\frac{Δ\mathbf{v_{x}}}{Δt} &#x3D; \mathbf{mg}\frac{1}{2}\mathbf{ρ}{\mathbf{v_{x}}}^2\mathbf{A}\mathbf{C_{D}} \tag{16}$$<br>$$ \mathbf{Δv_{y}} &#x3D; (g+\frac{1}{2m}\mathbf{ρ}{\mathbf{v_{x}}}^2\mathbf{A}\mathbf{C_{L}})Δt \tag{17}$$<br>其中下标</strong>x</strong>和<strong>y</strong>分别表示<strong>水平速度</strong>和<strong>垂直速度</strong>，F_{g}是重力。<br><strong>Δx</strong>和<strong>Δy</strong>，如</p>
+<p>$$ \mathbf{Δx}&#x3D;\mathbf{v_{x}}\mathbf{Δt} \tag{18} $$<br>$$ \mathbf{Δy}&#x3D;\mathbf{v_{y}}\mathbf{Δt} \tag{19} $$</p>
+<p>写的程序包含一个模拟方法，需要五个输入参数，初始y(垂直)位置，初始y速度，初始x速度（初始x位置始终设置为零），攻角（以度为单位）和Δt。 除攻角以外的所有单位均为SI单位。在所有试验中，使用Δt&#x3D; 0.001s。 试验Δt&#x3D; 0.001s和测试Δt&#x3D; 0.002s和结果之间的差异是不明显的。 (注：在模拟中的系数值使用：$C_{D0} &#x3D; 0.08，C_{Dα}&#x3D; 2.72，C_{L0} &#x3D; .15，C_{Lα}&#x3D; 1.4)$</p>
+<h2 id="仿真结果"><a href="#仿真结果" class="headerlink" title="仿真结果"></a>仿真结果</h2><p>当进行模拟时，所有试验的初始高度为<strong>1m</strong>，初始x速度为<strong>14m&#x2F;s</strong>，以及0m&#x2F;s的初始y速度，这被认为是标准投掷飞盘的速度。试验使用从<strong>0°</strong>到<strong>45°</strong>的攻角。这是唯一的参数被改变，因为升力系数和阻力仅取决于攻角。从图2，图3可以看出和图4攻角对飞盘轨迹有很大的影响。具有低攻角（一般小于5度）升力非常小，飞盘快速下落到地面后短距离，通常小于20米。具有较大的攻角，更大的升力显然和飞盘更大高度和进一步行进，达40米。达到最大距离的攻角约为12°它行驶40米，最大高度为7.7米。在较大的攻角发射飞盘高度会更高，但由于阻力大，飞行距离较小。试验进行不同的初始速度跟随与具有初始速度的趋势相似的趋势速度为<strong>14m&#x2F;s</strong>。在较低的速度下，提升力大大降低，飞盘会更快地掉到地上。在更高的速度提升力更大，轨迹越来越长。</p>
+<p> <img src="/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/frisbee_2.png" srcset="/img/loading.gif" lazyload alt="frisbee"><br> Figure 3. Plot of height(m) versus distance(m) for a Frisbee with initial velocity 14<br>m&#x2F;s and angle of attack 7.5◦<br> <img src="/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/frisbee_3.png" srcset="/img/loading.gif" lazyload alt="frisbee"><br> Figure 2. Plot of height(m) versus distance(m) for a Frisbee with initial velocity 14<br>m&#x2F;s and angle of attack 5◦<br> <img src="/2017/02/24/%E9%A3%9E%E7%9B%98%E8%BF%90%E5%8A%A8%E6%A8%A1%E5%9E%8B%E7%9A%84%E7%89%A9%E7%90%86%E5%AD%A6/frisbee_4.png" srcset="/img/loading.gif" lazyload alt="frisbee"><br> Figure 4. Plot of height(m) versus distance(m) for a Frisbee with initial velocity 14<br>m&#x2F;s and angle of attack 10◦ </p>
+<p>C++代码如下:<br><code>Frisbee.hpp文件</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> FRISBEE_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> FRISBEE_H</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PI 3.1415926</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Frisbee</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">simulate</span><span class="hljs-params">(<span class="hljs-type">double</span> y0, <span class="hljs-type">double</span> vx0, <span class="hljs-type">double</span> vy0, <span class="hljs-type">double</span> alpha, <span class="hljs-type">double</span> deltaT)</span></span>;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">double</span> x;<br>    <span class="hljs-type">static</span> <span class="hljs-type">double</span> y;<br>    <span class="hljs-type">static</span> <span class="hljs-type">double</span> vx;<br>    <span class="hljs-type">static</span> <span class="hljs-type">double</span> vy;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> g;      <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> m;      <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> RHO;    <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> AREA;   <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> CL0;    <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> CLA;    <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> CD0;    <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> CDA;    <span class="hljs-comment">//</span><br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> ALPHA0; <span class="hljs-comment">//</span><br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+<p><code>Frisbee.cpp文件</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&quot;Frisbee.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;math.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;fstream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::g = <span class="hljs-number">-9.81</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::m = <span class="hljs-number">0.175</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::RHO = <span class="hljs-number">1.23</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::AREA = <span class="hljs-number">0.0568</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::CL0 = <span class="hljs-number">0.1</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::CLA = <span class="hljs-number">1.4</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::CD0 = <span class="hljs-number">0.08</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::CDA = <span class="hljs-number">2.72</span>;<br><span class="hljs-type">const</span> <span class="hljs-type">double</span> Frisbee::ALPHA0 = <span class="hljs-number">-4</span>;<br><span class="hljs-type">double</span> Frisbee::vx = <span class="hljs-number">0</span>;<br><span class="hljs-type">double</span> Frisbee::vy = <span class="hljs-number">0</span>;<br><span class="hljs-type">double</span> Frisbee::x = <span class="hljs-number">0</span>;<br><span class="hljs-type">double</span> Frisbee::y = <span class="hljs-number">0</span>;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Frisbee::simulate</span><span class="hljs-params">(<span class="hljs-type">double</span> y0, <span class="hljs-type">double</span> vx0, <span class="hljs-type">double</span> vy0, <span class="hljs-type">double</span> alpha, <span class="hljs-type">double</span> deltaT)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//通过S. A. Hummel给出的公式计算计算升力系数</span><br>    <span class="hljs-type">double</span> cl = CL0 + CLA*alpha*PI / <span class="hljs-number">180</span>;<br>    <span class="hljs-comment">//通过Prantl’s关系计算阻力</span><br>    <span class="hljs-type">double</span> cd = CD0 + CDA*<span class="hljs-built_in">pow</span>((alpha - ALPHA0)*PI / <span class="hljs-number">180</span>, <span class="hljs-number">2</span>);<br>    <span class="hljs-comment">//初始化x位置</span><br>    x = <span class="hljs-number">0</span>;<br>    <span class="hljs-comment">//初始化y位置</span><br>    y = y0;<br>    <span class="hljs-comment">//初始化x方向速度 vx = vx0</span><br>    vx = vx0;<br>    <span class="hljs-comment">//初始化x方向速度 vy = vy0</span><br>    vy = vy0;<br>    <span class="hljs-keyword">try</span>&#123;<br>        <span class="hljs-comment">//将计算结果输出到一个word表格</span><br>        <span class="hljs-comment">//PrintWriter pw = new PrintWriter(new BufferedWriter</span><br>        <span class="hljs-comment">//  (new FileWriter(&quot;frisbee.csv&quot;)));</span><br><br>        ofstream fout;<br>        fout.<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;frisbee.csv&quot;</span>, ios_base::app);<br>        <span class="hljs-keyword">if</span> (!fout.<span class="hljs-built_in">is_open</span>())<br>        &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-string">&quot;文件打开失败!&quot;</span>;<br>        &#125;<br><br>        <span class="hljs-comment">//循环计数</span><br>        <span class="hljs-type">int</span> k = <span class="hljs-number">0</span>;<br>        <span class="hljs-comment">//一个while循环，执行迭代直到y位置达到零（即飞盘击中地面）</span><br>        <span class="hljs-keyword">while</span> (y &gt; <span class="hljs-number">0</span>)&#123;<br>            <span class="hljs-comment">//在y方向上的速度变化获得将净力等于重力和提升力的总和并求解delta v</span><br>            <span class="hljs-type">double</span> deltavy = (RHO*<span class="hljs-built_in">pow</span>(vx, <span class="hljs-number">2</span>)*AREA*cl / <span class="hljs-number">2</span> / m + g)*deltaT;<br>            <span class="hljs-comment">//通过求解增量v的力方程（存在的唯一力是牵引力）获得x方向上的速度变化。</span><br>            <span class="hljs-type">double</span> deltavx = -RHO*<span class="hljs-built_in">pow</span>(vx, <span class="hljs-number">2</span>)*AREA*cd*deltaT;<br>            <span class="hljs-comment">//新的位置和速度使用简单的力学计算。</span><br>            vx = vx + deltavx;<br>            vy = vy + deltavy;<br>            x = x + vx*deltaT;<br>            y = y + vy*deltaT;<br>            <span class="hljs-comment">//只有每十次迭代的输出将被发送到电子表格，以便减少数据点的数量。</span><br>            <span class="hljs-keyword">if</span> (k % <span class="hljs-number">10</span> == <span class="hljs-number">0</span>)&#123;<br>                <span class="hljs-comment">//pw.print(x + &quot;,&quot; + y + &quot;,&quot; + vx);</span><br>                fout &lt;&lt; x &lt;&lt; <span class="hljs-string">&quot;,&quot;</span> &lt;&lt; y &lt;&lt; <span class="hljs-string">&quot;,&quot;</span> &lt;&lt; vx;<br>                <span class="hljs-comment">//pw.println();</span><br>                <span class="hljs-comment">//fout &lt;&lt; &quot;\r\n&quot;;</span><br>                fout &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>                fout.<span class="hljs-built_in">flush</span>();<br>            &#125;<br>            k++;<br>        &#125;<br>        fout.<span class="hljs-built_in">close</span>();<br>    &#125;<br>    <span class="hljs-built_in">catch</span> (string s)&#123;<br>        cout &lt;&lt; s + <span class="hljs-string">&quot;Error, file frisbee.csv is in use.&quot;</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    Frisbee::<span class="hljs-built_in">simulate</span>(<span class="hljs-number">1</span>, <span class="hljs-number">16.5</span>, <span class="hljs-number">0</span>, <span class="hljs-number">6</span>, <span class="hljs-number">0.001</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因为实际需要进行翻译，如有不足，欢迎指正.</p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%95%B0%E5%AD%A6%E5%BB%BA%E6%A8%A1/">数学建模</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E9%A3%9E%E7%9B%98/">飞盘</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%BB%BA%E6%A8%A1/">建模</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/02/26/%E9%9D%9E%E5%8F%82%E6%95%B0%E4%BC%B0%E8%AE%A1/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">非参数估计</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/02/23/Opencv%E8%AE%A1%E7%AE%97%E7%AE%97%E6%B3%95%E8%BF%90%E8%A1%8C%E6%97%B6%E9%97%B4/">
+                        <span class="hidden-mobile">Opencv计算算法运行时间</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

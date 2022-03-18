@@ -1,0 +1,628 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="单个神经元结构  输入：$x_1,x_2,…,x_n$  输出：$y$  输入和输出的关系(函数)：$y &#x3D; (x_1\ast w_1+x_2\ast w_2+…+x_n\ast w_n+)+b &#x3D; \sum_{i&#x3D;1}^n x_i\ast w_i+b$，其中$w_i$是权重  将输入用矩阵表示：$X &#x3D; [x_1,x_2,…,x_n]^T,X为一个n行1列">
+<meta property="og:type" content="article">
+<meta property="og:title" content="BP神经网络原理和简明理解">
+<meta property="og:url" content="http://blog.home.io/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="单个神经元结构  输入：$x_1,x_2,…,x_n$  输出：$y$  输入和输出的关系(函数)：$y &#x3D; (x_1\ast w_1+x_2\ast w_2+…+x_n\ast w_n+)+b &#x3D; \sum_{i&#x3D;1}^n x_i\ast w_i+b$，其中$w_i$是权重  将输入用矩阵表示：$X &#x3D; [x_1,x_2,…,x_n]^T,X为一个n行1列">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p9.qhimg.com/bdm/432_266_0/t01e8b0a3c67eda9199.jpg">
+<meta property="article:published_time" content="2019-09-14T02:48:09.000Z">
+<meta property="article:modified_time" content="2022-03-18T04:28:44.996Z">
+<meta property="article:author" content="John Doe">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p9.qhimg.com/bdm/432_266_0/t01e8b0a3c67eda9199.jpg">
+  
+  
+  <title>BP神经网络原理和简明理解 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="BP神经网络原理和简明理解">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2019-09-14 10:48" pubdate>
+        2019年9月14日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      25k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      210 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">BP神经网络原理和简明理解</h1>
+            
+            <div class="markdown-body">
+              <h1 id="单个神经元结构"><a href="#单个神经元结构" class="headerlink" title="单个神经元结构"></a>单个神经元结构</h1><p><img src="/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/bp1.jpg" srcset="/img/loading.gif" lazyload alt="bp1"></p>
+<ul>
+<li><p>输入：$x_1,x_2,…,x_n$</p>
+</li>
+<li><p>输出：$y$</p>
+</li>
+<li><p>输入和输出的关系(函数)：$y &#x3D; (x_1\ast w_1+x_2\ast w_2+…+x_n\ast w_n+)+b &#x3D; \sum_{i&#x3D;1}^n x_i\ast w_i+b$，其中$w_i$是权重</p>
+</li>
+<li><p>将输入用矩阵表示：$X &#x3D; [x_1,x_2,…,x_n]^T,X为一个n行1列的矩阵$</p>
+</li>
+<li><p>将权重用矩阵表示：$W&#x3D;[w_1,x_2,…,w_n]$</p>
+</li>
+<li><p>那么输出可以表示为：$y&#x3D;[w_1.w_2,…,w_n] \cdot [x_1,_2,…,x_n]^T+b&#x3D;WX+b$</p>
+</li>
+</ul>
+<h1 id="激活函数"><a href="#激活函数" class="headerlink" title="激活函数"></a>激活函数</h1><p>激活函数是一类复杂的问题，为便于理解这里有几条重要的特性：</p>
+<ul>
+<li><strong>非线性</strong>：即导数不是常数，不然求导之后退化为直线。对于一些画一条直线仍然无法分开的问题，非线性可以把直线掰弯，自从变弯以后，就能包罗万象了。</li>
+<li><strong>几乎处处可导</strong>：数学上，处处可导为后面的后向传播算法（BP算法）提供了核心条件。</li>
+<li><strong>输出范围有限</strong>：一般是限定在[0,1]，有限的输出范围使得神经元对于一些比较大的输入也会比较稳定。</li>
+<li><strong>非饱和性</strong>：饱和就是指，当输入比较大的时候，输出几乎没变化了，那么会导致梯度消失！梯度消失带来的负面影响就是会限制了神经网络表达能力。<strong>sigmoid</strong>，<strong>tanh</strong>函数都是软饱和的，<strong>阶跃函数</strong>是硬饱和。<strong>软</strong>是指输入趋于无穷大的时候输出无限接近上线，<strong>硬</strong>是指像阶跃函数那样，输入非0输出就已经始终都是上限值。关于数学表示**<a target="_blank" rel="noopener" href="https://www.cnblogs.com/rgvb178/p/6055213.html">传送门</a>** 里面有详细写到。如果激活函数是饱和的，带来的缺陷就是系统迭代更新变慢，系统收敛就慢，当然这是可以有办法弥补的，一种方法是使用交叉熵函数作为损失函数。<strong>ReLU</strong> 是非饱和的，效果挺不错。</li>
+<li><strong>单调性</strong>：即导数符号不变。导出要么一直大于0，要么一直小于0，不要上蹿下跳。导数符号不变，让神经网络训练容易收敛。</li>
+</ul>
+<p>这里用到<strong>Sigmoid</strong>函数方便理解：</p>
+<p>Sigmoid函数：$$y &#x3D; \frac{1}{e^{(-x)}+1}$$</p>
+<p><img src="/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/bp2.jpg" srcset="/img/loading.gif" lazyload alt="bp2"></p>
+<p>S函数的导数：</p>
+<p>$$<br>\begin{aligned}<br>&amp;y’&#x3D; (\frac{1}{e^{-x}+1})’ \\<br>&amp;&#x3D;(\frac{u}{v})’,这里u&#x3D;1,v&#x3D;e^{-x}+1 \\<br>&amp;&#x3D;\frac{u’v-uv’}{v^2} \\<br>&amp;&#x3D;\frac{1’\ast (e^{-x}+1)-1\ast (e^{-x}+1)’}{(e^{-x}+1)^2} \\<br>&amp;&#x3D;\frac{e^{-x}}{(e^{-x}+1)^2} \\<br>&amp;&#x3D;\frac{1}{1+e^{-x}}\ast \frac{1+e^{-x}-1}{1+e^{-x}} \\<br>&amp;&#x3D;\frac{1}{1+e^{-x}}\ast (1-\frac{1}{1+e^{-x}}), 令y&#x3D;\frac{1}{e^{-x}+1} \\<br>&amp;&#x3D;y\ast (1-y)<br>\end{aligned}<br>$$</p>
+<p>S函数的导数的图像：</p>
+<p><img src="/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/bp3.jpg" srcset="/img/loading.gif" lazyload alt="bp3"></p>
+<h1 id="传播过程"><a href="#传播过程" class="headerlink" title="传播过程"></a>传播过程</h1><p>下面是一个典型的三层神经网络结构，第一层是输入层，第二层是隐藏层，第三层是输出层。</p>
+<p><img src="/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/bp4.jpg" srcset="/img/loading.gif" lazyload alt="bp4"></p>
+<ul>
+<li><strong>正向传播</strong>：输入$i_1,i_2$数据，然后一层一层传播下去，知道输出层输出结果。</li>
+<li><strong>反向传播</strong>：输入、期望的输出为已知。在开始时，权重$w$,偏置$b$初始化为随机值，按网络计算后观察结果。根据结果的<strong>误差</strong>(也叫损失)，调整权重$w$,偏置$b$，这时就完成了一次反向传播。</li>
+<li>当完成了一次正反向传播，也就完成了一次神经网络的训练迭代，反复迭代，误差越来越小，直至训练完成。</li>
+</ul>
+<h1 id="BP算法推导和数值计算"><a href="#BP算法推导和数值计算" class="headerlink" title="BP算法推导和数值计算"></a>BP算法推导和数值计算</h1><h2 id="初始化参数"><a href="#初始化参数" class="headerlink" title="初始化参数"></a>初始化参数</h2><ul>
+<li>输入：$i_1&#x3D;0.1,i_2&#x3D;0.2$</li>
+<li>输出：$O_1&#x3D;0.01,O_2&#x3D;0.99,(训练时的输出期望值)$</li>
+<li>权重：$ \begin{aligned} &amp;w_1&#x3D;0.1,w_2&#x3D;0.2,w_3&#x3D;0.3,w_4&#x3D;0.4 \\ &amp;w_5&#x3D;0.5,w_6&#x3D;0.6,w_7&#x3D;0.7,w_8&#x3D;0.8 \\ &amp;(这些权重是随机初始化的，通过多次迭代训练调整直到训练完成)\end{aligned} $</li>
+<li>偏置：$b_1&#x3D;0.55,b_2&#x3D;0.56,b_3&#x3D;0.66,b_4&#x3D;0.67 \\ (同随机初始化)$</li>
+</ul>
+<h2 id="正向传播"><a href="#正向传播" class="headerlink" title="正向传播"></a>正向传播</h2><ul>
+<li>输入层–&gt;隐藏层：<ul>
+<li>计算<strong>隐藏层</strong>神经元$h_1$的输入加权和：$$\begin{aligned} IN_{h1}&amp;&#x3D;w_1\ast i_1+w_2\ast i_2+1\ast b_1 \\ &amp;&#x3D;0.1\ast 0.1+0.2\ast 0.2+1\ast 0.55 \\ &amp;&#x3D;0.6\end{aligned}$$</li>
+<li>计算<strong>隐藏层</strong>神经元$h_1$的输出，要通过激活函数Sigmoid处理：$$OUT_{h1}&#x3D;\frac{1}{e^{-IN_{h1}}+1} \ &#x3D;\frac{1}{e^{-0.6}+1} \ &#x3D;0.6456563062$$</li>
+<li>同理计算出<strong>隐藏层</strong>神经元$h_2$的输出：$$OUT_{h2}&#x3D;0.6592603884$$</li>
+</ul>
+</li>
+<li>隐藏层–&gt;输出层：<ul>
+<li>计算<strong>输出层</strong>神经元$O_1$的<strong>输入</strong>加权和：$$\begin{aligned}IN_{O_1}&amp;&#x3D;w_5\ast OUT_{h_1}+w_6\ast OUT_{h_2}+1\ast b_3 \\ &amp;&#x3D;0.5\ast 0.6456563062+0.6\ast 0.6592603884+1\ast 0.66 \\ &amp;&#x3D;1.3783843861\end{aligned}$$</li>
+<li>计算<strong>输出层</strong>神经元$O_1$的输出：$$OUT_{O_1}&#x3D;\frac{1}{e^{-IN_{O_1}}+1} \ &#x3D;\frac{1}{e^{-1.3783843861}}\ &#x3D;0.7987314002 $$</li>
+<li>同理计算出<strong>输出层</strong>神经元$O_2$的输出：$$OUT_{O_2}&#x3D;0.8374488853$$</li>
+</ul>
+</li>
+</ul>
+<p>正向传播结束，可以看到输出层输出的结果：$[0.7987314002,0.8374488853]$，但是训练数据的期望输出是$[0.01,0.99]$，相差太大，这时就需要利用反向传播，更新权重$w$，然后重新计算输出。</p>
+<h2 id="反向传播"><a href="#反向传播" class="headerlink" title="反向传播"></a>反向传播</h2><h3 id="计算输出误差："><a href="#计算输出误差：" class="headerlink" title="计算输出误差："></a>计算输出误差：</h3><ul>
+<li><p>误差计算：$$\begin{aligned} E_{total}&amp;&#x3D;\sum_{i&#x3D;1}^2E_{OUT_{O_i}} \\ &amp;&#x3D;E_{OUT_{O_1}} + E_{OUT_{O_2}} \\ &amp;&#x3D;\frac{1}{2}(expected_{OUT_{O_1}}-OUT_{O_1})^2+\frac{1}{2}(expected_{OUT_{O_2}}-OUT_{O_2})^2 \\ &amp;&#x3D;\frac{1}{2}\ast (O_1-OUT_{O_1})^2+\frac{1}{2}\ast (O_2-OUT_{O_2})^2 \\ &amp;&#x3D;\frac{1}{2}\ast (0.01-0.7987314002)^2+\frac{1}{2}\ast (0.99-0.8374488853)^2 \\ &amp;&#x3D;0.0116359213+0.3110486109 \\ &amp;&#x3D;0.3226845322 \\ &amp;其中：E_{OUT_{O_1}}&#x3D;0.0116359213,E_{OUT_{O_2}}&#x3D; 0.3110486109 \end{aligned}$$</p>
+</li>
+<li><p>PS:这里使用这个简单的误差计算便于理解，实际上其效果有待提高。如果激活函数是饱和的，带来的缺陷就是系统迭代更新变慢，系统收敛就慢，当然这是可以有办法弥补的，一种方法是使用<strong>交叉熵函数</strong>作为损失函数。<a target="_blank" rel="noopener" href="https://blog.csdn.net/lanchunhui/article/details/50086025">这里</a>有更详细的介绍。</p>
+</li>
+<li><p>交叉熵损失函数：$$E_{total}&#x3D;\frac{1}{m}\sum_{i&#x3D;1}^m(O_i\cdot log OUT_{O_i}+(1-O_i)\cdot log(1-OUT_{O_i}))$$</p>
+</li>
+<li><p>对输出求偏导：$$\frac{\partial E_{total}}{\partial OUT_{O_i}}&#x3D;\frac{1}{m}\sum_{i&#x3D;1}^m(\frac{O_i}{OUT_{O_i}}-\frac{1-O_i}{1-OUT_{O_i}})$$</p>
+<h3 id="隐藏层–-gt-输出层的权重的更新："><a href="#隐藏层–-gt-输出层的权重的更新：" class="headerlink" title="隐藏层–&gt;输出层的权重的更新："></a>隐藏层–&gt;输出层的权重的更新：</h3></li>
+<li><p>链式求导法则(详细可参考<a target="_blank" rel="noopener" href="https://loopvoid.github.io/2018/10/15/%E8%87%AA%E5%8A%A8%E5%BE%AE%E5%88%86%E6%B3%95/">这篇文章</a>：$$假设y是u的函数，而u是x的函数：y&#x3D;f(u),u&#x3D;g(x) \\ 那么对应的复合函数就是：y&#x3D;f(g(x)) \\ 那么y对x的导数则有：\frac{dy}{dx}&#x3D;\frac{dy}{du}\cdot \frac{du}{dx}$$</p>
+</li>
+<li><p>以权重$w_5$举例计算：权重$w$的大小能直接影响输出，$w$不合适会使输出有误差。要知道某个$w$对误差影响的程度，可以用<strong>误差对该$w$的变化率</strong>来表达。如果$w$的很少的变化，会导致误差增大很多，说明这个$w$对误差影响的程度就更大，也就是说，误差对该$w$的变化率越高。而误差对$w$的变化率就是误差对$w$的偏导。如图，总误差的大小首先受输出层神经元$O_1$的输出影响，继续反推，$O_1$的输出受它自己的输入的影响，而它自己的输入会受到$w_5$的影响。<img src="/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/bp5.jpg" srcset="/img/loading.gif" lazyload alt="bp5"></p>
+</li>
+<li><p>那么根据链式法则有：$$\begin{aligned} \frac{\partial E_{total}}{\partial w_5}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{O_1}}\frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\frac{\partial IN_{O_1}}{\partial w_5}\end{aligned} $$</p>
+</li>
+<li><p>第一部分： $$ \begin{aligned}  \because E_{total}&amp;&#x3D;\frac{1}{2}(O_1-OUT_{O_1})^2+\frac{1}{2}(O_2-OUT_{O_2})^2 \\  \therefore \frac{\partial E_{total}}{\partial OUT_{O_1}}&amp;&#x3D;\frac{\partial (\frac{1}{2}(O_1-OUT_{O_1})^2+\frac{1}{2}(O_2-OUT_{O_2})^2)}{\partial OUT_{O_1}} \\ &amp;  &#x3D;2\ast \frac{1}{2}(O_1-OUT_{O_1})^{2-1}\ast (0-1)+0 \\ &amp;  &#x3D;-(O_1-OUT_{O_1}) \\ &amp;  &#x3D;-(0.01-0.7987314002) \\ &amp;  &#x3D;0.7887314002 \end{aligned}$$</p>
+</li>
+<li><p>第二部分：$$\begin{aligned}\because OUT_{O_1}&amp;&#x3D;\frac{1}{e^{-IN_{O_1}}+1} \\ \therefore \frac{\partial OUT_{O_1}}{\partial IN_{O_1}}&amp;&#x3D;\frac{\partial (\frac{1}{e^{-IN_{O_1}}+1})}{\partial IN_{O_1}} \\ &amp; &#x3D;OUT_{O_1}(1-OUT_{O_1}) \\ &amp;&#x3D;0.7987314002*(1-0.7987314002) \\ &amp;&#x3D;0.1607595505 \end{aligned}$$</p>
+</li>
+<li><p>第三部分：$$\begin{aligned} \because IN_{O_1}&amp;&#x3D;w_5\ast OUT_{h_1}+w_6\ast OUT_{h_2}+1\ast b_3 \\  \therefore \frac{\partial IN_{O_1}}{\partial w_5}&amp;&#x3D;\frac{\partial (w_5\ast OUT_{h_1}+w_6\ast OUT_{H}+1\ast b_3)}{\partial w_5} \\ &amp;&#x3D;1\ast w_5^{(1-1)}\ast OUT_{h_1}+0+0 \\ &amp;&#x3D;OUT_{h_1} \\ &amp;&#x3D;0.6456563062\end{aligned}$$</p>
+</li>
+<li><p>所以：$$\begin{aligned}\frac{\partial E_{total}}{\partial w_5}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{O_1}}\frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\frac{\partial IN_{O_1}}{\partial w_5} \\ &amp;&#x3D;0.7887314002\ast 0.1607595505\ast 0.6456563062\\ &amp;&#x3D;0.0818667051\end{aligned}$$</p>
+</li>
+<li><p>归纳如下：$$\begin{aligned}\frac{\partial E_{total}}{\partial w_5}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{O_1}}\frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\frac{\partial IN_{O_1}}{\partial w_5} \\ &amp;&#x3D;-(O_1-OUT_{O_1})\cdot OUT_{O_1}\cdot (1-OUT_{O_1})\cdot OUT_{h_1}\\ &amp;&#x3D;\sigma_{O_1}\cdot OUT_{h_1} \\ &amp; 其中，\sigma_{O_1}&#x3D;-(O_1-OUT_{O_1})\cdot OUT_{O_1}\cdot (1-OUT_{O_1})\end{aligned}$$</p>
+<h3 id="隐藏层–-gt-输出层的偏置的更新："><a href="#隐藏层–-gt-输出层的偏置的更新：" class="headerlink" title="隐藏层–&gt;输出层的偏置的更新："></a>隐藏层–&gt;输出层的偏置的更新：</h3></li>
+<li><p>同理<strong>输出层</strong>偏置b更新如下：$$\begin{aligned} IN_{O_1}&amp;&#x3D;w_5\ast OUT_{h_1}+w_6\ast OUT_{h_2}+1\ast b_3 \\ \frac{\partial IN_{O_1}}{\partial b_3}&amp;&#x3D;\frac{w_5\ast OUT_{h_1}+w_6\ast OUT_{h_2}+1\ast b_3}{\partial b_3} \\ &amp;&#x3D;0+0+b_3^{(1-1)} \\&amp;&#x3D;1  \end{aligned}$$ </p>
+</li>
+<li><p>所以：$$\begin{aligned}\frac{\partial E_{total}}{\partial b_3}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{O_1}}\frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\frac{\partial IN_{O_1}}{\partial b_3} \\ &amp;&#x3D;0.7887314002\ast 0.1607595505\ast 1\\ &amp;&#x3D;0.1267961053\end{aligned}$$</p>
+</li>
+<li><p>归纳如下：   $$\begin{aligned} \frac{\partial E_{total}}{\partial b_3}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{O_1}}\frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\frac{\partial IN_{O_1}}{\partial b_3}\\ &amp;&#x3D;-(O_1-OUT_{O_1})\cdot OUT_{O_1}\cdot (1-OUT_{O_1})\cdot 1\\ &amp;&#x3D;\sigma_{O_1}\\ &amp;其中,\sigma_{O_1}&#x3D;-(O_1-OUT_{O_1})\cdot OUT_{O_1}\cdot (1-OUT_{O_1})  \end{aligned}$$</p>
+</li>
+</ul>
+<h3 id="更新-w-5-的值："><a href="#更新-w-5-的值：" class="headerlink" title="更新$w_5$的值："></a>更新$w_5$的值：</h3><ul>
+<li>暂时设定学习率为<strong>0.5</strong>，学习率不宜过大也不宜过小，<a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_41204464/article/details/83660728">这篇文章</a>学习率有更为详细的介绍，更新$w_5$：$$\begin{aligned}w_5^+&amp;&#x3D;w_5-\alpha \cdot \frac{\partial E_{total}}{\partial w_5} \\ &amp;&#x3D;0.5-0.5\ast 0.0818667051\\ &amp;&#x3D;0.45906664745\end{aligned}$$</li>
+<li>同理可以计算出其他$w_n$的值</li>
+<li>归纳输出层$w$的更新公式：$$\begin{aligned}w_O^+&amp;&#x3D;w_o-\alpha \cdot (-OUT_O\cdot (1-OUT_O)\cdot (O-OUT_O)\cdot OUT_h)\\ &amp;&#x3D;w_O+\alpha \cdot (O-OUT_O)\cdot OUT_O\cdot (1-OUT_O)\cdot OUT_h\end{aligned}$$</li>
+</ul>
+<h3 id="更新-b-3-的值："><a href="#更新-b-3-的值：" class="headerlink" title="更新$b_3$的值："></a>更新$b_3$的值：</h3><ul>
+<li>更新偏置b：$$\begin{aligned}b_3^+&amp;&#x3D;b_{O_3}-\alpha \cdot \frac{\partial E_{total}}{\partial b_{O_3}} \\ &amp;&#x3D;0.66-0.5\cdot 0.1267961053\\ &amp;&#x3D;0.596601947 \end{aligned}$$</li>
+<li>归纳如下：$$\begin{aligned}b_O^+&amp;&#x3D;b_O-\alpha \cdot(-OUT_O\cdot(1-OUT_O)\cdot(O_OUT_O))\\ &amp;&#x3D;b_O+\alpha \cdot (O-OUT_O)\cdot OUT_O\cdot(1-OUT_O)\end{aligned}$$</li>
+</ul>
+<h3 id="输入层–-gt-隐藏层的权值更新："><a href="#输入层–-gt-隐藏层的权值更新：" class="headerlink" title="输入层–&gt;隐藏层的权值更新："></a>输入层–&gt;隐藏层的权值更新：</h3><ul>
+<li>以权重$w_1$举例计算：在求$w_5$的更新，误差反向传递路径输出层–&gt;隐层，即$OUT_{O_1}\rightarrow IN_{O_1}\rightarrow w_5$，总误差只有一条路径能传回来。但是求$w_1$时，误差反向传递路径是隐藏层–&gt;输入层，但是隐藏层的神经元是有2条的，所以总误差沿着2个路径回来，也就是说，计算偏导时，要分开来算。<img src="/2019/09/14/BP%E7%A5%9E%E7%BB%8F%E7%BD%91%E7%BB%9C%E5%8E%9F%E7%90%86%E5%92%8C%E7%AE%80%E6%98%8E%E7%90%86%E8%A7%A3/bp6.jpg" srcset="/img/loading.gif" lazyload alt="bp6"></li>
+</ul>
+<h3 id="计算总误差对-w-1-的偏导："><a href="#计算总误差对-w-1-的偏导：" class="headerlink" title="计算总误差对$w_1$的偏导："></a>计算总误差对$w_1$的偏导：</h3><p>$$<br>\begin{aligned}\frac{\partial E_{total}}{\partial w_1}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{h_1}}\cdot \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}\cdot \frac{\partial IN_{h_1}}{\partial w_1} \\ &amp;&#x3D;(\frac{\partial E_{O_1}}{\partial OUT_{h_1}}+\frac{\partial E_{O_2}}{\partial OUT_{h_1}})\cdot \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}\cdot \frac{\partial IN_{h_1}}{\partial w_1}\end{aligned}<br>$$</p>
+<ul>
+<li>计算$E_{O_1}对OUT_{h_1}$的偏导：$$\begin{aligned}\frac{\partial E_{total}}{\partial OUT_{h_1}} &amp;&#x3D; \frac{\partial E_{O_1}}{\partial OUT_{h_1}}+\frac{\partial E_{O_2}}{\partial OUT_{h_1}}\\ \frac{\partial E_{O_1}}{\partial OUT_{h_1}}&amp;&#x3D;\frac{\partial E_{O_1}}{\partial IN_{O_1}}\cdot\frac{\partial IN_{O_1}}{\partial OUT_{h_1}} \\ (左边)\frac{\partial E_{O_1}}{\partial IN_{O_1}}&amp;&#x3D;\frac{\partial E_{O_1}}{\partial OUT_{O_1}}\cdot\frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\\ &amp;&#x3D;\frac{\frac{1}{2}(O_1-OUT_{O_1})^2}{\partial OUT_{O_1}}\cdot \frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\\ &amp;&#x3D;-(O_1-OUT_{O_1})\cdot \frac{\partial OUT_{O_1}}{\partial IN_{O_1}}\\ &amp;&#x3D;0.7987314002\ast 0.1607595505\\ &amp;&#x3D;0.1284037009\\IN_{O_1}&amp;&#x3D;w_5\ast OUT_{h_1}+w_6\ast OUT_{h_2}+1\ast b_3\\ (右边)\frac{\partial IN_{O_1}}{\partial OUT_{h_1}}&amp;&#x3D;\frac{\partial (w_5\ast OUT_{h_1}+w_6\ast OUT_{h_2}+1\ast b_3)}{\partial OUT_{h_1}}\\ &amp;&#x3D;w_5\ast OUT_{h_1}^{(1-1)}+0+0\\ &amp;&#x3D;w_5&#x3D;0.5 \\ \frac{\partial E_{O_1}}{\partial OUT_{h_1}} &amp;&#x3D;\frac{\partial E_{O_1}}{\partial IN_{O_1}}\cdot \frac{\partial IN_{O_1}}{\partial OUT_{h_1}}\\ &amp;&#x3D;0.1284037009\ast 0.5&#x3D;0.06420185045\end{aligned}$$</li>
+<li>j计算$E_{O_2}对OUT_{h_1}$的偏导：$$\begin{aligned}\frac{\partial E_{O_2}}{\partial OUT_{h_1}}&amp;&#x3D;\frac{\partial E_{O_2}}{\partial IN_{O_2}}\cdot\frac{\partial IN_{O_2}}{\partial OUT_{h_1}}\\ &amp;&#x3D;-(O_2-OUT_{O_2})\cdot \frac{\partial OUT_{O_2}}{\partial IN_{O_2}}\cdot \frac{\partial IN_{O_2}}{\partial OUT_{h_1}}\\ &amp;&#x3D;-(O_2-OUT_{O_2})\cdot OUT_{O_2}(1-OUT_{O_2})\cdot w_7\\ &amp;&#x3D;-(0.99-0.8374488853)\ast 0.8374488853\ast (1-0.8374488853)\ast 0.7&#x3D;-0.0145365614\end{aligned}$$</li>
+<li>则$E_{total}对OUT_{h_1}$的偏导为：$$\begin{aligned}\frac{\partial E_{total}}{\partial OUT_{h_1}} &amp;&#x3D; \frac{\partial E_{O_1}}{\partial OUT_{h_1}}+\frac{\partial E_{O_2}}{\partial OUT_{h_1}}\\ &amp;&#x3D;0.06420185045+(-0.0145365614)&#x3D;0.04966528905\end{aligned}$$</li>
+<li>计算$OUT_{h_1}$对$IN_{h_1}$的偏导：$$\begin{aligned}\because OUT_{h_1}&amp;&#x3D;\frac{1}{e^{-IN_{h_1}}+1} \\ \therefore \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}&amp;&#x3D; \frac{\partial (\frac{1}{e^{-IN_{h_1}}+1})}{\partial IN_{h_1}} \\ &amp;&#x3D;OUT(1-OUT_{h_1})\\ &amp;&#x3D;0.6456563062\ast (1-0.6456563062)&#x3D;0.2298942405 \end{aligned}$$</li>
+<li>计算$IN_{h_1}对w_1$的偏导：$$\begin{aligned}\frac{\partial IN_{h_1}}{\partial w_1}&amp;&#x3D;\frac{\partial(w_1\ast i_1+w_2\ast i_2+1\ast b)}{\partial w_1}\\ &amp;&#x3D;w_1^{(1-1)}\ast i_1+0+0&#x3D;i_1&#x3D;0.1\end{aligned}$$</li>
+<li>三者相乘计算$E_{total}$对$w_1$的偏导：$$\begin{aligned}\frac{\partial E_{total}}{\partial w_1}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{h_1}}\cdot \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}\cdot \frac{\partial IN_{h_1}}{\partial w_1}\\ &amp;&#x3D;0.04966528905\ast 0.2298942405\ast 0.1&#x3D;0.0011362635\end{aligned}$$</li>
+<li>归纳：$$\begin{aligned}\frac{\partial E_{total}}{\partial w_1}&amp;&#x3D;\frac{\partial E_{total}}{\partial OUT_{h_1}}\cdot \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}\cdot \frac{\partial IN_{h_1}}{\partial w_1}\\ &amp;&#x3D;(\frac{\partial E_{O_1}}{\partial OUT_{h_1}}+\frac{\partial E_{O_2}}{\partial OUT_{h_1}})\cdot \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}\cdot \frac{\partial IN_{h_1}}{\partial w_1}\\ &amp;&#x3D;(\sum_{n&#x3D;1}^2\frac{\partial E_{O_n}}{\partial OUT_{O_n}}\cdot\frac{\partial OUT_{O_n}}{\partial IN_{O_n}}\cdot \frac{\partial IN_{O_n}}{\partial OUT_{h_n}})\cdot \frac{\partial OUT_{h_1}}{\partial IN_{h_1}}\cdot \frac{\partial IN_{h_1}}{\partial w_1}\\ &amp;&#x3D;(\sum_{n&#x3D;1}^2\sigma_{O_n}w_{O_n})\cdot OUT_{h_n}(1-OUT_{h_n})\cdot i_1\\ &amp;&#x3D;\sigma_{h_1}\cdot i_1\\&amp;其中，\sigma_{h_1}&#x3D;(\sum_{n&#x3D;1}^2\sigma_{O_n}w_{O_n})\cdot OUT_{h_1}(1-OUT_{h_1})\\&amp;\sigma_{O_i}看作输出层的误差，误差和w相乘，相当于通过w传播了过来；如果是深层网络，隐藏层数量&gt;1，那么公式中的\sigma_{O_n}写为\sigma_{h_n}，w_O写成w_h\end{aligned}$$</li>
+<li>现在更新$w_1$的值：$$\begin{aligned}w_1^+&amp;&#x3D;w_1-\alpha\cdot \frac{\partial E_{total}}{\partial w_1}\\ &amp;&#x3D;0.1-0.1\ast 0.0011362635&#x3D;0.0998863737\end{aligned}$$</li>
+<li>归纳隐藏层$w$更新的公式：$$\begin{aligned}w_h^+&amp;&#x3D;w_h-\alpha\cdot \frac{\partial E_{total}}{\partial w}\\ &amp;&#x3D;w_h+\alpha\cdot (-\sum_{n&#x3D;1}^2\sigma_{O_n}w_{O_n})\cdot OUT_{h_n}(1-OUT_{h_n})\cdot i_1\end{aligned}$$<h3 id="计算隐藏层偏置b的更新："><a href="#计算隐藏层偏置b的更新：" class="headerlink" title="计算隐藏层偏置b的更新："></a>计算隐藏层偏置b的更新：</h3></li>
+</ul>
+<p>$$<br>\begin{aligned}\frac{\partial E_{total}}{\partial b_h}&amp;&#x3D;(\sum_h\sigma_hw_h)\cdot OUT_h(1-OUT_h)\\ b_h^+&amp;&#x3D;b_h-\alpha\cdot \frac{\partial E_{total}}{\partial b_n}\\ &amp;&#x3D;w_h+\alpha\cdot (\sum_h\sigma_hw_h)\cdot OUT_h(1-OUT_h)\end{aligned}<br>$$</p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><figure class="highlight python"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br><span class="line">445</span><br><span class="line">446</span><br><span class="line">447</span><br><span class="line">448</span><br><span class="line">449</span><br><span class="line">450</span><br><span class="line">451</span><br><span class="line">452</span><br><span class="line">453</span><br><span class="line">454</span><br><span class="line">455</span><br><span class="line">456</span><br><span class="line">457</span><br><span class="line">458</span><br><span class="line">459</span><br><span class="line">460</span><br><span class="line">461</span><br><span class="line">462</span><br><span class="line">463</span><br><span class="line">464</span><br><span class="line">465</span><br><span class="line">466</span><br><span class="line">467</span><br><span class="line">468</span><br><span class="line">469</span><br><span class="line">470</span><br><span class="line">471</span><br><span class="line">472</span><br><span class="line">473</span><br><span class="line">474</span><br><span class="line">475</span><br><span class="line">476</span><br><span class="line">477</span><br><span class="line">478</span><br><span class="line">479</span><br><span class="line">480</span><br><span class="line">481</span><br><span class="line">482</span><br><span class="line">483</span><br><span class="line">484</span><br><span class="line">485</span><br><span class="line">486</span><br><span class="line">487</span><br></pre></div></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment">#coding:utf-8</span><br><span class="hljs-keyword">import</span> h5py<br><span class="hljs-keyword">import</span> sklearn.datasets<br><span class="hljs-keyword">import</span> sklearn.linear_model<br><span class="hljs-keyword">import</span> matplotlib<br><span class="hljs-keyword">import</span> matplotlib.font_manager <span class="hljs-keyword">as</span> fm<br><span class="hljs-keyword">import</span> matplotlib.pyplot <span class="hljs-keyword">as</span> plt<br><span class="hljs-keyword">import</span> numpy <span class="hljs-keyword">as</span> np<br><br>np.random.seed(<span class="hljs-number">1</span>)<br><br>font = fm.FontProperties(fname=<span class="hljs-string">&#x27;/System/Library/Fonts/STHeiti Light.ttc&#x27;</span>)<br>matplotlib.rcParams[<span class="hljs-string">&#x27;figure.figsize&#x27;</span>] = (<span class="hljs-number">10.0</span>, <span class="hljs-number">8.0</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">sigmoid</span>(<span class="hljs-params">input_sum</span>):<br><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string"></span><br><span class="hljs-string">    函数：</span><br><span class="hljs-string">        激活函数Sigmoid</span><br><span class="hljs-string">    输入：</span><br><span class="hljs-string">        input_sum: 输入，即神经元的加权和</span><br><span class="hljs-string">    返回：</span><br><span class="hljs-string"></span><br><span class="hljs-string">        output: 激活后的输出</span><br><span class="hljs-string">        input_sum: 把输入缓存起来返回</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    output = <span class="hljs-number">1.0</span>/(<span class="hljs-number">1</span>+np.exp(-input_sum))<br>    <span class="hljs-keyword">return</span> output, input_sum<br><br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">sigmoid_back_propagation</span>(<span class="hljs-params">derror_wrt_output, input_sum</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    函数：</span><br><span class="hljs-string">        误差关于神经元输入的偏导: dE／dIn = dE/dOut * dOut/dIn  参照式（5.6）</span><br><span class="hljs-string">        其中： dOut/dIn 就是激活函数的导数 dy=y(1 - y)，见式（5.9）</span><br><span class="hljs-string">              dE/dOut 误差对神经元输出的偏导，见式（5.8）</span><br><span class="hljs-string">    输入：</span><br><span class="hljs-string">        derror_wrt_output：误差关于神经元输出的偏导: dE/dyⱼ = 1/2(d(expect_to_output - output)**2/doutput) = -(expect_to_output - output)</span><br><span class="hljs-string">        input_sum: 输入加权和</span><br><span class="hljs-string">    返回：</span><br><span class="hljs-string">        derror_wrt_dinputs: 误差关于输入的偏导，见式（5.13）</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    output = <span class="hljs-number">1.0</span>/(<span class="hljs-number">1</span> + np.exp(- input_sum))<br>    doutput_wrt_dinput = output * (<span class="hljs-number">1</span> - output)<br>    derror_wrt_dinput =  derror_wrt_output * doutput_wrt_dinput<br>    <span class="hljs-keyword">return</span> derror_wrt_dinput<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">relu</span>(<span class="hljs-params">input_sum</span>):<br><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数：</span><br><span class="hljs-string">            激活函数ReLU</span><br><span class="hljs-string">        输入：</span><br><span class="hljs-string">            input_sum: 输入，即神经元的加权和</span><br><span class="hljs-string">        返回：</span><br><span class="hljs-string">            outputs: 激活后的输出</span><br><span class="hljs-string">            input_sum: 把输入缓存起来返回</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    output = np.maximum(<span class="hljs-number">0</span>, input_sum)<br>    <span class="hljs-keyword">return</span> output, input_sum<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">relu_back_propagation</span>(<span class="hljs-params">derror_wrt_output, input_sum</span>):<br><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数：</span><br><span class="hljs-string">            误差关于神经元输入的偏导: dE／dIn = dE/dOut * dOut/dIn</span><br><span class="hljs-string">            其中： dOut/dIn 就是激活函数的导数</span><br><span class="hljs-string">                  dE/dOut 误差对神经元输出的偏导</span><br><span class="hljs-string">        输入：</span><br><span class="hljs-string">            derror_wrt_output：误差关于神经元输出的偏导</span><br><span class="hljs-string">            input_sum: 输入加权和</span><br><span class="hljs-string">        返回：</span><br><span class="hljs-string">            derror_wrt_dinputs: 误差关于输入的偏导</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    derror_wrt_dinputs = np.array(derror_wrt_output, copy=<span class="hljs-literal">True</span>)<br>    derror_wrt_dinputs[input_sum &lt;= <span class="hljs-number">0</span>] = <span class="hljs-number">0</span><br><br>    <span class="hljs-keyword">return</span> derror_wrt_dinputs<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">tanh</span>(<span class="hljs-params">input_sum</span>):<br><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    函数：</span><br><span class="hljs-string">        激活函数 tanh</span><br><span class="hljs-string">    输入：</span><br><span class="hljs-string">        input_sum: 输入，即神经元的加权和</span><br><span class="hljs-string">    返回：</span><br><span class="hljs-string">        output: 激活后的输出</span><br><span class="hljs-string">        input_sum: 把输入缓存起来返回</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br>    output = np.tanh(input_sum)<br>    <span class="hljs-keyword">return</span> output, input_sum<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">tanh_back_propagation</span>(<span class="hljs-params">derror_wrt_output, input_sum</span>):<br><br>    <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">    函数：</span><br><span class="hljs-string">        误差关于神经元输入的偏导: dE／dIn = dE/dOut * dOut/dIn</span><br><span class="hljs-string">        其中： dOut/dIn 就是激活函数的导数 tanh&#x27;(x) = 1 - x²</span><br><span class="hljs-string">              dE/dOut 误差对神经元输出的偏导</span><br><span class="hljs-string">    输入：</span><br><span class="hljs-string">        derror_wrt_output：误差关于神经元输出的偏导: dE/dyⱼ = 1/2(d(expect_to_output - output)**2/doutput) = -(expect_to_output - output)</span><br><span class="hljs-string">        input_sum: 输入加权和</span><br><span class="hljs-string">    返回：</span><br><span class="hljs-string">        derror_wrt_dinputs: 误差关于输入的偏导</span><br><span class="hljs-string">    &quot;&quot;&quot;</span><br><br>    output = np.tanh(input_sum)<br>    doutput_wrt_dinput = <span class="hljs-number">1</span> - np.power(output, <span class="hljs-number">2</span>)<br>    derror_wrt_dinput =  derror_wrt_output * doutput_wrt_dinput<br><br>    <span class="hljs-keyword">return</span> derror_wrt_dinput<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">activated</span>(<span class="hljs-params">activation_choose, <span class="hljs-built_in">input</span></span>):<br><br>    <span class="hljs-string">&quot;&quot;&quot;把正向激活包装一下&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">if</span> activation_choose == <span class="hljs-string">&quot;sigmoid&quot;</span>:<br>        <span class="hljs-keyword">return</span> sigmoid(<span class="hljs-built_in">input</span>)<br>    <span class="hljs-keyword">elif</span> activation_choose == <span class="hljs-string">&quot;relu&quot;</span>:<br>        <span class="hljs-keyword">return</span> relu(<span class="hljs-built_in">input</span>)<br>    <span class="hljs-keyword">elif</span> activation_choose == <span class="hljs-string">&quot;tanh&quot;</span>:<br>        <span class="hljs-keyword">return</span> tanh(<span class="hljs-built_in">input</span>)<br><br>    <span class="hljs-keyword">return</span> sigmoid(<span class="hljs-built_in">input</span>)<br><br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">activated_back_propagation</span>(<span class="hljs-params">activation_choose, derror_wrt_output, output</span>):<br>    <span class="hljs-string">&quot;&quot;&quot;包装反向激活传播&quot;&quot;&quot;</span><br>    <span class="hljs-keyword">if</span> activation_choose == <span class="hljs-string">&quot;sigmoid&quot;</span>:<br>        <span class="hljs-keyword">return</span> sigmoid_back_propagation(derror_wrt_output, output)<br>    <span class="hljs-keyword">elif</span> activation_choose == <span class="hljs-string">&quot;relu&quot;</span>:<br>        <span class="hljs-keyword">return</span> relu_back_propagation(derror_wrt_output, output)<br>    <span class="hljs-keyword">elif</span> activation_choose == <span class="hljs-string">&quot;tanh&quot;</span>:<br>        <span class="hljs-keyword">return</span> tanh_back_propagation(derror_wrt_output, output)<br><br>    <span class="hljs-keyword">return</span> sigmoid_back_propagation(derror_wrt_output, output)<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">NeuralNetwork</span>:<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, layers_strcuture, print_cost = <span class="hljs-literal">False</span></span>):<br>        self.layers_strcuture = layers_strcuture<br>        self.layers_num = <span class="hljs-built_in">len</span>(layers_strcuture)<br><br>        <span class="hljs-comment"># 除掉输入层的网络层数，因为其他层才是真正的神经元层</span><br>        self.param_layers_num = self.layers_num - <span class="hljs-number">1</span><br><br>        self.learning_rate = <span class="hljs-number">0.0618</span><br>        self.num_iterations = <span class="hljs-number">2000</span><br>        self.x = <span class="hljs-literal">None</span><br>        self.y = <span class="hljs-literal">None</span><br>        self.w = <span class="hljs-built_in">dict</span>()<br>        self.b = <span class="hljs-built_in">dict</span>()<br>        self.costs = []<br>        self.print_cost = print_cost<br><br>        self.init_w_and_b()<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">set_learning_rate</span>(<span class="hljs-params">self, learning_rate</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;设置学习率&quot;&quot;&quot;</span><br>        self.learning_rate = learning_rate<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">set_num_iterations</span>(<span class="hljs-params">self, num_iterations</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;设置迭代次数&quot;&quot;&quot;</span><br>        self.num_iterations = num_iterations<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">set_xy</span>(<span class="hljs-params">self, <span class="hljs-built_in">input</span>, expected_output</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;设置神经网络的输入和期望的输出&quot;&quot;&quot;</span><br>        self.x = <span class="hljs-built_in">input</span><br>        self.y = expected_output<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">init_w_and_b</span>(<span class="hljs-params">self</span>):<br><br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数:</span><br><span class="hljs-string">            初始化神经网络所有参数</span><br><span class="hljs-string">        输入:</span><br><span class="hljs-string">            layers_strcuture: 神经网络的结构，例如[2,4,3,1]，4层结构:</span><br><span class="hljs-string">                第0层输入层接收2个数据，第1层隐藏层4个神经元，第2层隐藏层3个神经元，第3层输出层1个神经元</span><br><span class="hljs-string">        返回: 神经网络各层参数的索引表，用来定位权值 wᵢ  和偏置 bᵢ，i为网络层编号</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        np.random.seed(<span class="hljs-number">3</span>)<br><br>        <span class="hljs-comment"># 当前神经元层的权值为 n_i x n_(i-1)的矩阵，i为网络层编号，n为下标i代表的网络层的节点个数</span><br>        <span class="hljs-comment"># 例如[2,4,3,1]，4层结构：第0层输入层为2，那么第1层隐藏层神经元个数为4</span><br>        <span class="hljs-comment"># 那么第1层的权值w是一个 4x2 的矩阵，如：</span><br>        <span class="hljs-comment">#    w1 = array([ [-0.96927756, -0.59273074],</span><br>        <span class="hljs-comment">#                 [ 0.58227367,  0.45993021],</span><br>        <span class="hljs-comment">#                 [-0.02270222,  0.13577601],</span><br>        <span class="hljs-comment">#                 [-0.07912066, -1.49802751] ])</span><br>        <span class="hljs-comment"># 当前层的偏置一般给0就行，偏置是个1xnᵢ的矩阵，nᵢ为第i层的节点个数，例如第1层为4个节点，那么：</span><br>        <span class="hljs-comment">#    b1 = array([ 0.,  0.,  0.,  0.])</span><br><br><br><br>        <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, self.layers_num):<br>            self.w[<span class="hljs-string">&quot;w&quot;</span> + <span class="hljs-built_in">str</span>(l)] = np.random.randn(self.layers_strcuture[l], self.layers_strcuture[l-<span class="hljs-number">1</span>])/np.sqrt(self.layers_strcuture[l-<span class="hljs-number">1</span>])<br>            self.b[<span class="hljs-string">&quot;b&quot;</span> + <span class="hljs-built_in">str</span>(l)] = np.zeros((self.layers_strcuture[l], <span class="hljs-number">1</span>))<br>        <span class="hljs-keyword">return</span> self.w, self.b<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">layer_activation_forward</span>(<span class="hljs-params">self, x, w, b, activation_choose</span>):<br><br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数：</span><br><span class="hljs-string">            网络层的正向传播</span><br><span class="hljs-string">        输入：</span><br><span class="hljs-string">            x: 当前网络层输入（即上一层的输出），一般是所有训练数据，即输入矩阵</span><br><span class="hljs-string">            w: 当前网络层的权值矩阵</span><br><span class="hljs-string">            b: 当前网络层的偏置矩阵</span><br><span class="hljs-string">            activation_choose: 选择激活函数 &quot;sigmoid&quot;, &quot;relu&quot;, &quot;tanh&quot;</span><br><span class="hljs-string">        返回:</span><br><span class="hljs-string">            output: 网络层的激活输出</span><br><span class="hljs-string">            cache: 缓存该网络层的信息，供后续使用： (x, w, b, input_sum) -&gt; cache</span><br><span class="hljs-string">     &quot;&quot;&quot;</span><br><br>        <span class="hljs-comment"># 对输入求加权和，见式（5.1）</span><br>        input_sum = np.dot(w, x) + b<br><br>        <span class="hljs-comment"># 对输入加权和进行激活输出</span><br>        output, _ = activated(activation_choose, input_sum)<br><br>        <span class="hljs-keyword">return</span> output, (x, w, b, input_sum)<br><br><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">forward_propagation</span>(<span class="hljs-params">self, x</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数:</span><br><span class="hljs-string">            神经网络的正向传播</span><br><span class="hljs-string">        输入:</span><br><span class="hljs-string"></span><br><span class="hljs-string">        返回:</span><br><span class="hljs-string">            output: 正向传播完成后的输出层的输出</span><br><span class="hljs-string">            caches: 正向传播过程中缓存每一个网络层的信息： (x, w, b, input_sum),... -&gt; caches</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br>        caches = []<br><br>        <span class="hljs-comment">#作为输入层，输出 = 输入</span><br>        output_prev = x<br><br>        <span class="hljs-comment">#第0层为输入层，只负责观察到输入的数据，并不需要处理，正向传播从第1层开始，一直到输出层输出为止</span><br><br>        <span class="hljs-comment"># range(1, n) =&gt; [1, 2, ..., n-1]</span><br>        L = self.param_layers_num<br>        <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">1</span>, L):<br><br>            <span class="hljs-comment"># 当前网络层的输入来自前一层的输出</span><br>            input_cur = output_prev<br>            output_prev, cache = self.layer_activation_forward(input_cur, self.w[<span class="hljs-string">&quot;w&quot;</span>+ <span class="hljs-built_in">str</span>(l)], self.b[<span class="hljs-string">&quot;b&quot;</span> + <span class="hljs-built_in">str</span>(l)], <span class="hljs-string">&quot;tanh&quot;</span>)<br>            caches.append(cache)<br><br><br><br>        output, cache = self.layer_activation_forward(output_prev, self.w[<span class="hljs-string">&quot;w&quot;</span> + <span class="hljs-built_in">str</span>(L)], self.b[<span class="hljs-string">&quot;b&quot;</span> + <span class="hljs-built_in">str</span>(L)], <span class="hljs-string">&quot;sigmoid&quot;</span>)<br>        caches.append(cache)<br><br>        <span class="hljs-keyword">return</span> output, caches<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">show_caches</span>(<span class="hljs-params">self, caches</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;显示网络层的缓存参数信息&quot;&quot;&quot;</span><br>        i = <span class="hljs-number">1</span><br>        <span class="hljs-keyword">for</span> cache <span class="hljs-keyword">in</span> caches:<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;%dtd Layer&quot;</span> % i)<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; input: %s&quot;</span> % cache[<span class="hljs-number">0</span>])<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; w: %s&quot;</span> % cache[<span class="hljs-number">1</span>])<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; b: %s&quot;</span> % cache[<span class="hljs-number">2</span>])<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot; input_sum: %s&quot;</span> % cache[<span class="hljs-number">3</span>])<br>            <span class="hljs-built_in">print</span>(<span class="hljs-string">&quot;----------&quot;</span>)<br>            i += <span class="hljs-number">1</span><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">compute_error</span>(<span class="hljs-params">self, output</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数:</span><br><span class="hljs-string">            计算档次迭代的输出总误差</span><br><span class="hljs-string">        输入:</span><br><span class="hljs-string">        返回:</span><br><span class="hljs-string"></span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br><br>        m = self.y.shape[<span class="hljs-number">1</span>]<br><br>        <span class="hljs-comment"># 计算误差，见式(5.5): E = Σ1/2(期望输出-实际输出)²</span><br>        <span class="hljs-comment">#error = np.sum(0.5 * (self.y - output) ** 2) / m</span><br>        <span class="hljs-comment"># 交叉熵作为误差函数</span><br><br>        error =  -np.<span class="hljs-built_in">sum</span>(np.multiply(np.log(output),self.y) + np.multiply(np.log(<span class="hljs-number">1</span> - output), <span class="hljs-number">1</span> - self.y)) / m<br>        error = np.squeeze(error)<br><br>        <span class="hljs-keyword">return</span> error<br><br><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">layer_activation_backward</span>(<span class="hljs-params">self, derror_wrt_output, cache, activation_choose</span>):<br><br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">            函数:</span><br><span class="hljs-string">                网络层的反向传播</span><br><span class="hljs-string">            输入:</span><br><span class="hljs-string">                derror_wrt_output: 误差关于输出的偏导</span><br><span class="hljs-string">                cache: 网络层的缓存信息 (x, w, b, input_sum)</span><br><span class="hljs-string">                activation_choose: 选择激活函数 &quot;sigmoid&quot;, &quot;relu&quot;, &quot;tanh&quot;</span><br><span class="hljs-string">            返回: 梯度信息，即</span><br><span class="hljs-string">                derror_wrt_output_prev: 反向传播到上一层的误差关于输出的梯度</span><br><span class="hljs-string">                derror_wrt_dw: 误差关于权值的梯度</span><br><span class="hljs-string">                derror_wrt_db: 误差关于偏置的梯度</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br><br>        <span class="hljs-built_in">input</span>, w, b, input_sum = cache<br>        output_prev = <span class="hljs-built_in">input</span>     <span class="hljs-comment"># 上一层的输出 = 当前层的输入; 注意是&#x27;输入&#x27;不是输入的加权和（input_sum）</span><br>        m = output_prev.shape[<span class="hljs-number">1</span>]      <span class="hljs-comment"># m是输入的样本数量，我们要取均值，所以下面的求值要除以m</span><br><br><br>        <span class="hljs-comment"># 实现式（5.13）-&gt; 误差关于权值w的偏导数</span><br>        derror_wrt_dinput = activated_back_propagation(activation_choose, derror_wrt_output, input_sum)<br>        derror_wrt_dw = np.dot(derror_wrt_dinput, output_prev.T) / m<br><br>        <span class="hljs-comment"># 实现式 （5.32）-&gt; 误差关于偏置b的偏导数</span><br>        derror_wrt_db = np.<span class="hljs-built_in">sum</span>(derror_wrt_dinput, axis=<span class="hljs-number">1</span>, keepdims=<span class="hljs-literal">True</span>)/m<br><br>        <span class="hljs-comment"># 为反向传播到上一层提供误差传递，见式（5.28）的 （Σδ·w） 部分</span><br>        derror_wrt_output_prev = np.dot(w.T, derror_wrt_dinput)<br><br>        <span class="hljs-keyword">return</span> derror_wrt_output_prev, derror_wrt_dw, derror_wrt_db<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">back_propagation</span>(<span class="hljs-params">self, output, caches</span>):<br><br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数:</span><br><span class="hljs-string">            神经网络的反向传播</span><br><span class="hljs-string">        输入:</span><br><span class="hljs-string">            output：神经网络输</span><br><span class="hljs-string">            caches：所有网络层（输入层不算）的缓存参数信息  [(x, w, b, input_sum), ...]</span><br><span class="hljs-string">        返回:</span><br><span class="hljs-string">            grads: 返回当前迭代的梯度信息</span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br><br>        grads = &#123;&#125;<br>        L = self.param_layers_num <span class="hljs-comment">#</span><br>        output = output.reshape(output.shape)  <span class="hljs-comment"># 把输出层输出输出重构成和期望输出一样的结构</span><br><br>        expected_output = self.y<br><br>        <span class="hljs-comment"># 见式(5.8)</span><br>        <span class="hljs-comment">#derror_wrt_output = -(expected_output - output)</span><br><br>        <span class="hljs-comment"># 交叉熵作为误差函数</span><br>        derror_wrt_output = - (np.divide(expected_output, output) - np.divide(<span class="hljs-number">1</span> - expected_output, <span class="hljs-number">1</span> - output))<br><br>        <span class="hljs-comment"># 反向传播：输出层 -&gt; 隐藏层，得到梯度：见式(5.8), (5.13), (5.15)</span><br>        current_cache = caches[L - <span class="hljs-number">1</span>] <span class="hljs-comment"># 取最后一层,即输出层的参数信息</span><br>        grads[<span class="hljs-string">&quot;derror_wrt_output&quot;</span> + <span class="hljs-built_in">str</span>(L)], grads[<span class="hljs-string">&quot;derror_wrt_dw&quot;</span> + <span class="hljs-built_in">str</span>(L)], grads[<span class="hljs-string">&quot;derror_wrt_db&quot;</span> + <span class="hljs-built_in">str</span>(L)] = \<br>            self.layer_activation_backward(derror_wrt_output, current_cache, <span class="hljs-string">&quot;sigmoid&quot;</span>)<br><br>        <span class="hljs-comment"># 反向传播：隐藏层 -&gt; 隐藏层，得到梯度：见式 (5.28)的(Σδ·w), (5.28), (5.32)</span><br>        <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> <span class="hljs-built_in">reversed</span>(<span class="hljs-built_in">range</span>(L - <span class="hljs-number">1</span>)):<br>            current_cache = caches[l]<br>            derror_wrt_output_prev_temp, derror_wrt_dw_temp, derror_wrt_db_temp = \<br>                self.layer_activation_backward(grads[<span class="hljs-string">&quot;derror_wrt_output&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">2</span>)], current_cache, <span class="hljs-string">&quot;tanh&quot;</span>)<br><br>            grads[<span class="hljs-string">&quot;derror_wrt_output&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] = derror_wrt_output_prev_temp<br>            grads[<span class="hljs-string">&quot;derror_wrt_dw&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] = derror_wrt_dw_temp<br>            grads[<span class="hljs-string">&quot;derror_wrt_db&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] = derror_wrt_db_temp<br><br>        <span class="hljs-keyword">return</span> grads<br><br><br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">update_w_and_b</span>(<span class="hljs-params">self, grads</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">        函数:</span><br><span class="hljs-string">            根据梯度信息更新w，b</span><br><span class="hljs-string">        输入:</span><br><span class="hljs-string">            grads：当前迭代的梯度信息</span><br><span class="hljs-string">        返回:</span><br><span class="hljs-string"></span><br><span class="hljs-string">        &quot;&quot;&quot;</span><br><br>        <span class="hljs-comment"># 权值w和偏置b的更新，见式:（5.16),(5.18)</span><br>        <span class="hljs-keyword">for</span> l <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(self.param_layers_num):<br>            self.w[<span class="hljs-string">&quot;w&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] = self.w[<span class="hljs-string">&quot;w&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] - self.learning_rate * grads[<span class="hljs-string">&quot;derror_wrt_dw&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)]<br>            self.b[<span class="hljs-string">&quot;b&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] = self.b[<span class="hljs-string">&quot;b&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)] - self.learning_rate * grads[<span class="hljs-string">&quot;derror_wrt_db&quot;</span> + <span class="hljs-built_in">str</span>(l + <span class="hljs-number">1</span>)]<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">training_modle</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;训练神经网络模型&quot;&quot;&quot;</span><br><br>        np.random.seed(<span class="hljs-number">5</span>)<br>        <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> <span class="hljs-built_in">range</span>(<span class="hljs-number">0</span>, self.num_iterations):<br>            <span class="hljs-comment"># 正向传播，得到网络输出，以及每一层的参数信息</span><br>            output, caches = self.forward_propagation(self.x)<br><br>            <span class="hljs-comment"># 计算网络输出误差</span><br>            cost = self.compute_error(output)<br><br>            <span class="hljs-comment"># 反向传播，得到梯度信息</span><br>            grads = self.back_propagation(output, caches)<br><br>            <span class="hljs-comment"># 根据梯度信息，更新权值w和偏置b</span><br>            self.update_w_and_b(grads)<br><br>            <span class="hljs-comment"># 当次迭代结束，打印误差信息</span><br>            <span class="hljs-keyword">if</span> self.print_cost <span class="hljs-keyword">and</span> i % <span class="hljs-number">1000</span> == <span class="hljs-number">0</span>:<br>                <span class="hljs-built_in">print</span> (<span class="hljs-string">&quot;Cost after iteration %i: %f&quot;</span> % (i, cost))<br>            <span class="hljs-keyword">if</span> self.print_cost <span class="hljs-keyword">and</span> i % <span class="hljs-number">1000</span> == <span class="hljs-number">0</span>:<br>                self.costs.append(cost)<br><br>        <span class="hljs-comment"># 模型训练完后显示误差曲线</span><br>        <span class="hljs-keyword">if</span> <span class="hljs-literal">False</span>:<br>            plt.plot(np.squeeze(self.costs))<br>            plt.ylabel(<span class="hljs-string">u&#x27;神经网络误差&#x27;</span>, fontproperties = font)<br>            plt.xlabel(<span class="hljs-string">u&#x27;迭代次数 (*100)&#x27;</span>, fontproperties = font)<br>            plt.title(<span class="hljs-string">u&quot;学习率 =&quot;</span> + <span class="hljs-built_in">str</span>(self.learning_rate), fontproperties = font)<br>            plt.show()<br><br>        <span class="hljs-keyword">return</span> self.w, self.b<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">predict_by_modle</span>(<span class="hljs-params">self, x</span>):<br>        <span class="hljs-string">&quot;&quot;&quot;使用训练好的模型（即最后求得w，b参数）来决策输入的样本的结果&quot;&quot;&quot;</span><br>        output, _ = self.forward_propagation(x.T)<br>        output = output.T<br>        result = output / np.<span class="hljs-built_in">sum</span>(output, axis=<span class="hljs-number">1</span>, keepdims=<span class="hljs-literal">True</span>)<br>        <span class="hljs-keyword">return</span> np.argmax(result, axis=<span class="hljs-number">1</span>)<br><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">plot_decision_boundary</span>(<span class="hljs-params">xy, colors, pred_func</span>):<br>    <span class="hljs-comment"># xy是坐标点的集合，把集合的范围算出来</span><br>    <span class="hljs-comment"># 加减0.5相当于扩大画布的范围，不然画出来的图坐标点会落在图的边缘，逼死强迫症患者</span><br>    x_min, x_max = xy[:, <span class="hljs-number">0</span>].<span class="hljs-built_in">min</span>() - <span class="hljs-number">0.5</span>, xy[:, <span class="hljs-number">0</span>].<span class="hljs-built_in">max</span>() + <span class="hljs-number">0.5</span><br>    y_min, y_max = xy[:, <span class="hljs-number">1</span>].<span class="hljs-built_in">min</span>() - <span class="hljs-number">0.5</span>, xy[:, <span class="hljs-number">1</span>].<span class="hljs-built_in">max</span>() + <span class="hljs-number">0.5</span><br><br>    <span class="hljs-comment"># 以h为分辨率，生成采样点的网格，就像一张网覆盖所有颜色点</span><br>    h = <span class="hljs-number">.01</span><br>    xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))<br><br>    <span class="hljs-comment"># 把网格点集合作为输入到模型，也就是预测这个采样点是什么颜色的点，从而得到一个决策面</span><br>    Z = pred_func(np.c_[xx.ravel(), yy.ravel()])<br>    Z = Z.reshape(xx.shape)<br><br>    <span class="hljs-comment"># 利用等高线，把预测的结果画出来，效果上就是画出红蓝点的分界线</span><br>    plt.contourf(xx, yy, Z, cmap=plt.cm.Spectral)<br><br>    <span class="hljs-comment"># 训练用的红蓝点点也画出来</span><br>    plt.scatter(xy[:, <span class="hljs-number">0</span>], xy[:, <span class="hljs-number">1</span>], c=colors, marker=<span class="hljs-string">&#x27;o&#x27;</span>, cmap=plt.cm.Spectral, edgecolors=<span class="hljs-string">&#x27;black&#x27;</span>)<br><br><br><span class="hljs-keyword">if</span> __name__ == <span class="hljs-string">&quot;__main__&quot;</span>:<br>    plt.figure(figsize=(<span class="hljs-number">16</span>, <span class="hljs-number">32</span>))<br><br>    <span class="hljs-comment"># 用sklearn的数据样本集，产生2种颜色的坐标点，noise是噪声系数，噪声越大，2种颜色的点分布越凌乱</span><br>    xy, colors = sklearn.datasets.make_moons(<span class="hljs-number">60</span>, noise=<span class="hljs-number">1.0</span>)<br><br>    <span class="hljs-comment"># 因为点的颜色是1bit，我们设计一个神经网络，输出层有2个神经元。</span><br>    <span class="hljs-comment"># 标定输出[1,0]为红色点，输出[0,1]为蓝色点</span><br>    expect_output = []<br>    <span class="hljs-keyword">for</span> c <span class="hljs-keyword">in</span> colors:<br>        <span class="hljs-keyword">if</span> c == <span class="hljs-number">1</span>:<br>            expect_output.append([<span class="hljs-number">0</span>,<span class="hljs-number">1</span>])<br>        <span class="hljs-keyword">else</span>:<br>            expect_output.append([<span class="hljs-number">1</span>,<span class="hljs-number">0</span>])<br><br>    expect_output = np.array(expect_output).T<br><br>    <span class="hljs-comment"># 设计3层网络，改变隐藏层神经元的个数，观察神经网络分类红蓝点的效果</span><br>    hidden_layer_neuron_num_list = [<span class="hljs-number">1</span>,<span class="hljs-number">2</span>,<span class="hljs-number">4</span>,<span class="hljs-number">10</span>,<span class="hljs-number">20</span>,<span class="hljs-number">50</span>]<br><br>    <span class="hljs-keyword">for</span> i, hidden_layer_neuron_num <span class="hljs-keyword">in</span> <span class="hljs-built_in">enumerate</span>(hidden_layer_neuron_num_list):<br>        plt.subplot(<span class="hljs-number">5</span>, <span class="hljs-number">2</span>, i + <span class="hljs-number">1</span>)<br>        plt.title(<span class="hljs-string">u&#x27;隐藏层神经元数量: %d&#x27;</span> % hidden_layer_neuron_num, fontproperties = font)<br><br>        nn = NeuralNetwork([<span class="hljs-number">2</span>, hidden_layer_neuron_num, <span class="hljs-number">2</span>], <span class="hljs-literal">True</span>)<br><br>        <span class="hljs-comment"># 输出和输入层都是2个节点，所以输入和输出的数据集合都要是 nx2的矩阵</span><br>        nn.set_xy(xy.T, expect_output)<br>        nn.set_num_iterations(<span class="hljs-number">30000</span>)<br>        nn.set_learning_rate(<span class="hljs-number">0.1</span>)<br>        w, b = nn.training_modle()<br>        plot_decision_boundary(xy, colors, nn.predict_by_modle)<br><br>    plt.show()<br>    <br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2019/09/26/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E7%9A%84%E6%95%B0%E5%AD%A6%E5%9F%BA%E7%A1%80/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">机器学习的数学基础</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/10/15/%E8%87%AA%E5%8A%A8%E5%BE%AE%E5%88%86%E6%B3%95/">
+                        <span class="hidden-mobile">自动微分法</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

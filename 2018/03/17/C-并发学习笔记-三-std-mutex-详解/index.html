@@ -1,0 +1,656 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="Mutex又称为互斥量，C++ 11中与 Mutex 相关的类（包括锁类型）和函数都声明在 &lt;mutex&gt; 头文件中，所以如果你需要使用 std::mutex，就必须包含 &lt;mutex&gt; 头文件。 std::mutex 是C++11 中最基本的互斥量，std::mutex 对象提供了独占所有权的特性——即不支持递归地对 std::mutex 对象上锁，而 std::recu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++并发学习笔记(三)(std::mutex 详解)">
+<meta property="og:url" content="http://blog.home.io/2018/03/17/C-%E5%B9%B6%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%B8%89-std-mutex-%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Mutex又称为互斥量，C++ 11中与 Mutex 相关的类（包括锁类型）和函数都声明在 &lt;mutex&gt; 头文件中，所以如果你需要使用 std::mutex，就必须包含 &lt;mutex&gt; 头文件。 std::mutex 是C++11 中最基本的互斥量，std::mutex 对象提供了独占所有权的特性——即不支持递归地对 std::mutex 对象上锁，而 std::recu">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p7.qhimg.com/bdm/216_133_0/t011fe8c5a95be1ec7c.jpg">
+<meta property="article:published_time" content="2018-03-17T14:51:18.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:11:13.639Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Cpp">
+<meta property="article:tag" content="Thread">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p7.qhimg.com/bdm/216_133_0/t011fe8c5a95be1ec7c.jpg">
+  
+  
+  <title>C++并发学习笔记(三)(std::mutex 详解) - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="C++并发学习笔记(三)(std::mutex 详解)">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2018-03-17 22:51" pubdate>
+        2018年3月17日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      9.3k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      78 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">C++并发学习笔记(三)(std::mutex 详解)</h1>
+            
+            <div class="markdown-body">
+              <p><strong>Mutex</strong>又称为互斥量，C++ 11中与 Mutex 相关的类（包括锁类型）和函数都声明在<code> &lt;mutex&gt;</code> 头文件中，所以如果你需要使用 std::mutex，就必须包含 <code>&lt;mutex&gt; </code>头文件。</p>
+<p>std::mutex 是C++11 中最基本的互斥量，std::mutex 对象提供了独占所有权的特性——即不支持递归地对 std::mutex 对象上锁，而 std::recursive_lock 则可以递归地对互斥量对象上锁。</p>
+<h1 id="mutex头文件介绍"><a href="#mutex头文件介绍" class="headerlink" title="mutex头文件介绍"></a>mutex头文件介绍</h1><p><strong>互斥量基本作用：</strong> 互斥占有一个变量，一段时间内仅一个线程可以访问。即该类可以限制对某物的访问，只有先获得许可才可访问某物，否则一般可设为阻塞等待。能有效避免资源竞争问题。</p>
+<h2 id="Mutexes类（四种）"><a href="#Mutexes类（四种）" class="headerlink" title="Mutexes类（四种）"></a>Mutexes类（四种）</h2><ul>
+<li><code>std::mutex</code>，最基本的 Mutex 类。</li>
+<li><code>std::recursive_mutex</code>，递归 Mutex 类。</li>
+<li><code>std::time_mutex</code>，定时 Mutex 类。</li>
+<li><code>std::recursive_timed_mutex</code>，定时递归 Mutex 类。</li>
+</ul>
+<p>##Lock类（两种）</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/lock_guard/">std::lock_guard</a>，与 Mutex RAII 相关，方便线程对互斥量上锁。</li>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/unique_lock/">std::unique_lock</a>，与 Mutex RAII 相关，方便线程对互斥量上锁，但提供了更好的上锁和解锁控制。</li>
+</ul>
+<p>##其他类型</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/once_flag/">std::once_flag</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/adopt_lock_t/">std::adopt_lock_t</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/defer_lock_t/">std::defer_lock_t</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/try_to_lock_t/">std::try_to_lock_t</a></li>
+</ul>
+<p>##函数</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/try_lock/">std::try_lock</a>，尝试同时对多个互斥量上锁。</li>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/lock/">std::lock</a>，可以同时对多个互斥量上锁。</li>
+<li><a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/call_once/">std::call_once</a>，如果多个线程需要同时调用某个函数，call_once 可以保证多个线程对该函数只调用一次。</li>
+</ul>
+<h1 id="std-mutex-介绍"><a href="#std-mutex-介绍" class="headerlink" title="std::mutex 介绍"></a>std::mutex 介绍</h1><ul>
+<li><p><strong>构造函数</strong>，std::mutex不允许拷贝构造，也不允许 move 拷贝，最初产生的 mutex 对象是处于 <strong>unlocked</strong> 状态的。</p>
+</li>
+<li><p>**lock()**，调用线程将锁住该互斥量。线程调用该函数会发生下面 3 种情况：</p>
+<p>(1). 如果该互斥量当前没有被锁住，则调用线程将该互斥量锁住，直到调用 unlock之前，该线程一直拥有该锁。</p>
+<p>(2). 如果当前互斥量被其他线程锁住，则当前的调用线程被阻塞住。</p>
+<p>(3). 如果当前互斥量被当前调用线程锁住，则会产生死锁(deadlock)。</p>
+</li>
+<li><p>**unlock()**， 解锁，释放对互斥量的所有权。</p>
+</li>
+<li><p>**try_lock()**，尝试锁住互斥量，如果互斥量被其他线程占有，则当前线程也不会被阻塞。线程调用该函数也会出现下面 3 种情况，</p>
+<p>(1). 如果当前互斥量没有被其他线程占有，则该线程锁住互斥量，直到该线程调用 unlock 释放互斥量。</p>
+<p>(2). 如果当前互斥量被其他线程锁住，则当前调用线程返回 false，而并不会被阻塞掉。</p>
+<p>(3). 如果当前互斥量被当前调用线程锁住，则会产生死锁(deadlock)。</p>
+</li>
+</ul>
+<p>**mutex::lock     **Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/mutex/lock/">reference</a>):</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// mutex::lock/unlock</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::mutex</span></span><br><br>std::mutex mtx;           <span class="hljs-comment">// mutex for critical section</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print_thread_id</span> <span class="hljs-params">(<span class="hljs-type">int</span> id)</span> </span>&#123;<br>  <span class="hljs-comment">// critical section (exclusive access to std::cout signaled by locking mtx):</span><br>  mtx.<span class="hljs-built_in">lock</span>();<br>  std::cout &lt;&lt; <span class="hljs-string">&quot;thread #&quot;</span> &lt;&lt; id &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>  mtx.<span class="hljs-built_in">unlock</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  std::thread threads[<span class="hljs-number">10</span>];<br>  <span class="hljs-comment">// spawn 10 threads:</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">10</span>; ++i)<br>    threads[i] = std::<span class="hljs-built_in">thread</span>(print_thread_id,i+<span class="hljs-number">1</span>);<br><br>  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; th : threads) th.<span class="hljs-built_in">join</span>();<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">thread #1<br>thread #2<br>thread #3<br>thread #4<br>thread #5<br>thread #6<br>thread #7<br>thread #8<br>thread #9<br>thread #10<br></code></pre></td></tr></table></figure>
+
+
+
+<p>**mutex::try_lock     **Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/mutex/try_lock/">reference</a>):</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// mutex::try_lock example</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::mutex</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> <span class="hljs-title">counter</span> <span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>; <span class="hljs-comment">// non-atomic counter</span><br>std::mutex mtx;           <span class="hljs-comment">// locks access to counter</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">attempt_10k_increases</span> <span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">10000</span>; ++i) &#123;<br>    <span class="hljs-keyword">if</span> (mtx.<span class="hljs-built_in">try_lock</span>()) &#123;   <span class="hljs-comment">// only increase if currently not locked:</span><br>      ++counter;<br>      mtx.<span class="hljs-built_in">unlock</span>();<br>    &#125;<br>  &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  std::thread threads[<span class="hljs-number">10</span>];<br>  <span class="hljs-comment">// spawn 10 threads:</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">10</span>; ++i)<br>    threads[i] = std::<span class="hljs-built_in">thread</span>(attempt_10k_increases);<br><br>  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; th : threads) th.<span class="hljs-built_in">join</span>();<br>  std::cout &lt;&lt; counter &lt;&lt; <span class="hljs-string">&quot; successful increases of the counter.\n&quot;</span>;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Possible output (any count between 1 and 100000 possible):</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs shell">17987 successful increases of the counter.<br></code></pre></td></tr></table></figure>
+
+
+
+<p>#std::recursive_mutex 介绍</p>
+<p><code>std::recursive_mutex</code> 与<code> std::mutex</code> 一样，也是一种可以被上锁的对象，但和 <code>std::mutex</code> 不同的是，<code>std::recursive_mutex</code> <strong>允许同一个线程对互斥量多次上锁（即递归上锁）</strong>，来获得对互斥量对象的<strong>多层所有权</strong>，<code>std::recursive_mutex</code> 释放互斥量时需要调用与该锁层次深度相同次数的 <code>unlock()</code>，可理解为 <code>lock()</code> 次数和<code>unlock()</code>次数相同，除此之外，<code>std::recursive_mutex</code> 的特性和 <code>std::mutex</code> 大致相同。</p>
+<p>如果<strong>一个线程中可能在执行中需要再次获得锁</strong>的情况，按常规的做法会出现<strong>死锁</strong>。此时就需要使用递归式互斥量<code>std::recursive_mutex</code>来避免这个问题。<code>std::recursive_mutex</code>不会产生上述的死锁问题，只是是增加锁的计数,但必须确保你unlock和lock的次数相同，其他线程才可能锁这个mutex。</p>
+<h1 id="std-time-mutex-介绍"><a href="#std-time-mutex-介绍" class="headerlink" title="std::time_mutex 介绍"></a>std::time_mutex 介绍</h1><p><code>std::time_mutex</code> 比 <code>std::mutex</code> 多了两个成员函数，<code>try_lock_for()，try_lock_until()</code>。</p>
+<h2 id="try-lock-for"><a href="#try-lock-for" class="headerlink" title="try_lock_for()"></a>try_lock_for()</h2><p><code>try_lock_for</code> 函数接受一个时间范围，表示在这一段时间范围之内线程如果没有获得锁则被阻塞住（与 std::mutex 的 try_lock() 不同，try_lock 如果被调用时没有获得锁则直接返回 false），如果在此期间其他线程释放了锁，则该线程可以获得对互斥量的锁，如果超时（即在指定时间内还是没有获得锁），则返回 false。</p>
+<p>**try_lock_for() —**Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/timed_mutex/try_lock_for/">reference</a>) </p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;chrono&gt;</span>         <span class="hljs-comment">// std::chrono::milliseconds</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::timed_mutex</span></span><br><br>std::timed_mutex mtx;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">fireworks</span> <span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// waiting to get a lock: each thread prints &quot;-&quot; every 200ms:</span><br>  <span class="hljs-keyword">while</span> (!mtx.<span class="hljs-built_in">try_lock_for</span>(std::chrono::<span class="hljs-built_in">milliseconds</span>(<span class="hljs-number">200</span>))) &#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;-&quot;</span>;<br>  &#125;<br>  <span class="hljs-comment">// got a lock! - wait for 1s, then this thread prints &quot;*&quot;</span><br>  std::this_thread::<span class="hljs-built_in">sleep_for</span>(std::chrono::<span class="hljs-built_in">milliseconds</span>(<span class="hljs-number">1000</span>));<br>  std::cout &lt;&lt; <span class="hljs-string">&quot;*\n&quot;</span>;<br>  mtx.<span class="hljs-built_in">unlock</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  std::thread threads[<span class="hljs-number">5</span>];<br>  <span class="hljs-comment">// spawn 5 threads:</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">5</span>; ++i)<br>    threads[i] = std::<span class="hljs-built_in">thread</span>(fireworks);<br>    <br>  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; th : threads) th.<span class="hljs-built_in">join</span>();<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs shell">----------------*<br>---------------*<br>----------*<br>-----*<br>*<br></code></pre></td></tr></table></figure>
+
+
+
+<h2 id="try-lock-until"><a href="#try-lock-until" class="headerlink" title="try_lock_until()"></a>try_lock_until()</h2><p><code>try_lock_until</code> 函数则接受一个时间点作为参数，在指定时间点未到来之前线程如果没有获得锁则被阻塞住，如果在此期间其他线程释放了锁，则该线程可以获得对互斥量的锁，如果超时（即在指定时间内还是没有获得锁），则返回 false。</p>
+<h1 id="std-lock-guard-介绍"><a href="#std-lock-guard-介绍" class="headerlink" title="std::lock_guard 介绍"></a>std::lock_guard 介绍</h1><p>与 Mutex RAII 相关，方便线程对互斥量上锁。</p>
+<p>Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/lock_guard/">reference</a>):</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::mutex, std::lock_guard</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdexcept&gt;</span>      <span class="hljs-comment">// std::logic_error</span></span><br><br>std::mutex mtx;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print_even</span> <span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (x%<span class="hljs-number">2</span>==<span class="hljs-number">0</span>) std::cout &lt;&lt; x &lt;&lt; <span class="hljs-string">&quot; is even\n&quot;</span>;<br>    <span class="hljs-keyword">else</span> <span class="hljs-built_in">throw</span> (std::<span class="hljs-built_in">logic_error</span>(<span class="hljs-string">&quot;not even&quot;</span>));<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print_thread_id</span> <span class="hljs-params">(<span class="hljs-type">int</span> id)</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// using a local lock_guard to lock mtx guarantees unlocking on destruction / exception:</span><br>        <span class="hljs-function">std::lock_guard&lt;std::mutex&gt; <span class="hljs-title">lck</span> <span class="hljs-params">(mtx)</span></span>;<br>        <span class="hljs-built_in">print_even</span>(id);<br>    &#125;<br>    <span class="hljs-built_in">catch</span> (std::logic_error&amp;) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;[exception caught]\n&quot;</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    std::thread threads[<span class="hljs-number">10</span>];<br>    <span class="hljs-comment">// spawn 10 threads:</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">10</span>; ++i)<br>        threads[i] = std::<span class="hljs-built_in">thread</span>(print_thread_id,i+<span class="hljs-number">1</span>);<br><br>    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; th : threads) th.<span class="hljs-built_in">join</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs shell">[exception caught]<br>2 is even<br>[exception caught]<br>4 is even<br>[exception caught]<br>6 is even<br>[exception caught]<br>8 is even<br>[exception caught]<br>10 is even<br></code></pre></td></tr></table></figure>
+
+<h1 id="std-unique-lock-介绍"><a href="#std-unique-lock-介绍" class="headerlink" title="std::unique_lock 介绍"></a>std::unique_lock 介绍</h1><p>与 Mutex RAII 相关，方便线程对互斥量上锁，但提供了更好的上锁和解锁控制。</p>
+<p>Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/unique_lock/">reference</a>):</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::mutex, std::unique_lock</span></span><br><br>std::mutex mtx;           <span class="hljs-comment">// mutex for critical section</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print_block</span> <span class="hljs-params">(<span class="hljs-type">int</span> n, <span class="hljs-type">char</span> c)</span> </span>&#123;<br>    <span class="hljs-comment">// critical section (exclusive access to std::cout signaled by lifetime of lck):</span><br>    <span class="hljs-function">std::unique_lock&lt;std::mutex&gt; <span class="hljs-title">lck</span> <span class="hljs-params">(mtx)</span></span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;n; ++i) &#123;<br>        std::cout &lt;&lt; c;<br>    &#125;<br>    std::cout &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-function">std::thread <span class="hljs-title">th1</span> <span class="hljs-params">(print_block,<span class="hljs-number">50</span>,<span class="hljs-string">&#x27;*&#x27;</span>)</span></span>;<br>    <span class="hljs-function">std::thread <span class="hljs-title">th2</span> <span class="hljs-params">(print_block,<span class="hljs-number">50</span>,<span class="hljs-string">&#x27;$&#x27;</span>)</span></span>;<br><br>    th1.<span class="hljs-built_in">join</span>();<br>    th2.<span class="hljs-built_in">join</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">**************************************************<br><span class="hljs-meta prompt_">$</span><span class="language-bash">$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$</span><br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="std-lock-介绍"><a href="#std-lock-介绍" class="headerlink" title="std::lock 介绍"></a>std::lock 介绍</h1><p>Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/lock/">reference</a>):</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// std::lock example</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::mutex, std::lock</span></span><br><br>std::mutex foo,bar;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">task_a</span> <span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// foo.lock(); bar.lock(); // replaced by:</span><br>  std::<span class="hljs-built_in">lock</span> (foo,bar);<br>  std::cout &lt;&lt; <span class="hljs-string">&quot;task a\n&quot;</span>;<br>  foo.<span class="hljs-built_in">unlock</span>();<br>  bar.<span class="hljs-built_in">unlock</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">task_b</span> <span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-comment">// bar.lock(); foo.lock(); // replaced by:</span><br>  std::<span class="hljs-built_in">lock</span> (bar,foo);<br>  std::cout &lt;&lt; <span class="hljs-string">&quot;task b\n&quot;</span>;<br>  bar.<span class="hljs-built_in">unlock</span>();<br>  foo.<span class="hljs-built_in">unlock</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-function">std::thread <span class="hljs-title">th1</span> <span class="hljs-params">(task_a)</span></span>;<br>  <span class="hljs-function">std::thread <span class="hljs-title">th2</span> <span class="hljs-params">(task_b)</span></span>;<br><br>  th1.<span class="hljs-built_in">join</span>();<br>  th2.<span class="hljs-built_in">join</span>();<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Possible output (order of lines may vary):</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">task a<br>task b<br></code></pre></td></tr></table></figure>
+
+
+
+<h1 id="std-try-lock-介绍"><a href="#std-try-lock-介绍" class="headerlink" title="std::try_lock 介绍"></a>std::try_lock 介绍</h1><p>尝试lock，若线程不可被lock返回false，否则进行lock。</p>
+<p>Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/try_lock/">reference</a>):</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::mutex, std::try_lock</span></span><br><br>std::mutex foo,bar;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">task_a</span> <span class="hljs-params">()</span> </span>&#123;<br>  foo.<span class="hljs-built_in">lock</span>();<br>  std::cout &lt;&lt; <span class="hljs-string">&quot;task a\n&quot;</span>;<br>  bar.<span class="hljs-built_in">lock</span>();<br>  <span class="hljs-comment">// ...</span><br>  foo.<span class="hljs-built_in">unlock</span>();<br>  bar.<span class="hljs-built_in">unlock</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">task_b</span> <span class="hljs-params">()</span> </span>&#123;<br>  <span class="hljs-type">int</span> x = <span class="hljs-built_in">try_lock</span>(bar,foo);<br>  <span class="hljs-keyword">if</span> (x==<span class="hljs-number">-1</span>) &#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;task b\n&quot;</span>;<br>    <span class="hljs-comment">// ...</span><br>    bar.<span class="hljs-built_in">unlock</span>();<br>    foo.<span class="hljs-built_in">unlock</span>();<br>  &#125;<br>  <span class="hljs-keyword">else</span> &#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;[task b failed: mutex &quot;</span> &lt;&lt; (x?<span class="hljs-string">&quot;foo&quot;</span>:<span class="hljs-string">&quot;bar&quot;</span>) &lt;&lt; <span class="hljs-string">&quot; locked]\n&quot;</span>;<br>  &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-function">std::thread <span class="hljs-title">th1</span> <span class="hljs-params">(task_a)</span></span>;<br>  <span class="hljs-function">std::thread <span class="hljs-title">th2</span> <span class="hljs-params">(task_b)</span></span>;<br><br>  th1.<span class="hljs-built_in">join</span>();<br>  th2.<span class="hljs-built_in">join</span>();<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">task a<br>[task b failed: mutex foo locked]<br></code></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+<h1 id="std-call-once-介绍"><a href="#std-call-once-介绍" class="headerlink" title="std::call_once 介绍"></a>std::call_once 介绍</h1><p>call_once可以很好的满足，某些场景下，我们需要代码只被执行一次，比如单例类的初始化，考虑到多线程安全，需要进行加锁控制。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c++"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">Fn</span>, <span class="hljs-keyword">class</span>... Args&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">call_once</span> <span class="hljs-params">(once_flag&amp; flag, Fn&amp;&amp; fn, Args&amp;&amp;... args)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li><p>第一个参数是<code>std::once_flag</code>的对象(once_flag是不允许修改的，其拷贝构造函数和operator&#x3D;函数都声明为delete)，</p>
+</li>
+<li><p>第二个参数可调用实体，即要求只执行一次的代码，后面可变参数是其参数列表。</p>
+</li>
+</ul>
+<p>call_once保证函数fn只被执行一次，如果有多个线程同时执行函数fn调用，则只有一个活动线程(active call)会执行函数，其他的线程在这个线程执行返回之前会处于”passive execution”(被动执行状态)——不会直接返回，直到活动线程对fn调用结束才返回。对于所有调用函数fn的并发线程，数据可见性都是同步的(一致的)。</p>
+<p>如果活动线程在执行fn时抛出异常，则会从处于”passive execution”状态的线程中挑一个线程成为活动线程继续执行fn，依此类推。一旦活动线程返回，所有”passive execution”状态的线程也返回,不会成为活动线程。(实际上once_flag相当于一个锁，使用它的线程都会在上面等待，只有一个线程允许执行。如果该线程抛出异常，那么从等待中的线程中选择一个，重复上面的流程)。</p>
+<p>还有一个要注意的地方是 once_flag的生命周期，它必须要比使用它的线程的生命周期要长。所以通常定义成全局变量比较好。</p>
+<p>Example(<a target="_blank" rel="noopener" href="http://www.cplusplus.com/reference/mutex/call_once/">reference</a>)</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// call_once example</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>       <span class="hljs-comment">// std::cout</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;thread&gt;</span>         <span class="hljs-comment">// std::thread, std::this_thread::sleep_for</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;chrono&gt;</span>         <span class="hljs-comment">// std::chrono::milliseconds</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;mutex&gt;</span>          <span class="hljs-comment">// std::call_once, std::once_flag</span></span><br><br><span class="hljs-type">int</span> winner;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">set_winner</span> <span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123; winner = x; &#125;<br>std::once_flag winner_flag;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">wait_1000ms</span> <span class="hljs-params">(<span class="hljs-type">int</span> id)</span> </span>&#123;<br>  <span class="hljs-comment">// count to 1000, waiting 1ms between increments:</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">1000</span>; ++i)<br>    std::this_thread::<span class="hljs-built_in">sleep_for</span>(std::chrono::<span class="hljs-built_in">milliseconds</span>(<span class="hljs-number">1</span>));<br>  <span class="hljs-comment">// claim to be the winner (only the first such call is executed):</span><br>  std::<span class="hljs-built_in">call_once</span> (winner_flag,set_winner,id);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span> <span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  std::thread threads[<span class="hljs-number">10</span>];<br>  <span class="hljs-comment">// spawn 10 threads:</span><br>  <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>; i&lt;<span class="hljs-number">10</span>; ++i)<br>    threads[i] = std::<span class="hljs-built_in">thread</span>(wait_1000ms,i+<span class="hljs-number">1</span>);<br><br>  std::cout &lt;&lt; <span class="hljs-string">&quot;waiting for the first among 10 threads to count 1000 ms...\n&quot;</span>;<br><br>  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">auto</span>&amp; th : threads) th.<span class="hljs-built_in">join</span>();<br>  std::cout &lt;&lt; <span class="hljs-string">&quot;winner thread: &quot;</span> &lt;&lt; winner &lt;&lt; <span class="hljs-string">&#x27;\n&#x27;</span>;<br><br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs shell">waiting for the first among 10 threads to count 1000 ms...<br>winner thread: 2<br></code></pre></td></tr></table></figure>
+
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Cpp/">Cpp</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Cpp/">Cpp</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Thread/">Thread</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2018/04/28/Jacobian%E7%9F%A9%E9%98%B5%E4%B8%8EHessian%E7%9F%A9%E9%98%B5%E4%B8%8E%E6%9C%80%E5%B0%8F%E4%BA%8C%E4%B9%98/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Jacobian矩阵与Hessian矩阵与最小二乘</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2018/03/17/C-%E5%B9%B6%E5%8F%91%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0-%E4%BA%8C-std-thread-%E8%AF%A6%E8%A7%A3/">
+                        <span class="hidden-mobile">C++并发学习笔记(二)(std::thread 详解)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

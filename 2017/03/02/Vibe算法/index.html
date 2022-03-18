@@ -1,0 +1,621 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="原文链接 简介ViBe - a powerful technique for background detection and subtraction in video sequencesViBe是一种像素级视频背景建模或前景检测的算法，效果优于所熟知的几种算法，对硬件内存占用也少。ViBe是一种像素级的背景建模、前景检测算法，该算法主要不同之处是背景模型的更新策略，随机选择需要替换的像素的样本，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vibe算法">
+<meta property="og:url" content="http://blog.home.io/2017/03/02/Vibe%E7%AE%97%E6%B3%95/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="原文链接 简介ViBe - a powerful technique for background detection and subtraction in video sequencesViBe是一种像素级视频背景建模或前景检测的算法，效果优于所熟知的几种算法，对硬件内存占用也少。ViBe是一种像素级的背景建模、前景检测算法，该算法主要不同之处是背景模型的更新策略，随机选择需要替换的像素的样本，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p7.qhimg.com/bdm/216_133_0/t01659815b7e9d4c55b.jpg">
+<meta property="article:published_time" content="2017-03-02T12:09:07.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:22.647Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="背景建模">
+<meta property="article:tag" content="前景检测">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p7.qhimg.com/bdm/216_133_0/t01659815b7e9d4c55b.jpg">
+  
+  
+  <title>Vibe算法 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Vibe算法">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-03-02 20:09" pubdate>
+        2017年3月2日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      11k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      90 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Vibe算法</h1>
+            
+            <div class="markdown-body">
+              <p><a target="_blank" rel="noopener" href="http://blog.csdn.net/tiandijun/article/details/50499708">原文链接</a></p>
+<h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p><strong>ViBe - a powerful technique for background detection and subtraction in video sequences</strong><br><a target="_blank" rel="noopener" href="http://www2.ulg.ac.be/telecom/research/vibe/">ViBe</a>是一种像素级视频背景建模或前景检测的算法，效果优于所熟知的几种算法，对硬件内存占用也少。ViBe是一种像素级的背景建模、前景检测算法，该算法主要不同之处是背景模型的更新策略，随机选择需要替换的像素的样本，随机选择邻域像素进行更新。在无法确定像素变化的模型时，随机的更新策略，在一定程度上可以模拟像素变化的不确定性。</p>
+<p>背景差方法实现运动物体检测面临的挑战主要有：</p>
+<blockquote>
+<ul>
+<li>可直接应用在产品中，软硬件兼容性好；</li>
+<li>必须适应环境的变化（比如光照的变化造成图像色度的变化）； </li>
+<li>相机抖动引起画面的抖动(比如手持相机拍照时候的移动)；</li>
+<li>图像中密集出现的物体（比如树叶或树干等密集出现的物体，要正确的检测出来）；</li>
+<li>须能够正确的检测出背景物体的改变（比如新停下的车必须及时的归为背景物体，而有静止开始移动的物体也需要及时的检测出来）。</li>
+<li>物体检测中往往会出现Ghost区域，Ghost区域也就是指当一个原本静止的物体开始运动，背景差检测算法可能会将原来该物体所覆盖的区域错误的检测为运动的，这块区域就成为Ghost，当然原来运动的物体变为静止的也会引入Ghost区域，Ghost区域在检测中必须被尽快的消除。一个Ghost区域的实例如<strong>图1</strong>,在图中可以发现相比于原图，检测的结果中错误的多出现了两个人的形状，这就是Ghost。</li>
+</ul>
+</blockquote>
+<p><img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe1.jpg" srcset="/img/loading.gif" lazyload alt="Vibe1"> </p>
+<h2 id="ViBe检测方法"><a href="#ViBe检测方法" class="headerlink" title="ViBe检测方法"></a>ViBe检测方法</h2><p>ViBe是本篇论文中所提出的一个检测方法，相比于其他方法它有很多的不同和优点。具体的思想就是<strong>为每个像素点存储了一个样本集，样本集中采样值就是该像素点过去的像素值和其邻居点的像素值，然后将每一个新的像素值和样本集进行比较来判断是否属于背景点。</strong></p>
+<p>该模型主要包括三个方面：</p>
+<blockquote>
+<ul>
+<li>模型的工作原理；</li>
+<li>模型的初始化方法；</li>
+<li>模型的更新策略。</li>
+</ul>
+</blockquote>
+<h3 id="模型的工作原理"><a href="#模型的工作原理" class="headerlink" title="模型的工作原理"></a>模型的工作原理</h3><p><strong>背景物体就是指静止的或是非常缓慢的移动的物体</strong>，而<strong>前景物体就对应移动的物体</strong>。所以我们可以把物体检测看成一个分类问题，也就是来确定一个像素点是否属于背景点。在ViBe模型中，背景模型为每个背景点存储了一个样本集，然后将每一个新的像素值和样本集进行比较来判断是否属于背景点。可以知道如果一个新的观察值属于背景点那么它应该和样本集中的采样值比较接近。<br>具体的讲，我们记V(x)：x点处的像素值；<strong>M(x)&#x3D;{$$V_1$$,$$V_2$$,…$$V_N$$}<strong>为x处的背景样本集(样本集大小为N)；</strong>SR(v(x))<strong>：以x为中心R为半径的区域，如果</strong>M(x) [{SR(v(x))∩ {$$v_1$$,$$v_2$$, . . . , $$v_N$$}}]<strong>大于一个给定的阈值</strong>min</strong>,那么就认为x点属于背景点。</p>
+<h3 id="背景模型的初始化"><a href="#背景模型的初始化" class="headerlink" title="背景模型的初始化"></a>背景模型的初始化</h3><p>初始化是建立背景模型的过程，一般的检测算法需要一定长度的视频序列学习完成，影响了检测的实时性，而且当视频画面突然变化时，重新学习背景模型需要较长时间。<br>ViBe算法主要是利用单帧视频序列初始化背景模型，对于一个像素点，结合相邻像素点拥有相近像素值的空间分布特性，随机的选择它的邻域点的像素值作为它的模型样本值。ViBe的初始化仅仅通过一帧图像即可完成。ViBe初始化就是填充像素的样本集的过程但是由于在一帧图像中不可能包含像素点的时空分布信息，我们利用了相近像素点拥有相近的时空分布特性，具体来讲就是：对于一个像素点，随机的选择它的邻居点的像素值作为它的模型样本值。**$$M_0(x) &#x3D; {v_0(y | y ∈NG(x))},t&#x3D;0$$<strong>初始时刻，</strong>NG(x)**即为邻居点 。这种初始化方法优点是对于噪声的反应比较灵敏，计算量小速度快，可以很快的进行运动物体的检测，缺点是容易引入Ghost区域。</p>
+<blockquote>
+<ul>
+<li>优点：不仅减少了背景模型建立的过程，还可以处理背景突然变化的情况，当检测到背景突然变化明显时，只需要舍弃原始的模型，重新利用变化后的首帧图像建立背景模型。</li>
+<li>缺点：由于可能采用了运动物体的像素初始化样本集，容易引入拖影（Ghost）区域。</li>
+</ul>
+</blockquote>
+<h3 id="前景检测过程"><a href="#前景检测过程" class="headerlink" title="前景检测过程"></a>前景检测过程</h3><p>1.背景模型为每个背景点存储一个样本集，然后每个新的像素值和样本集比较判断是否属于背景。<br>2.计算新像素值和样本集中每个样本值的距离，若距离小于阈值，则近似样本点数目增加。<br>3.如果近似样本点数目大于阈值，则认为新的像素点为背景。<br>4.检测过程主要由三个参数决定：<strong>样本集数目N</strong>，<strong>阈值min</strong>和<strong>距离相近判定的阈值R</strong>，一般具体实现，参数设置为<strong>N&#x3D;20，min&#x3D;2，R&#x3D;20</strong>。</p>
+<h3 id="背景模型的更新策略"><a href="#背景模型的更新策略" class="headerlink" title="背景模型的更新策略"></a>背景模型的更新策略</h3><ul>
+<li>背景模型的更新就是使得背景模型能够适应背景的不断变化，比如光照的变化，背景物体的变更等等。</li>
+<li>保守的更新策略：前景点永远不会被用来填充背景模型，会引起死锁，比如初始化的时候如果一块静止的区域被错误的检测为运动的，那么在这种策略下它永远会被当做运动的物体来对待；</li>
+<li>Blind策略：对死锁不敏感，前景背景都可以来更新背景模型，缺点是缓慢移动的物体会融入背景中无法被检测出来。在本方法中采用的更新策略是保守的更新策略+前景点计数方法。</li>
+<li>前景点计数：对像素点进行统计，如果某个像素点连续N次被检测为前景，则将其更新为背景点。</li>
+<li>随机的子采样：在每一个新的视频帧中都去更新背景模型中的每一个像素点的样本值是没有必要的，当一个像素点被分类为背景点时，它有1&#x2F; φ的概率去更新背景模型。<br>  具体的更新方法：每一个背景点有<strong>1&#x2F; φ</strong>的概率去更新自己的模型样本值，同时也有<strong>1&#x2F; φ</strong>的概率去更新它的邻居点的模型样本值。更新邻居的样本值利用了像素值的空间传播特性，背景模型逐渐向外扩 散，这也有利于Ghost区域的更快的识别。同时当前景点计数达到临界值时将其变为背景，并有<strong>1&#x2F; φ</strong>的概率去更新自己的模型样本值。<br>在选择要替换的样本集中的样本值时候，我们是随机选取一个样本值进行更新，这样可以保证样本值的平滑的生命周期由于是随机的更新，这样一个样本值在时刻t不被更新的概率是 <strong>(N-1)&#x2F;N</strong>，假设时间是连续的，那么在dt的时间过去后，样本值仍然保留的概率是<br>$$ P(t,t+dt) &#x3D; (\frac{N-1}{N})^{(t+dt)-t} $$<br>也可以写作:<br>$$ P(t,t+dt) &#x3D; e^{-ln(\frac{N}{N-1})dt} $$<br>这就表明一个样本值在模型中是否被替换与时间t无关 ，随机策略是合适的。</li>
+</ul>
+<p>1).<strong>无记忆更新策略</strong><br>每次确定需要更新像素点的背景模型时，以新的像素值随机取代该像素点样本集的一个样本值。<br>2).<strong>时间取样更新策略</strong><br>并不是每处理一帧数据，都需要更新处理，而是按一定的更新率更新背景模型。当一个像素点被判定为背景时，它有1&#x2F;rate的概率更新背景模型。rate是时间采样因子，一般取值为16。<br>3).<strong>空间邻域更新策略</strong><br>针对需要更新像素点，随机的选择一个该像素点邻域的背景模型，以新的像素点更新被选中的背景模型。</p>
+<h2 id="ViBe的改进"><a href="#ViBe的改进" class="headerlink" title="ViBe的改进"></a>ViBe的改进</h2><blockquote>
+<ul>
+<li>不同的距离函数和二值化标准</li>
+<li>对更新掩膜和输出掩膜的分割进行适当的滤波操作</li>
+<li>抑制邻域更新</li>
+<li>检测闪烁的像素点</li>
+<li>增加更新因子</li>
+</ul>
+</blockquote>
+<h3 id="距离计算方法"><a href="#距离计算方法" class="headerlink" title="距离计算方法"></a>距离计算方法</h3><p>以圆椎模型代替原来的几何距离计算方法<br><img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe2.png" srcset="/img/loading.gif" lazyload alt="vibe2"><br><strong>以自适应阈值代替原来固定的距离判定阈值,阈值大小与样本集的方差成正比,样本集方差越大,说明背景越复杂,判定阈值应该越大.</strong><br>$$ 0.5 \times σ_{m} \in [20,40]$$</p>
+<h3 id="分离UpdatingMask和SegmentationMask"><a href="#分离UpdatingMask和SegmentationMask" class="headerlink" title="分离UpdatingMask和SegmentationMask"></a>分离UpdatingMask和SegmentationMask</h3><p>引入目标整体的概念，弥补基于像素级前景检测的不足。针对updating mask和segmentation mask采用不同尺寸的形态学处理方法，提高检测准确率。</p>
+<h3 id="抑制邻域更新"><a href="#抑制邻域更新" class="headerlink" title="抑制邻域更新"></a>抑制邻域更新</h3><p>在updating mask里，计算像素点的梯度，根据梯度大小，确定是否需要更新邻域。梯度值越大，说明像素值变化越大，说明该像素值可能为前景，不应该更新。</p>
+<h3 id="检测闪烁像素点"><a href="#检测闪烁像素点" class="headerlink" title="检测闪烁像素点"></a>检测闪烁像素点</h3><p>引入闪烁程度的概念，当一个像素点的updating label与前一帧的updating label不一样时，blinking level增加15，否则，减少1，然后根据blinking level的大小判断该像素点是否为闪烁点。闪烁像素主要出现在背景复杂的场景，如树叶、水纹等，这些场景会出现像素背景和前景的频繁变化，因而针对这些闪烁应该单独处理，可以作为全部作为背景。</p>
+<h3 id="增加更新因子"><a href="#增加更新因子" class="headerlink" title="增加更新因子"></a>增加更新因子</h3><p>ViBe算法中，默认的更新因子是16，当背景变化很快时，背景模型无法快速的更新，将会导致前景检测的较多的错误。因而，需要根据背景变化快慢程度，调整更新因子的大小，可将更新因子分多个等级，如rate &#x3D; 16,rate &#x3D; 5,rate &#x3D; 1。</p>
+<h2 id="ViBe实验结果"><a href="#ViBe实验结果" class="headerlink" title="ViBe实验结果"></a>ViBe实验结果</h2><p> 在实验中，我们和其他的一些检测算法在检测准确率和算法的计算量方面都进行了比较，实验表明我们的方法检测效果明显要好很多，对于光照的变化和相机抖动等的效果都十分稳定，而且计算量非常小，内存占用较少，这就使得该方法能够用于嵌入手持照相机中。一些具体的实验效果和数据如下:</p>
+<p> <img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe3.png" srcset="/img/loading.gif" lazyload alt="vibe3"><br> <img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe4.png" srcset="/img/loading.gif" lazyload alt="vibe4"><br> <img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe5.png" srcset="/img/loading.gif" lazyload alt="vibe5"><br> <img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe6.png" srcset="/img/loading.gif" lazyload alt="vibe6"> <img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe7.png" srcset="/img/loading.gif" lazyload alt="vibe7"> </p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>在这片文章中，我们提出了一个新的背静差算法-ViBe，和以前相比它具有三个不同点。首先，我们提出了一个新的分类模型。其次，我们介绍了ViBe如何初始化，它只需要一帧图像即可完成初始化，而其他的算法通常需要等待数秒去完成初始化，这对于嵌入照相机中的要求实时性比较高的和一些比较短的视频序列很有帮助。 最后，我们提出了自己的更新策略，相比于其他算法将样本值在模型中保存一个固定的时间，我们采用随机的替换更新样本值，经过证明这样可以保证样本值的一个指数衰减的平滑生命周期，并且可以使得背景模型很好的适应视频场景的变化，从而达到更好的检测效果。<br>通过一系列实验表明ViBe方法相比于其他的一些检测算法具有计算量小、内存占用少、处理速度快、检测效果好、有更快的Ghost区域消融速度和应对噪声稳定可靠的特点，并且非常适合嵌入照相机等要求计算量小和内存占用少的情境中。<br>效果图：<br> <img src="/2017/03/02/Vibe%E7%AE%97%E6%B3%95/vibe8.png" srcset="/img/loading.gif" lazyload alt="vibe8"> </p>
+<h2 id="算法的主要优势"><a href="#算法的主要优势" class="headerlink" title="算法的主要优势"></a>算法的主要优势</h2><blockquote>
+<ul>
+<li>内存占用少，一个像素需要作一次比较，占用一个字节的内存；</li>
+<li>无参数法；</li>
+<li>性能优于混合高斯，参数化方法，SACON等；</li>
+<li>像素级算法，视频处理中的预处理关键步骤；</li>
+<li>背景模型及时初始化；</li>
+<li>具有较好的抗噪能力。</li>
+</ul>
+</blockquote>
+<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>算法执行效率测试程序，windows和Linux操作系统下的程序和c&#x2F;c++文件都可以在作者官网下载，如下：</p>
+<ul>
+<li><strong>Windows</strong> and <strong>Linux</strong> users: a benchmarking program to evaluate the time needed by ViBe on your platform and on your own sequences! Download an archive zip archive <a target="_blank" rel="noopener" href="http://hdl.handle.net/2268/145853">15 MB</a> to evaluate the time needed by <strong>ViBe</strong> on your platform (Windows or Linux <a target="_blank" rel="noopener" href="http://www.winehq.org/">Wine</a>), and on your own sequences.</li>
+<li>A program for <strong>Windows</strong> and <strong>Linux</strong>. Download an archive zip archive <a target="_blank" rel="noopener" href="http://hdl.handle.net/2268/145853">16 MB</a> to use ViBe on Windows (or under Wine in Linux).The program allows you to: (1) save the result for your own images, (2) change the few parameters of ViBe to experiment with, and (3) reproduce our results.</li>
+<li>Linux: link a C&#x2F;C++ object file to your own code. We provide the object (compiled) code of ViBe for non-commercial applications. Under Linux, download the <a target="_blank" rel="noopener" href="http://orbi.ulg.ac.be/handle/2268/145853">32 bits zip</a> file, or the <a target="_blank" rel="noopener" href="http://orbi.ulg.ac.be/handle/2268/145853">64 bits zip</a> file. <a target="_blank" rel="noopener" href="http://www2.ulg.ac.be/telecom/research/vibe/download.html">Details on this page</a>.</li>
+</ul>
+<p>当然这里也借鉴<a target="_blank" rel="noopener" href="http://blog.csdn.net/zouxy09/article/details/9622285">zouxy09</a>大神给出的Mat格式的代码（在VS2010+OpenCV2.4.2中测试通过）:</p>
+<p>** ViBe.h **</p>
+<figure class="highlight hpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></div></td><td class="code"><pre><code class="hljs hpp"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opencv2/opencv.hpp&quot;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM_SAMPLES 20      <span class="hljs-comment">//每个像素点的样本个数  </span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MIN_MATCHES 2       <span class="hljs-comment">//#min指数  </span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> RADIUS 20       <span class="hljs-comment">//Sqthere半径  </span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> SUBSAMPLE_FACTOR 16 <span class="hljs-comment">//子采样概率  </span></span><br>  <br>  <br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ViBe_BGS</span>  <br>&#123;  <br><span class="hljs-keyword">public</span>:  <br>    <span class="hljs-built_in">ViBe_BGS</span>(<span class="hljs-type">void</span>);  <br>    ~<span class="hljs-built_in">ViBe_BGS</span>(<span class="hljs-type">void</span>);  <br>  <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">init</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat _image)</span></span>;   <span class="hljs-comment">//初始化  </span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">processFirstFrame</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat _image)</span></span>;  <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">testAndUpdate</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat _image)</span></span>;  <span class="hljs-comment">//更新  </span><br>    <span class="hljs-function">Mat <span class="hljs-title">getMask</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span>&#123;<span class="hljs-keyword">return</span> m_mask;&#125;;  <br>  <br><span class="hljs-keyword">private</span>:  <br>    Mat m_samples[NUM_SAMPLES];  <br>    Mat m_foregroundMatchCount;  <br>    Mat m_mask;  <br>&#125;;  <br></code></pre></td></tr></table></figure>
+
+<p>** ViBe.cpp **</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/opencv.hpp&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;ViBe.h&quot;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br>  <br><span class="hljs-type">int</span> c_xoff[<span class="hljs-number">9</span>] = &#123;<span class="hljs-number">-1</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;;  <span class="hljs-comment">//x的邻居点  </span><br><span class="hljs-type">int</span> c_yoff[<span class="hljs-number">9</span>] = &#123;<span class="hljs-number">-1</span>,  <span class="hljs-number">0</span>,  <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">-1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>&#125;;  <span class="hljs-comment">//y的邻居点  </span><br>  <br>ViBe_BGS::<span class="hljs-built_in">ViBe_BGS</span>(<span class="hljs-type">void</span>)  <br>&#123;  <br>  <br>&#125;  <br>ViBe_BGS::~<span class="hljs-built_in">ViBe_BGS</span>(<span class="hljs-type">void</span>)  <br>&#123;  <br>  <br>&#125;  <br>  <br><span class="hljs-comment">/**************** Assign space and init ***************************/</span>  <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ViBe_BGS::init</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat _image)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>     <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; NUM_SAMPLES; i++)  <br>     &#123;  <br>         m_samples[i] = Mat::<span class="hljs-built_in">zeros</span>(_image.<span class="hljs-built_in">size</span>(), CV_8UC1);  <br>     &#125;  <br>     m_mask = Mat::<span class="hljs-built_in">zeros</span>(_image.<span class="hljs-built_in">size</span>(),CV_8UC1);  <br>     m_foregroundMatchCount = Mat::<span class="hljs-built_in">zeros</span>(_image.<span class="hljs-built_in">size</span>(),CV_8UC1);  <br>&#125;  <br>  <br><span class="hljs-comment">/**************** Init model from first frame ********************/</span>  <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ViBe_BGS::processFirstFrame</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat _image)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    RNG rng;  <br>    <span class="hljs-type">int</span> row, col;  <br>  <br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; _image.rows; i++)  <br>    &#123;  <br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; _image.cols; j++)  <br>        &#123;  <br>             <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> k = <span class="hljs-number">0</span> ; k &lt; NUM_SAMPLES; k++)  <br>             &#123;  <br>                 <span class="hljs-comment">// Random pick up NUM_SAMPLES pixel in neighbourhood to construct the model  </span><br>                 <span class="hljs-type">int</span> random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, <span class="hljs-number">9</span>);  <br>  <br>                 row = i + c_yoff[random];  <br>                 <span class="hljs-keyword">if</span> (row &lt; <span class="hljs-number">0</span>)   <br>                     row = <span class="hljs-number">0</span>;  <br>                 <span class="hljs-keyword">if</span> (row &gt;= _image.rows)  <br>                     row = _image.rows - <span class="hljs-number">1</span>;  <br>  <br>                 col = j + c_xoff[random];  <br>                 <span class="hljs-keyword">if</span> (col &lt; <span class="hljs-number">0</span>)   <br>                     col = <span class="hljs-number">0</span>;  <br>                 <span class="hljs-keyword">if</span> (col &gt;= _image.cols)  <br>                     col = _image.cols - <span class="hljs-number">1</span>;  <br>  <br>                 m_samples[k].<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) = _image.<span class="hljs-built_in">at</span>&lt;uchar&gt;(row, col);  <br>             &#125;  <br>        &#125;  <br>    &#125;  <br>&#125;  <br>  <br><span class="hljs-comment">/**************** Test a new frame and update model ********************/</span>  <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ViBe_BGS::testAndUpdate</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat _image)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    RNG rng;  <br>  <br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; _image.rows; i++)  <br>    &#123;  <br>        <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; _image.cols; j++)  <br>        &#123;  <br>            <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">matches</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span>, <span class="hljs-title">count</span><span class="hljs-params">(<span class="hljs-number">0</span>)</span></span>;  <br>            <span class="hljs-type">float</span> dist;  <br>  <br>            <span class="hljs-keyword">while</span>(matches &lt; MIN_MATCHES &amp;&amp; count &lt; NUM_SAMPLES)  <br>            &#123;  <br>                dist = <span class="hljs-built_in">abs</span>(m_samples[count].<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) - _image.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j));  <br>                <span class="hljs-keyword">if</span> (dist &lt; RADIUS)  <br>                    matches++;  <br>                count++;  <br>            &#125;  <br>  <br>            <span class="hljs-keyword">if</span> (matches &gt;= MIN_MATCHES)  <br>            &#123;  <br>                <span class="hljs-comment">// It is a background pixel  </span><br>                m_foregroundMatchCount.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) = <span class="hljs-number">0</span>;  <br>  <br>                <span class="hljs-comment">// Set background pixel to 0  </span><br>                m_mask.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) = <span class="hljs-number">0</span>;  <br>  <br>                <span class="hljs-comment">// 如果一个像素是背景点，那么它有 1 / defaultSubsamplingFactor 的概率去更新自己的模型样本值  </span><br>                <span class="hljs-type">int</span> random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, SUBSAMPLE_FACTOR);  <br>                <span class="hljs-keyword">if</span> (random == <span class="hljs-number">0</span>)  <br>                &#123;  <br>                    random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, NUM_SAMPLES);  <br>                    m_samples[random].<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) = _image.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j);  <br>                &#125;  <br>  <br>                <span class="hljs-comment">// 同时也有 1 / defaultSubsamplingFactor 的概率去更新它的邻居点的模型样本值  </span><br>                random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, SUBSAMPLE_FACTOR);  <br>                <span class="hljs-keyword">if</span> (random == <span class="hljs-number">0</span>)  <br>                &#123;  <br>                    <span class="hljs-type">int</span> row, col;  <br>                    random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, <span class="hljs-number">9</span>);  <br>                    row = i + c_yoff[random];  <br>                    <span class="hljs-keyword">if</span> (row &lt; <span class="hljs-number">0</span>)   <br>                        row = <span class="hljs-number">0</span>;  <br>                    <span class="hljs-keyword">if</span> (row &gt;= _image.rows)  <br>                        row = _image.rows - <span class="hljs-number">1</span>;  <br>  <br>                    random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, <span class="hljs-number">9</span>);  <br>                    col = j + c_xoff[random];  <br>                    <span class="hljs-keyword">if</span> (col &lt; <span class="hljs-number">0</span>)   <br>                        col = <span class="hljs-number">0</span>;  <br>                    <span class="hljs-keyword">if</span> (col &gt;= _image.cols)  <br>                        col = _image.cols - <span class="hljs-number">1</span>;  <br>  <br>                    random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, NUM_SAMPLES);  <br>                    m_samples[random].<span class="hljs-built_in">at</span>&lt;uchar&gt;(row, col) = _image.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j);  <br>                &#125;  <br>            &#125;  <br>            <span class="hljs-keyword">else</span>  <br>            &#123;  <br>                <span class="hljs-comment">// It is a foreground pixel  </span><br>                m_foregroundMatchCount.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j)++;  <br>  <br>                <span class="hljs-comment">// Set background pixel to 255  </span><br>                m_mask.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) = <span class="hljs-number">255</span>;  <br>  <br>                <span class="hljs-comment">//如果某个像素点连续N次被检测为前景，则认为一块静止区域被误判为运动，将其更新为背景点  </span><br>                <span class="hljs-keyword">if</span> (m_foregroundMatchCount.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) &gt; <span class="hljs-number">50</span>)  <br>                &#123;  <br>                    <span class="hljs-type">int</span> random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, SUBSAMPLE_FACTOR);  <br>                    <span class="hljs-keyword">if</span> (random == <span class="hljs-number">0</span>)  <br>                    &#123;  <br>                        random = rng.<span class="hljs-built_in">uniform</span>(<span class="hljs-number">0</span>, NUM_SAMPLES);  <br>                        m_samples[random].<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j) = _image.<span class="hljs-built_in">at</span>&lt;uchar&gt;(i, j);  <br>                    &#125;  <br>                &#125;  <br>            &#125;  <br>        &#125;  <br>    &#125;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+
+<p>** Main.cpp **</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opencv2/opencv.hpp&quot;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;ViBe.h&quot;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;cstdio&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span>* argv[])</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    Mat frame, gray, mask;  <br>    VideoCapture capture;  <br>    capture.<span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;video.avi&quot;</span>);  <br>  <br>    <span class="hljs-keyword">if</span> (!capture.<span class="hljs-built_in">isOpened</span>())  <br>    &#123;  <br>        cout&lt;&lt;<span class="hljs-string">&quot;No camera or video input!\n&quot;</span>&lt;&lt;endl;  <br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;  <br>    &#125;  <br>  <br>    ViBe_BGS Vibe_Bgs;  <br>    <span class="hljs-type">int</span> count = <span class="hljs-number">0</span>;  <br>  <br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)  <br>    &#123;  <br>        count++;  <br>        capture &gt;&gt; frame;  <br>        <span class="hljs-keyword">if</span> (frame.<span class="hljs-built_in">empty</span>())  <br>            <span class="hljs-keyword">break</span>;  <br>        <span class="hljs-built_in">cvtColor</span>(frame, gray, CV_RGB2GRAY);  <br>      <br>        <span class="hljs-keyword">if</span> (count == <span class="hljs-number">1</span>)  <br>        &#123;  <br>            Vibe_Bgs.<span class="hljs-built_in">init</span>(gray);  <br>            Vibe_Bgs.<span class="hljs-built_in">processFirstFrame</span>(gray);  <br>            cout&lt;&lt;<span class="hljs-string">&quot; Training GMM complete!&quot;</span>&lt;&lt;endl;  <br>        &#125;  <br>        <span class="hljs-keyword">else</span>  <br>        &#123;  <br>            Vibe_Bgs.<span class="hljs-built_in">testAndUpdate</span>(gray);  <br>            mask = Vibe_Bgs.<span class="hljs-built_in">getMask</span>();  <br>            <span class="hljs-built_in">morphologyEx</span>(mask, mask, MORPH_OPEN, <span class="hljs-built_in">Mat</span>());  <br>            <span class="hljs-built_in">imshow</span>(<span class="hljs-string">&quot;mask&quot;</span>, mask);  <br>        &#125;  <br>  <br>        <span class="hljs-built_in">imshow</span>(<span class="hljs-string">&quot;input&quot;</span>, frame);   <br>  <br>        <span class="hljs-keyword">if</span> ( <span class="hljs-built_in">cvWaitKey</span>(<span class="hljs-number">10</span>) == <span class="hljs-string">&#x27;q&#x27;</span> )  <br>            <span class="hljs-keyword">break</span>;  <br>    &#125;  <br>  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.telecom.ulg.ac.be/publi/Author/BARNICH-O.html">O. Barnich</a> and <a target="_blank" rel="noopener" href="http://www2.ulg.ac.be/telecom/publi/Author/VAN-DROOGENBROECK-M.html">M. Van Droogenbroeck</a>. <a target="_blank" rel="noopener" href="http://ieeexplore.ieee.org/search/freesrchabstract.jsp?tp=&arnumber=5672785">ViBe: A universal background subtraction algorithm for video sequences</a>. In IEEE Transactions on Image Processing, 20(6):1709-1724, June 2011. Also available on <a target="_blank" rel="noopener" href="http://hdl.handle.net/2268/81248">the University site</a> in <a target="_blank" rel="noopener" href="http://orbi.ulg.ac.be/bitstream/2268/145853/1/Barnich2011ViBe.pdf">PDF format</a>, and <a target="_blank" rel="noopener" href="http://www.telecom.ulg.ac.be/publi/publications/barnich/Barnich2011ViBe/index.html">HTML format</a>. This paper contains a very <a target="_blank" rel="noopener" href="http://www.telecom.ulg.ac.be/research/vibe/Barnich2010ViBe.bib">detailed pseudo-code description of the complete algorithm</a>. </li>
+<li><a target="_blank" rel="noopener" href="http://www2.ulg.ac.be/telecom/publi/Author/VAN-DROOGENBROECK-M.html">M. Van Droogenbroeck</a> and O. Paquot. Background Subtraction: Experiments and Improvements for ViBe. In Change Detection Workshop (CDW), Providence, Rhode Island, June 2012. Available on the University site in <a target="_blank" rel="noopener" href="http://orbi.ulg.ac.be/bitstream/2268/117561/1/VanDroogenbroeck2012Background.pdf">PDF format</a> and <a target="_blank" rel="noopener" href="http://www.telecom.ulg.ac.be/publi/publications/mvd/VanDroogenbroeck2012Background/index.html">HTML format</a>. </li>
+<li><a target="_blank" rel="noopener" href="http://www2.ulg.ac.be/telecom/publi/Author/BARNICH-O.html">O. Barnich</a> and <a target="_blank" rel="noopener" href="http://www2.ulg.ac.be/telecom/publi/Author/VAN-DROOGENBROECK-M.html">M. Van Droogenbroeck</a>. ViBe: a powerful random technique to estimate the background in video sequences. In International Conference on Acoustics, Speech, and Signal Processing (ICASSP 2009), pages 945-948, April 2009. Available as a <a target="_blank" rel="noopener" href="http://ieeexplore.ieee.org//xpls/abs_all.jsp?arnumber=4959741">IEEE publication</a> or on <a target="_blank" rel="noopener" href="http://hdl.handle.net/2268/12087">the University site</a>.</li>
+<li><a target="_blank" rel="noopener" href="http://www.freepatentsonline.com/EP2015252.html">Patent description at the “freepatentsonline” web site</a>.</li>
+</ul>
+<h2 id="Performance"><a href="#Performance" class="headerlink" title="Performance"></a>Performance</h2><ul>
+<li>An independant evaluation is available in S. Brutzer, B. Hoferlin, and G. Heidemann. <a target="_blank" rel="noopener" href="http://ieeexplore.ieee.org/search/freesrchabstract.jsp?arnumber=5995508">Evaluation of background subtraction techniques for video surveillance</a>. In IEEE International Conference on Computer Vision and Pattern Recognition (CVPR), pages 1937-1944, Colorado Spring, USA, June 2011. </li>
+<li>In their conclusions, they claim: “Considering these aspects, Barnich is a <strong>strong favorite</strong>, since it is simple and almost parameterless.”</li>
+</ul>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E8%83%8C%E6%99%AF%E5%BB%BA%E6%A8%A1/">背景建模</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%89%8D%E6%99%AF%E6%A3%80%E6%B5%8B/">前景检测</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/03/04/%E4%B8%80%E7%BB%B4%E4%BF%A1%E5%8F%B7%E7%9A%84%E6%BB%A4%E6%B3%A2/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">一维信号的滤波</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/01/%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%8F%92%E5%80%BC/">
+                        <span class="hidden-mobile">双线性插值</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

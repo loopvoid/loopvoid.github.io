@@ -1,0 +1,678 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="安装Robotics Toolbox for MATLAB1、下载该工具箱2、将压缩包解压到一个文件夹下面3、打开MATLAB，在File菜单下选择Set Path，打开如下对话框4、单击“Add With SubFolder”，选择上面的工具箱5、点击“Save”，然后点击“Close”。这样就把工具箱的路径添加到MATLAB的路径中了，也就是工具箱安装了。 PUMA560的MATLAB仿真要建">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RoboticsToolbox使用基本教程">
+<meta property="og:url" content="http://blog.home.io/2017/03/22/RoboticsToolbox%E4%BD%BF%E7%94%A8%E5%9F%BA%E6%9C%AC%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="安装Robotics Toolbox for MATLAB1、下载该工具箱2、将压缩包解压到一个文件夹下面3、打开MATLAB，在File菜单下选择Set Path，打开如下对话框4、单击“Add With SubFolder”，选择上面的工具箱5、点击“Save”，然后点击“Close”。这样就把工具箱的路径添加到MATLAB的路径中了，也就是工具箱安装了。 PUMA560的MATLAB仿真要建">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p8.qhimg.com/bdm/216_133_0/t01d33d5aa616ec424c.jpg">
+<meta property="article:published_time" content="2017-03-22T15:06:01.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:36.944Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="机械臂">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p8.qhimg.com/bdm/216_133_0/t01d33d5aa616ec424c.jpg">
+  
+  
+  <title>RoboticsToolbox使用基本教程 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="RoboticsToolbox使用基本教程">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-03-22 23:06" pubdate>
+        2017年3月22日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      3.4k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      29 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">RoboticsToolbox使用基本教程</h1>
+            
+            <div class="markdown-body">
+              <h2 id="安装Robotics-Toolbox-for-MATLAB"><a href="#安装Robotics-Toolbox-for-MATLAB" class="headerlink" title="安装Robotics Toolbox for MATLAB"></a>安装Robotics Toolbox for MATLAB</h2><p>1、下载该工具箱<br>2、将压缩包解压到一个文件夹下面<br>3、打开MATLAB，在File菜单下选择Set Path，打开如下对话框<br>4、单击“Add With SubFolder”，选择上面的工具箱<br>5、点击“Save”，然后点击“Close”。这样就把工具箱的路径添加到MATLAB的路径中了，也就是工具箱安装了。</p>
+<h2 id="PUMA560的MATLAB仿真"><a href="#PUMA560的MATLAB仿真" class="headerlink" title="PUMA560的MATLAB仿真"></a>PUMA560的MATLAB仿真</h2><p>要建立PUMA560的机器人对象，首先我们要了解PUMA560的D-H参数，之后我们可以利用Robotics Toolbox工具箱中的link和robot函数来建立PUMA560的机器人对象。<br>其中link函数的调用格式：</p>
+<blockquote>
+<ul>
+<li>L &#x3D; LINK([alpha A theta D])</li>
+<li>L &#x3D;LINK([alpha A theta D sigma])</li>
+<li>L &#x3D;LINK([alpha A theta D sigma offset])</li>
+<li>L &#x3D;LINK([alpha A theta D], CONVENTION)</li>
+<li>L &#x3D;LINK([alpha A theta D sigma], CONVENTION)</li>
+<li>L &#x3D;LINK([alpha A theta D sigma offset], CONVENTION)</li>
+</ul>
+</blockquote>
+<p>参数CONVENTION可以取‘standard’和‘modified’，其中‘standard’代表采用标准的D-H参数，‘modified’代表采用改进的D-H参数。参数‘alpha’代表扭转角 ，参数‘A’代表杆件长度，参数‘theta’代表关节角，参数‘D’代表横距，参数‘sigma’代表关节类型：0代表旋转关节，非0代表移动关节。另外LINK还有一些数据域：</p>
+<blockquote>
+<ul>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.alpha       %返回扭转角
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.A        %返回杆件长度
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.theta       %返回关节角
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.D        %返回横距
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.sigma     %返回关节类型
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.RP            %返回‘R’(旋转)或‘P’(移动)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.mdh      %若为标准D-H参数返回0，否则返回1
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.offset      %返回关节变量偏移
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.qlim         %返回关节变量的上下限 [min max]
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.islimit(q)     %如果关节变量超限，返回 -1, 0, +1
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.I         %返回一个3×3 对称惯性矩阵
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.m        %返回关节质量
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.r         %返回3×1的关节齿轮向量
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.G        %返回齿轮的传动比
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.Jm      %返回电机惯性
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.B        %返回粘性摩擦
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.Tc       %返回库仑摩擦
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.dh              return legacy DH row
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">LINK.dyn         return legacy DYN row
+</code></pre></div>
+</li>
+</ul>
+</blockquote>
+<p>其中robot函数的调用格式：</p>
+<blockquote>
+<ul>
+<li><div class="code-wrapper"><pre><code class="hljs">ROBOT                     %创建一个空的机器人对象
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">ROBOT(robot)              %创建robot的一个副本
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">ROBOT(robot, LINK)       %用LINK来创建新机器人对象来代替robot
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">ROBOT(LINK, ...)         %用LINK来创建一个机器人对象
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">ROBOT(DH, ...)             %用D-H矩阵来创建一个机器人对象
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">ROBOT(DYN, ...)             %用DYN矩阵来创建一个机器人对象
+</code></pre></div>
+</li>
+</ul>
+</blockquote>
+<p>利用MATLAB中Robotics Toolbox工具箱中的transl、rotx、roty和rotz可以实现用齐次变换矩阵表示平移变换和旋转变换。下面举例来说明：<br>A 机器人在x轴方向平移了0.5米，那么我们可以用下面的方法来求取平移变换后的齐次矩阵：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></div></td><td class="code"><pre><code class="hljs matlab">&gt;&gt; transl(<span class="hljs-number">0.5</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>)<br><span class="hljs-built_in">ans</span> =<br>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">0.5000</span><br>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span><br></code></pre></td></tr></table></figure>
+<p>B 机器人绕x轴旋转45度，那么可以用rotx来求取旋转后的齐次矩阵：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs matlab">&gt;&gt; rotx(<span class="hljs-built_in">pi</span>/<span class="hljs-number">4</span>)<br><span class="hljs-built_in">ans</span> =<br>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>    <span class="hljs-number">0.7071</span>   <span class="hljs-number">-0.7071</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>    <span class="hljs-number">0.7071</span>    <span class="hljs-number">0.7071</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span><br></code></pre></td></tr></table></figure>
+<p>C 机器人绕y轴旋转90度，那么可以用roty来求取旋转后的齐次矩阵：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs matlab">&gt;&gt; roty(<span class="hljs-built_in">pi</span>/<span class="hljs-number">2</span>)<br><span class="hljs-built_in">ans</span> =<br>    <span class="hljs-number">0.0000</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span><br>   <span class="hljs-number">-1.0000</span>         <span class="hljs-number">0</span>    <span class="hljs-number">0.0000</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span><br></code></pre></td></tr></table></figure>
+<p>D 机器人绕z轴旋转-90度，那么可以用rotz来求取旋转后的齐次矩阵：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs matlab">&gt;&gt; rotz(-<span class="hljs-built_in">pi</span>/<span class="hljs-number">2</span>)<br><span class="hljs-built_in">ans</span> =<br>    <span class="hljs-number">0.0000</span>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span><br>   <span class="hljs-number">-1.0000</span>    <span class="hljs-number">0.0000</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span>         <span class="hljs-number">0</span><br>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>         <span class="hljs-number">0</span>    <span class="hljs-number">1.0000</span><br></code></pre></td></tr></table></figure>
+<p>当然，如果有多次旋转和平移变换，我们只需要多次调用函数在组合就可以了。另外，可以和我们学习的平移矩阵和旋转矩阵做个对比，相信是一致的。</p>
+<h2 id="轨迹规划"><a href="#轨迹规划" class="headerlink" title="轨迹规划"></a>轨迹规划</h2><p>利用Robotics Toolbox提供的ctraj、jtraj和trinterp函数可以实现笛卡尔规划、关节空间规划和变换插值。<br>其中ctraj函数的调用格式：</p>
+<blockquote>
+<ul>
+<li><div class="code-wrapper"><pre><code class="hljs">  TC = CTRAJ(T0, T1, N)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">  TC = CTRAJ(T0, T1, R)
+</code></pre></div>
+</li>
+</ul>
+</blockquote>
+<p>参数TC为从T0到T1的笛卡尔规划轨迹，N为点的数量，R为给定路径距离向量，R的每个值必须在0到1之间。<br>其中jtraj函数的调用格式：</p>
+<blockquote>
+<ul>
+<li><div class="code-wrapper"><pre><code class="hljs">   [Q QD QDD] = JTRAJ(Q0, Q1, N)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">   [Q QD QDD] = JTRAJ(Q0, Q1, N, QD0, QD1)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">   [Q QD QDD] = JTRAJ(Q0, Q1, T)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">   [Q QD QDD] = JTRAJ(Q0, Q1, T, QD0, QD1)
+</code></pre></div>
+</li>
+</ul>
+</blockquote>
+<p>参数Q为从状态Q0到Q1的关节空间规划轨迹，N为规划的点数，T为给定的时间向量的长度，速度非零边界可以用QD0和QD1来指定。QD和QDD为返回的规划轨迹的速度和加速度。<br>其中trinterp函数的调用格式：<br><code>TR = TRINTERP(T0, T1, R)</code><br>参数TR为在T0和T1之间的坐标变化插值，R需在0和1之间。<br>要实现轨迹规划，首先我们要创建一个时间向量，假设在两秒内完成某个动作，采样间隔是56ms，那么可以用如下的命令来实现多项式轨迹规划：<code>t=0:0.056:2; [q,qd,qdd]=jtraj(qz,qr,t);</code><br>其中t为时间向量，qz为机器人的初始位姿，qr为机器人的最终位姿，q为经过的路径点，qd为运动的速度，qdd为运动的加速度。其中q、qd、qdd都是六列的矩阵，每列代表每个关节的位置、速度和加速度。如q(:,3)代表关节3的位置，qd(:,3)代表关节3的速度，qdd(:,3)代表关节3的加速度。</p>
+<h2 id="运动学的正问题"><a href="#运动学的正问题" class="headerlink" title="运动学的正问题"></a>运动学的正问题</h2><p>利用Robotics Toolbox中的fkine函数可以实现机器人运动学正问题的求解。<br>其中fkine函数的调用格式：<br><code>TR = FKINE(ROBOT, Q)</code><br>参数ROBOT为一个机器人对象，TR为由Q定义的每个前向运动学的正解。<br>以PUMA560为例，定义关节坐标系的零点qz&#x3D;[0 0 0 0 0 0]，那么fkine(p560,qz)将返回最后一个关节的平移的齐次变换矩阵。如果有了关节的轨迹规划之后，我们也可以用fkine来进行运动学的正解。比如：<br><code>t=0:0.056:2; q=jtraj(qz,qr,t); T=fkine(p560,q);</code><br>返回的矩阵T是一个三维的矩阵，前两维是4×4的矩阵代表坐标变化，第三维是时间。</p>
+<h2 id="运动学的逆问题"><a href="#运动学的逆问题" class="headerlink" title="运动学的逆问题"></a>运动学的逆问题</h2><p>利用Robotics Toolbox中的ikine函数可以实现机器人运动学逆问题的求解。<br>其中ikine函数的调用格式：</p>
+<blockquote>
+<ul>
+<li><div class="code-wrapper"><pre><code class="hljs">Q = IKINE(ROBOT, T)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">Q = IKINE(ROBOT, T, Q)
+</code></pre></div>
+</li>
+<li><div class="code-wrapper"><pre><code class="hljs">Q = IKINE(ROBOT, T, Q, M)
+</code></pre></div>
+</li>
+</ul>
+</blockquote>
+<p>参数ROBOT为一个机器人对象，Q为初始猜测点（默认为0），T为要反解的变换矩阵。当反解的机器人对象的自由度少于6时，要用M进行忽略某个关节自由度。<br>有了关节的轨迹规划之后，我们也可以用ikine函数来进行运动学逆问题的求解。比如：<br><code>t=0:0.056:2; T1=transl(0.6,-0.5,0); T2=transl(0.4,0.5,0.2); T=ctraj(T1,T2,length(t)); q=ikine(p560,T);</code><br>我们也可以尝试先进行正解，再进行逆解，看看能否还原。<br><code>Q=[0 –pi/4 –pi/4 0 pi/8 0]; T=fkine(p560,q); qi=ikine(p560,T);</code></p>
+<h2 id="动画演示"><a href="#动画演示" class="headerlink" title="动画演示"></a>动画演示</h2><p>有了机器人的轨迹规划之后，我们就可以利用Robotics Toolbox中的plot函数来实现对规划路径的仿真。<br><code>puma560;T=0:0.056:2; q=jtraj(qz,qr,T); plot(p560,q);</code><br>当然，我们也可以来调节PUMA560的六个旋转角，来实现动画演示。<br><code>drivebot(p560)</code></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E6%9C%BA%E6%A2%B0%E8%87%82/">机械臂</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E6%9C%BA%E6%A2%B0%E8%87%82/">机械臂</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/03/26/Opencv%E5%AE%9E%E7%8E%B0Kalman%E6%BB%A4%E6%B3%A2%E5%99%A8/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv实现Kalman滤波器</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/20/Cpp%E5%9F%BA%E7%A1%80%E8%A1%A5%E5%85%A8/">
+                        <span class="hidden-mobile">Cpp基础补全</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

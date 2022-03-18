@@ -1,0 +1,573 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="另一篇博客已经初步了解单映性的原理和计算，这篇就借助Opencv库来实战。**目的:**在一张背景图中寻找目标物体，并标注出来。思路:  1.通过SurfFeatureDetector分别提取出Object图片和Scene图片各自的特征点(Surf特征点)。 2.通过SurfDescriptorExtractor分别计算出Object图片和Scene图片对特征点的描述。 3.采用FlannBase">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Opencv实现Surf特征点和Homography匹配物体">
+<meta property="og:url" content="http://blog.home.io/2017/02/20/Opencv%E5%AE%9E%E7%8E%B0Surf%E7%89%B9%E5%BE%81%E7%82%B9%E5%92%8CHomography%E5%8C%B9%E9%85%8D%E7%89%A9%E4%BD%93/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="另一篇博客已经初步了解单映性的原理和计算，这篇就借助Opencv库来实战。**目的:**在一张背景图中寻找目标物体，并标注出来。思路:  1.通过SurfFeatureDetector分别提取出Object图片和Scene图片各自的特征点(Surf特征点)。 2.通过SurfDescriptorExtractor分别计算出Object图片和Scene图片对特征点的描述。 3.采用FlannBase">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p0.qhimg.com/bdm/216_133_0/t0114a1be52877be717.jpg">
+<meta property="article:published_time" content="2017-02-20T12:40:13.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:58.194Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Opencv">
+<meta property="article:tag" content="Surf特征点">
+<meta property="article:tag" content="单映性">
+<meta property="article:tag" content="Flann">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p0.qhimg.com/bdm/216_133_0/t0114a1be52877be717.jpg">
+  
+  
+  <title>Opencv实现Surf特征点和Homography匹配物体 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Opencv实现Surf特征点和Homography匹配物体">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-02-20 20:40" pubdate>
+        2017年2月20日 晚上
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      4.2k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      36 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Opencv实现Surf特征点和Homography匹配物体</h1>
+            
+            <div class="markdown-body">
+              <h2 id="另一篇博客已经初步了解单映性的原理和计算，这篇就借助Opencv库来实战。"><a href="#另一篇博客已经初步了解单映性的原理和计算，这篇就借助Opencv库来实战。" class="headerlink" title="另一篇博客已经初步了解单映性的原理和计算，这篇就借助Opencv库来实战。"></a>另一篇博客已经初步了解单映性的原理和计算，这篇就借助Opencv库来实战。</h2><h3 id="目的-在一张背景图中寻找目标物体，并标注出来。"><a href="#目的-在一张背景图中寻找目标物体，并标注出来。" class="headerlink" title="**目的:**在一张背景图中寻找目标物体，并标注出来。"></a>**目的:**在一张背景图中寻找目标物体，并标注出来。</h3><h3 id="思路"><a href="#思路" class="headerlink" title="思路:"></a><strong>思路:</strong></h3><blockquote>
+<ul>
+<li>1.通过<code>SurfFeatureDetector</code>分别提取出Object图片和Scene图片各自的特征点(Surf特征点)。</li>
+<li>2.通过<code>SurfDescriptorExtractor</code>分别计算出Object图片和Scene图片对特征点的描述。</li>
+<li>3.采用<code>FlannBasedMatcher</code>匹配器将Object和Scene各自的特征点匹配起来。(FLANN - Fast Library for Approximate Nearest Neighbors)</li>
+<li>4.提取出一定条件下的Good_Matches，比如小于（3 * 最小匹配距离）的Matches。</li>
+<li>5.通过<code>findHomography</code>函数来计算出Object的特征点(Good_Matches)和Scene的特征点(Good_Matches)之间的单映性矩阵<strong>H</strong>。</li>
+<li>6.通过<code>perspectiveTransform</code>(对二维或者三维矢量进行透射变换，也就是对输入二维坐标点或者三维坐标点进行投射变换)函数对Object图像的四个交点进行投影映射到Scene图像上,并且用线段标识出来。</li>
+</ul>
+</blockquote>
+<p>源码如下:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/opencv.hpp&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/highgui/highgui.hpp&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/features2d.hpp&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/nonfree/nonfree.hpp&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv2/calib3d/calib3d.hpp&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;<br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	Mat img_object = <span class="hljs-built_in">imread</span>(<span class="hljs-string">&quot;./res/box.png&quot;</span>, CV_LOAD_IMAGE_GRAYSCALE);<br>	Mat img_scene = <span class="hljs-built_in">imread</span>(<span class="hljs-string">&quot;./res/box_in_scene.png&quot;</span>, CV_LOAD_IMAGE_GRAYSCALE);<br><br>	<span class="hljs-type">int</span> minHessian = <span class="hljs-number">400</span>;<br><br>	<span class="hljs-function">SurfFeatureDetector <span class="hljs-title">detector</span><span class="hljs-params">(minHessian)</span></span>;<br>	vector&lt;KeyPoint&gt; kp_object, kp_scene;<br><br>	detector.<span class="hljs-built_in">detect</span>(img_object,kp_object);<br>	detector.<span class="hljs-built_in">detect</span>(img_scene, kp_scene);<br><br>	SurfDescriptorExtractor extractor;<br>	Mat descriptor_object, descriptor_scene;<br>	extractor.<span class="hljs-built_in">compute</span>(img_object, kp_object, descriptor_object);<br>	extractor.<span class="hljs-built_in">compute</span>(img_scene, kp_scene, descriptor_scene);<br><br>	FlannBasedMatcher matcher;<br>	vector&lt;DMatch&gt; matches;<br>	matcher.<span class="hljs-built_in">match</span>(descriptor_object, descriptor_scene, matches);<br><br>	<span class="hljs-type">double</span> min_dist = <span class="hljs-number">100</span>, max_dist = img_object.rows &gt; img_object.cols ? img_object.rows:img_object.cols;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; descriptor_object.rows;i++)<br>	&#123;<br>		<span class="hljs-type">double</span> dist = matches[i].distance;<br>		<span class="hljs-keyword">if</span> (dist &lt; min_dist) min_dist = dist;<br>		<span class="hljs-keyword">if</span> (dist &gt; max_dist) max_dist = dist;<br>	&#125;<br>	<br>	vector&lt;DMatch&gt; good_matchs;<br><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; descriptor_object.rows;i++)<br>	&#123;<br>		<span class="hljs-keyword">if</span> (matches[i].distance &lt; <span class="hljs-number">3</span> * min_dist  )<br>		&#123;<br>			good_matchs.<span class="hljs-built_in">push_back</span>(matches[i]);<br>		&#125;<br>	&#125;<br><br>	Mat img_matches;<br>	<span class="hljs-built_in">drawMatches</span>(img_object, kp_object, img_scene, kp_scene, <br>		good_matchs,img_matches, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">-1</span>), Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">-1</span>), <br>		<span class="hljs-built_in">vector</span>&lt;<span class="hljs-type">char</span>&gt;(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);<br><br>	<span class="hljs-comment">//-- Localize the object</span><br>	vector&lt;Point2f&gt; obj;<br>	vector&lt;Point2f&gt; scene;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; good_matchs.<span class="hljs-built_in">size</span>();i++)<br>	&#123;<br>		obj.<span class="hljs-built_in">push_back</span>(kp_object[good_matchs[i].queryIdx].pt);<br>		scene.<span class="hljs-built_in">push_back</span>(kp_scene[good_matchs[i].trainIdx].pt);<br>	&#125;<br><br>	Mat H = <span class="hljs-built_in">findHomography</span>(obj, scene, CV_RANSAC);<br>	<span class="hljs-function">vector&lt;Point2f&gt; <span class="hljs-title">obj_corners</span><span class="hljs-params">(<span class="hljs-number">4</span>)</span></span>;<br>	obj_corners[<span class="hljs-number">0</span>] = <span class="hljs-built_in">Point</span>(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>);<br>	obj_corners[<span class="hljs-number">1</span>] = <span class="hljs-built_in">Point</span>(img_object.cols, <span class="hljs-number">0</span>);<br>	obj_corners[<span class="hljs-number">2</span>] = <span class="hljs-built_in">Point</span>(img_object.cols, img_object.rows);<br>	obj_corners[<span class="hljs-number">3</span>] = <span class="hljs-built_in">Point</span>(<span class="hljs-number">0</span>, img_object.rows);<br>	<span class="hljs-function">vector&lt;Point2f&gt; <span class="hljs-title">scene_corners</span><span class="hljs-params">(<span class="hljs-number">4</span>)</span></span>;<br>	<span class="hljs-built_in">perspectiveTransform</span>(obj_corners, scene_corners, H);<br>	<br>	<span class="hljs-built_in">line</span>(img_matches, scene_corners[<span class="hljs-number">0</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), scene_corners[<span class="hljs-number">1</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>), <span class="hljs-number">2</span>);<br>	<span class="hljs-built_in">line</span>(img_matches, scene_corners[<span class="hljs-number">1</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), scene_corners[<span class="hljs-number">2</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>), <span class="hljs-number">2</span>);<br>	<span class="hljs-built_in">line</span>(img_matches, scene_corners[<span class="hljs-number">2</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), scene_corners[<span class="hljs-number">3</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>), <span class="hljs-number">2</span>);<br>	<span class="hljs-built_in">line</span>(img_matches, scene_corners[<span class="hljs-number">3</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), scene_corners[<span class="hljs-number">0</span>] + <span class="hljs-built_in">Point2f</span>(img_object.cols, <span class="hljs-number">0</span>), <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>, <span class="hljs-number">255</span>, <span class="hljs-number">0</span>), <span class="hljs-number">2</span>);<br>	<br>	<span class="hljs-built_in">imwrite</span>(<span class="hljs-string">&quot;./res/Img_matches.jpg&quot;</span>, img_matches);<br>	<span class="hljs-built_in">imshow</span>(<span class="hljs-string">&quot;Img_Matches&quot;</span>, img_matches);<br>	<span class="hljs-built_in">waitKey</span>();<br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>效果图:<br> <img src="/2017/02/20/Opencv%E5%AE%9E%E7%8E%B0Surf%E7%89%B9%E5%BE%81%E7%82%B9%E5%92%8CHomography%E5%8C%B9%E9%85%8D%E7%89%A9%E4%BD%93/Img_matches.jpg" srcset="/img/loading.gif" lazyload alt="DetectObject"> </p>
+<p>这里也同时贴出计算出来的H(Homography矩阵)：<br> <img src="/2017/02/20/Opencv%E5%AE%9E%E7%8E%B0Surf%E7%89%B9%E5%BE%81%E7%82%B9%E5%92%8CHomography%E5%8C%B9%E9%85%8D%E7%89%A9%E4%BD%93/Img_H.png" srcset="/img/loading.gif" lazyload alt="DetectObject"> </p>
+<h2 id="贴出Opencv中Homography相关的函数Api及功能"><a href="#贴出Opencv中Homography相关的函数Api及功能" class="headerlink" title="贴出Opencv中Homography相关的函数Api及功能:"></a>贴出Opencv中Homography相关的函数Api及功能:</h2><ul>
+<li>estimateRigidTransform()：计算多个二维点对或者图像之间的最优仿射变换矩阵 （2行x3列），H可以是部分自由度，比如各向一致的切变。</li>
+<li>getAffineTransform()：计算3个二维点对之间的仿射变换矩阵H（2行x3列），自由度为6.</li>
+<li>warpAffine()：对输入图像进行仿射变换</li>
+<li>findHomography： 计算多个二维点对之间的最优单映射变换矩阵 H（3行x3列） ，使用最小均方误差或者RANSAC方法 。</li>
+<li>getPerspectiveTransform()：计算4个二维点对之间的透射变换矩阵 H（3行x3列）</li>
+<li>warpPerspective()： 对输入图像进行透射变换</li>
+<li>perspectiveTransform()：对二维或者三维矢量进行透射变换，也就是对输入二维坐标点或者三维坐标点进行投射变换。</li>
+<li>estimateAffine3D：计算多个三维点对之间的最优三维仿射变换矩阵H （3行x4列）</li>
+<li>transform()：对输入的N维矢量进行变换，可用于进行仿射变换、图像色彩变换.</li>
+<li>findFundamentalMat：计算多个点对之间的基矩阵H</li>
+</ul>
+<blockquote>
+<ul>
+<li>如何计算3个二维点对之间的仿射变换矩阵？<br>使用getAffineTransform()。</li>
+<li>如何计算多个二维点对之间的仿射变换矩阵（使用误差最小准则 ）？<br>使用estimateRigidTransform()或者findHomography。</li>
+<li>如何计算4个二维点对之间的透射变换？<br>使用getPerspectiveTransform()。</li>
+<li>如何计算多个三维点对之间的仿射变换？<br>使用estimateAffine3D。</li>
+<li>如何对输入图像进行仿射变换？<br>使用warpAffine()。</li>
+<li>如何对输入图像进行透射变换？<br>使用perspectiveTransform()。</li>
+<li>如何对输入的二维点对进行仿射变换？<br>使用transform()。</li>
+<li>如何对输入的三维点对进行投射变换？<br>使用perspectiveTransform()。</li>
+</ul>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Opencv/">Opencv</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Surf%E7%89%B9%E5%BE%81%E7%82%B9/">Surf特征点</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%8D%95%E6%98%A0%E6%80%A7/">单映性</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Flann/">Flann</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/02/21/Opencv%E5%9B%BE%E5%83%8F%E5%A2%9E%E5%BC%BA%E7%AE%97%E6%B3%95%E5%AE%9E%E6%B3%95/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv图像增强算法实现(直方图均衡化、Laplace、Log、Gamma)</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/02/20/%E5%8D%95%E6%98%A0%E6%80%A7%E5%8F%98%E6%8D%A2/">
+                        <span class="hidden-mobile">单映性变换</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

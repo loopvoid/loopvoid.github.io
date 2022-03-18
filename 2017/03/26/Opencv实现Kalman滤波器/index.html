@@ -1,0 +1,564 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="背景卡尔曼滤波是一种高效率的递归滤波器(自回归滤波器), 它能够从一系列的不完全及包含噪声的测量中，估计动态系统的状态。卡尔曼滤波的一个典型实例是从一组有限的，包含噪声的，对物体位置的观察序列（可能有偏差）预测出物体的位置的坐标及速度。这种滤波方法以它的发明者鲁道夫.E.卡尔曼（Rudolph E. Kalman）命名，但是根据文献可知实际上Peter Swerling在更早之前就提出了一种类似的">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Opencv实现Kalman滤波器">
+<meta property="og:url" content="http://blog.home.io/2017/03/26/Opencv%E5%AE%9E%E7%8E%B0Kalman%E6%BB%A4%E6%B3%A2%E5%99%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="背景卡尔曼滤波是一种高效率的递归滤波器(自回归滤波器), 它能够从一系列的不完全及包含噪声的测量中，估计动态系统的状态。卡尔曼滤波的一个典型实例是从一组有限的，包含噪声的，对物体位置的观察序列（可能有偏差）预测出物体的位置的坐标及速度。这种滤波方法以它的发明者鲁道夫.E.卡尔曼（Rudolph E. Kalman）命名，但是根据文献可知实际上Peter Swerling在更早之前就提出了一种类似的">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p9.qhimg.com/bdm/216_133_0/t01cb4bcb769b6ac146.jpg">
+<meta property="article:published_time" content="2017-03-26T02:26:33.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:09:04.119Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="Opencv">
+<meta property="article:tag" content="Kalman">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p9.qhimg.com/bdm/216_133_0/t01cb4bcb769b6ac146.jpg">
+  
+  
+  <title>Opencv实现Kalman滤波器 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="Opencv实现Kalman滤波器">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-03-26 10:26" pubdate>
+        2017年3月26日 上午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      13k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      108 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Opencv实现Kalman滤波器</h1>
+            
+            <div class="markdown-body">
+              <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>卡尔曼滤波是一种高效率的<strong>递归滤波器(自回归滤波器)</strong>, 它能够从一系列的不完全及包含噪声的测量中，估计动态系统的状态。卡尔曼滤波的一个典型实例是从一组有限的，包含噪声的，对物体位置的观察序列（可能有偏差）预测出物体的位置的坐标及速度。<br>这种滤波方法以它的发明者<strong>鲁道夫.E.卡尔曼（Rudolph E. Kalman）</strong>命名，但是根据文献可知实际上<strong>Peter Swerling</strong>在更早之前就提出了一种类似的算法。<br><strong>斯坦利.施密特(Stanley Schmidt)<strong>首次实现了卡尔曼滤波器。卡尔曼在</strong>NASA埃姆斯研究中心</strong>访问时，发现他的方法对于解决阿波罗计划的轨道预测很有用，后来阿波罗飞船的导航电脑便使用了这种滤波器。 关于这种滤波器的论文由<strong>Swerling (1958)、Kalman (1960)与 Kalman and Bucy (1961)<strong>发表。<br>目前,卡尔曼滤波已经有很多不同的实现.卡尔曼最初提出的形式现在一般称为简单卡尔曼滤波器。除此以外，还有施密特扩展滤波器、信息滤波器以及很多</strong>Bierman</strong>, <strong>Thornton</strong> 开发的<strong>平方根滤波器</strong>的变种。也许最常见的卡尔曼滤波器是<strong>锁相环</strong>，它在收音机、计算机和几乎任何视频或通讯设备中广泛存在。</p>
+<h1 id="模型"><a href="#模型" class="headerlink" title="模型"></a>模型</h1><h2 id="基本动态系统模型"><a href="#基本动态系统模型" class="headerlink" title="基本动态系统模型"></a>基本动态系统模型</h2><p>卡尔曼滤波建立在<strong>线性代数</strong>和<strong>隐马尔可夫模型</strong>(hidden Markov model)上。其基本动态系统可以用一个<strong>马尔可夫链</strong>表示，该马尔可夫链建立在一个被<strong>高斯噪声(即正态分布的噪声)<strong>干扰的线性算子上的。系统的状态可以用一个元素为实数的</strong>向量</strong>表示。 随着离散时间的每一个增加,这个线性算子就会作用在当前状态上，产生一个新的状态,并也会带入一些噪声,同时系统的一些已知的控制器的控制信息也会被加入。同时，另一个受<strong>噪声干扰</strong>的<strong>线性算子</strong>产生出这些<strong>隐含状态</strong>的可见输出。<br>模型图：<br><img src="/2017/03/26/Opencv%E5%AE%9E%E7%8E%B0Kalman%E6%BB%A4%E6%B3%A2%E5%99%A8/KalmanModelImg.png" srcset="/img/loading.gif" lazyload alt="KalmanModelImg"><br>为了从一系列有噪声的观察数据中用卡尔曼滤波器估计出被观察过程的内部状态，我们必须把这个过程在<strong>卡尔曼滤波</strong>的框架下建立模型。也就是说对于每一步<strong>k</strong>，定义矩阵。<br>例如：<strong>KalmanFilter KF(stateNum, measureNum, 0);</strong></p>
+<p><strong>Fk : KF.transitionMatrix ，Hk : KF.measurementMatrix</strong><br><strong>Qk : KF.processNoiseCov ， Rk  : KF.measurementNoiseCov</strong><br><strong>Pk : KF.errorCovPost ， Bk : KF.ontrolMatrix</strong></p>
+<p>尔曼滤波模型假设k时刻的真实状态是从**(k − 1)**时刻的状态演化而来，符合下式<br>$$ X_k &#x3D; F_k * X_{k-1} + B_k * u_k + w_k $$</p>
+<p>$F_k$是作用在$X_{k−1}$上的状态变换模型（矩阵，矢量）<br>$B_k$是作用在控制器向量uk上的输入–控制模型（矩阵,矢量）<br>$w_k$是过程噪声，并假定其符合均值为零，<strong>协方差矩阵</strong>为$Q_k$的<strong>多元正态分布</strong>。</p>
+<p>$$ w_{k} - N(0,Q_k) $$<br>时刻<strong>k</strong>，对真实状态 $X_k$的一个测量$Z_k$满足下式<br>$$ Z_k &#x3D; H_k * X_k + v_k $$<br>其中<strong>Hk</strong> 是<strong>观测模型</strong>,它把<strong>真实状态空间</strong>映射成<strong>观测空间</strong>，<strong>vk</strong>  是<strong>观测噪声</strong>，其均值为零，<strong>协方差矩阵</strong>为<strong>Rk</strong>,且服从<strong>正态分布</strong>。</p>
+<p>$$ w_k - N(0,Q_k) $$<br>初始状态以及每一时刻的噪声${x_0, w_1, …, w_k, v_1 …v_k}$都认为是互相独立的.</p>
+<h2 id="卡尔曼滤波器"><a href="#卡尔曼滤波器" class="headerlink" title="卡尔曼滤波器"></a>卡尔曼滤波器</h2><p>卡尔曼滤波是一种<strong>递归</strong>的估计，即只要获知<strong>上一时刻状态</strong>的<strong>估计值</strong>以及<strong>当前状态</strong>的<strong>观测值</strong>就可以计算出<strong>当前状态的估计值</strong>，因此不需要记录观测或者估计的历史信息。卡尔曼滤波器与大多数滤波器不同之处，在于它是一种纯粹的<strong>时域滤波器</strong>，它不需要像低通滤波器等频域滤波器那样，需要在频域设计再转换到时域实现。<br>卡尔曼滤波器的状态由以下两个变量表示：<br>$X_k|k$：在时刻k 的状态的估计<br>$P_k|k$：误差相关矩阵，度量估计值的精确程度。</p>
+<p>卡尔曼滤波器的操作包括两个阶段：<strong>预测</strong>与<strong>更新</strong>。<br>在预测阶段，滤波器使用上一状态的估计，做出对当前状态的估计。<br>在更新阶段，滤波器利用对当前状态的观测值优化在预测阶段获得的预测值，以获得一个更精确的新估计值。<br><strong>预测 predict：</strong><br><strong>Mat prediction &#x3D; KF.predict();</strong></p>
+<p>$\hat{X}<em>{k|k-1} &#x3D; F_k\hat{X}</em>{k-1|k-1}+B_ku_k$(预测状态)<br>$P_{k|k-1} &#x3D; F_kP_{k-1|k-1}F_k^T+B_ku_k $(预测估计协方差矩阵)<br>可参考：<a target="_blank" rel="noopener" href="http://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf">http://www.cs.unc.edu/~welch&#x2F;media&#x2F;pdf&#x2F;kalman_intro.pdf</a></p>
+<p><strong>更新 updata：</strong><br><strong>KF.correct(measurement);</strong><br><strong>测量余量，measurement residual：</strong><br>$$Y_{k} &#x3D; z_{k}-H_{k}\hat{x}<em>{k|k-1}$$<br><strong>测量余量协方差:</strong><br>$$S</em>{k} &#x3D; H_{k}P_{k-1|k-1}H_{k}^{T}+R_{k}$$<br><strong>最优卡尔曼增益:</strong><br>$$K_{k} &#x3D; P_{k|k-1}H_{k}^{T}+S_{k}^{-1}$$<br><strong>更新的状态估计:</strong><br>$$\hat{X}<em>{k|k} &#x3D; \hat{X}</em>{k|k-1}+K_{k}Y_{k}$$<br><strong>更新的协方差估计:</strong><br>$$P_{k|k} &#x3D; (I-K_{k}H_{k})P_{k|k-1}$$</p>
+<p>使用上述公式计算$P_k|k$仅在最优卡尔曼增益的时候有效。使用其他增益的话，公式要复杂一些，请参见推导。</p>
+<h2 id="不变量-Invariant"><a href="#不变量-Invariant" class="headerlink" title="不变量(Invariant)"></a>不变量(Invariant)</h2><p>如果模型准确，而且$X_0|0$与$P_0|0$的值准确的反映了最初状态的分布，那么以下不变量就保持不变：所有估计的误差均值为零<br>$$E[X_{k}-\hat{x}<em>{k|k}] &#x3D;  E[X</em>{k}-\hat{x}<em>{k|k-1}]$$<br>$$E[Y</em>{k}] &#x3D; 0$$<br>且 <strong>协方差矩阵</strong> 准确的反映了估计的协方差:<br>$$P_{k|k} &#x3D; cov(X_{k}-\hat{X}<em>{k|k})$$<br>$$P</em>{k|k-1} &#x3D; cov(X_{k}-\hat{X}<em>{k|k-1})$$<br>$$S</em>{k} &#x3D; cov(Y_{k})$$</p>
+<p>其中，<strong>E[a]<strong>表示a的期望值,</strong>$$cov(a)&#x3D;E[aa^T]$$</strong></p>
+<h1 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h1><h2 id="class-Kalman"><a href="#class-Kalman" class="headerlink" title="class Kalman"></a>class Kalman</h2><figure class="highlight cpp"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></div></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">CV_EXPORTS_W</span> KalmanFilter  <br>&#123;  <br><span class="hljs-keyword">public</span>:  <br>    <span class="hljs-comment">//! the default constructor  </span><br>    <span class="hljs-function">CV_WRAP <span class="hljs-title">KalmanFilter</span><span class="hljs-params">()</span></span>;  <br>    <span class="hljs-comment">//! the full constructor taking the dimensionality of the state, of the measurement and of the control vector  </span><br>    <span class="hljs-function">CV_WRAP <span class="hljs-title">KalmanFilter</span><span class="hljs-params">(<span class="hljs-type">int</span> dynamParams, <span class="hljs-type">int</span> measureParams, <span class="hljs-type">int</span> controlParams=<span class="hljs-number">0</span>, <span class="hljs-type">int</span> type=CV_32F)</span></span>;  <br>    <span class="hljs-comment">//! re-initializes Kalman filter. The previous content is destroyed.  </span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">init</span><span class="hljs-params">(<span class="hljs-type">int</span> dynamParams, <span class="hljs-type">int</span> measureParams, <span class="hljs-type">int</span> controlParams=<span class="hljs-number">0</span>, <span class="hljs-type">int</span> type=CV_32F)</span></span>;  <br>  <br>    <span class="hljs-comment">//! computes predicted state  </span><br>    <span class="hljs-function">CV_WRAP <span class="hljs-type">const</span> Mat&amp; <span class="hljs-title">predict</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat&amp; control=Mat())</span></span>;  <br>    <span class="hljs-comment">//! updates the predicted state from the measurement  </span><br>    <span class="hljs-function">CV_WRAP <span class="hljs-type">const</span> Mat&amp; <span class="hljs-title">correct</span><span class="hljs-params">(<span class="hljs-type">const</span> Mat&amp; measurement)</span></span>;  <br>  <br>    Mat statePre;           <span class="hljs-comment">//!&lt; predicted state (x&#x27;(k)): x(k)=A*x(k-1)+B*u(k)  </span><br>    Mat statePost;          <span class="hljs-comment">//!&lt; corrected state (x(k)): x(k)=x&#x27;(k)+K(k)*(z(k)-H*x&#x27;(k))  </span><br>    Mat transitionMatrix;   <span class="hljs-comment">//!&lt; state transition matrix (A)  </span><br>    Mat controlMatrix;      <span class="hljs-comment">//!&lt; control matrix (B) (not used if there is no control)  </span><br>    Mat measurementMatrix;  <span class="hljs-comment">//!&lt; measurement matrix (H)  </span><br>    Mat processNoiseCov;    <span class="hljs-comment">//!&lt; process noise covariance matrix (Q)  </span><br>    Mat measurementNoiseCov;<span class="hljs-comment">//!&lt; measurement noise covariance matrix (R)  </span><br>    Mat errorCovPre;        <span class="hljs-comment">//!&lt; priori error estimate covariance matrix (P&#x27;(k)): P&#x27;(k)=A*P(k-1)*At + Q)*/  </span><br>    Mat gain;               <span class="hljs-comment">//!&lt; Kalman gain matrix (K(k)): K(k)=P&#x27;(k)*Ht*inv(H*P&#x27;(k)*Ht+R)  </span><br>    Mat errorCovPost;       <span class="hljs-comment">//!&lt; posteriori error estimate covariance matrix (P(k)): P(k)=(I-K(k)*H)*P&#x27;(k)  </span><br>      <br>    <span class="hljs-comment">// temporary matrices  </span><br>    Mat temp1;  <br>    Mat temp2;  <br>    Mat temp3;  <br>    Mat temp4;  <br>    Mat temp5;  <br>&#125;;  <br></code></pre></td></tr></table></figure>
+<h2 id="sample-kalman-cpp"><a href="#sample-kalman-cpp" class="headerlink" title="sample\kalman.cpp"></a>sample\kalman.cpp</h2><p>1个1维点的运动跟踪，虽然这个点是在2维平面中运动，但由于它是在一个圆弧上运动，只有一个自由度，角度，所以还是1维的。还是一个匀速运动，建立匀速运动模型，设定状态变量x &#x3D; [ x1, x2 ] &#x3D; [ 角度，角速度 ]</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opencv2/video/tracking.hpp&quot;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;opencv2/highgui/highgui.hpp&quot;</span>  </span><br>  <br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br>  <br><span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-keyword">inline</span> Point <span class="hljs-title">calcPoint</span><span class="hljs-params">(Point2f center, <span class="hljs-type">double</span> R, <span class="hljs-type">double</span> angle)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-keyword">return</span> center + <span class="hljs-built_in">Point2f</span>((<span class="hljs-type">float</span>)<span class="hljs-built_in">cos</span>(angle), (<span class="hljs-type">float</span>)-<span class="hljs-built_in">sin</span>(angle))*(<span class="hljs-type">float</span>)R;  <br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">help</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-built_in">printf</span>( <span class="hljs-string">&quot;   Tracking of rotating point.\n&quot;</span>  <br><span class="hljs-string">&quot;   Rotation speed is constant.\n&quot;</span>  <br><span class="hljs-string">&quot;   Both state and measurements vectors are 1D (a point angle),\n&quot;</span>  <br><span class="hljs-string">&quot;   Measurement is the real point angle + gaussian noise.\n&quot;</span>  <br><span class="hljs-string">&quot;   The real and the estimated points are connected with yellow line segment,\n&quot;</span>  <br><span class="hljs-string">&quot;   the real and the measured points are connected with red line segment.\n&quot;</span>  <br><span class="hljs-string">&quot;   (if Kalman filter works correctly,\n&quot;</span>  <br><span class="hljs-string">&quot;    the yellow segment should be shorter than the red one).\n&quot;</span>  <br>            <span class="hljs-string">&quot;\n&quot;</span>  <br><span class="hljs-string">&quot;   Pressing any key (except ESC) will reset the tracking with a different speed.\n&quot;</span>  <br><span class="hljs-string">&quot;   Pressing ESC will stop the program.\n&quot;</span>  <br>            );  <br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span>, <span class="hljs-type">char</span>**)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-built_in">help</span>();  <br>    <span class="hljs-function">Mat <span class="hljs-title">img</span><span class="hljs-params">(<span class="hljs-number">500</span>, <span class="hljs-number">500</span>, CV_8UC3)</span></span>;  <br>    <span class="hljs-function">KalmanFilter <span class="hljs-title">KF</span><span class="hljs-params">(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>)</span></span>;  <br>    <span class="hljs-function">Mat <span class="hljs-title">state</span><span class="hljs-params">(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, CV_32F)</span></span>; <span class="hljs-comment">/* (phi, delta_phi) */</span>  <br>    <span class="hljs-function">Mat <span class="hljs-title">processNoise</span><span class="hljs-params">(<span class="hljs-number">2</span>, <span class="hljs-number">1</span>, CV_32F)</span></span>;  <br>    Mat measurement = Mat::<span class="hljs-built_in">zeros</span>(<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, CV_32F);  <br>    <span class="hljs-type">char</span> code = (<span class="hljs-type">char</span>)<span class="hljs-number">-1</span>;  <br>  <br>    <span class="hljs-keyword">for</span>(;;)  <br>    &#123;  <br>        <span class="hljs-built_in">randn</span>( state, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0.1</span>) );<span class="hljs-comment">//随机生成一个矩阵，期望是0，标准差为0.1;  </span><br>        KF.transitionMatrix = *(<span class="hljs-built_in">Mat_</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">2</span>, <span class="hljs-number">2</span>) &lt;&lt; <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>);<span class="hljs-comment">//元素导入矩阵，按行;  </span><br>  <br>        <span class="hljs-comment">//setIdentity: 缩放的单位对角矩阵;  </span><br>        <span class="hljs-comment">//!&lt; measurement matrix (H) 观测模型  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.measurementMatrix);  <br>        <span class="hljs-comment">//!&lt; process noise covariance matrix (Q)  </span><br>        <span class="hljs-comment">// wk 是过程噪声，并假定其符合均值为零，协方差矩阵为Qk(Q)的多元正态分布;  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.processNoiseCov, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">1e-5</span>));  <br>        <span class="hljs-comment">//!&lt; measurement noise covariance matrix (R)  </span><br>        <span class="hljs-comment">//vk 是观测噪声，其均值为零，协方差矩阵为Rk,且服从正态分布;  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.measurementNoiseCov, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">1e-1</span>));  <br>        <span class="hljs-comment">//!&lt; priori error estimate covariance matrix (P&#x27;(k)): P&#x27;(k)=A*P(k-1)*At + Q)*/  A代表F: transitionMatrix  </span><br>        <span class="hljs-comment">//预测估计协方差矩阵;  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.errorCovPost, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">1</span>));  <br>        <span class="hljs-comment">//!&lt; corrected state (x(k)): x(k)=x&#x27;(k)+K(k)*(z(k)-H*x&#x27;(k))  </span><br>        <span class="hljs-built_in">randn</span>(KF.statePost, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0.1</span>));  <br>  <br>        <span class="hljs-keyword">for</span>(;;)  <br>        &#123;  <br>            <span class="hljs-function">Point2f <span class="hljs-title">center</span><span class="hljs-params">(img.cols*<span class="hljs-number">0.5f</span>, img.rows*<span class="hljs-number">0.5f</span>)</span></span>;  <br>            <span class="hljs-type">float</span> R = img.cols/<span class="hljs-number">3.f</span>;  <br>            <span class="hljs-type">double</span> stateAngle = state.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>);  <br>            Point statePt = <span class="hljs-built_in">calcPoint</span>(center, R, stateAngle);  <br>  <br>            Mat prediction = KF.<span class="hljs-built_in">predict</span>();  <br>            <span class="hljs-type">double</span> predictAngle = prediction.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>);  <br>            Point predictPt = <span class="hljs-built_in">calcPoint</span>(center, R, predictAngle);  <br>  <br>            <span class="hljs-built_in">randn</span>( measurement, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(KF.measurementNoiseCov.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>)));  <br>  <br>            <span class="hljs-comment">// generate measurement  </span><br>            measurement += KF.measurementMatrix*state;  <br>  <br>            <span class="hljs-type">double</span> measAngle = measurement.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>);  <br>            Point measPt = <span class="hljs-built_in">calcPoint</span>(center, R, measAngle);  <br>  <br>            <span class="hljs-comment">// plot points  </span><br>            <span class="hljs-meta">#<span class="hljs-keyword">define</span> drawCross( center, color, d )                                 \  </span><br>                <span class="hljs-built_in">line</span>( img, <span class="hljs-built_in">Point</span>( center.x - d, center.y - d ),                \  <br>                             <span class="hljs-built_in">Point</span>( center.x + d, center.y + d ), color, <span class="hljs-number">1</span>, CV_AA, <span class="hljs-number">0</span>); \  <br>                <span class="hljs-built_in">line</span>( img, <span class="hljs-built_in">Point</span>( center.x + d, center.y - d ),                \  <br>                             <span class="hljs-built_in">Point</span>( center.x - d, center.y + d ), color, <span class="hljs-number">1</span>, CV_AA, <span class="hljs-number">0</span> )  <br>  <br>            img = Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>);  <br>            <span class="hljs-built_in">drawCross</span>( statePt, <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">255</span>,<span class="hljs-number">255</span>,<span class="hljs-number">255</span>), <span class="hljs-number">3</span> );  <br>            <span class="hljs-built_in">drawCross</span>( measPt, <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">255</span>), <span class="hljs-number">3</span> );  <br>            <span class="hljs-built_in">drawCross</span>( predictPt, <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>,<span class="hljs-number">255</span>,<span class="hljs-number">0</span>), <span class="hljs-number">3</span> );  <br>            <span class="hljs-comment">//line( img, statePt, measPt, Scalar(0,0,255), 3, CV_AA, 0 );  </span><br>            <span class="hljs-comment">//line( img, statePt, predictPt, Scalar(0,255,255), 3, CV_AA, 0 );  </span><br>  <br>            KF.<span class="hljs-built_in">correct</span>(measurement);  <br>  <br>            <span class="hljs-built_in">randn</span>( processNoise, <span class="hljs-built_in">Scalar</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-built_in">sqrt</span>(KF.processNoiseCov.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>, <span class="hljs-number">0</span>))));  <br>            state = KF.transitionMatrix*state + processNoise;  <br>  <br>            <span class="hljs-built_in">imshow</span>( <span class="hljs-string">&quot;Kalman&quot;</span>, img );  <br>            code = (<span class="hljs-type">char</span>)<span class="hljs-built_in">waitKey</span>(<span class="hljs-number">100</span>);  <br>  <br>            <span class="hljs-keyword">if</span>( code &gt; <span class="hljs-number">0</span> )  <br>                <span class="hljs-keyword">break</span>;  <br>        &#125;  <br>        <span class="hljs-keyword">if</span>( code == <span class="hljs-number">27</span> || code == <span class="hljs-string">&#x27;q&#x27;</span> || code == <span class="hljs-string">&#x27;Q&#x27;</span> )  <br>            <span class="hljs-keyword">break</span>;  <br>    &#125;  <br>  <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+<p><img src="/2017/03/26/Opencv%E5%AE%9E%E7%8E%B0Kalman%E6%BB%A4%E6%B3%A2%E5%99%A8/out1.JPG" srcset="/img/loading.gif" lazyload alt="output1"></p>
+<h1 id="鼠标跟踪（详解）"><a href="#鼠标跟踪（详解）" class="headerlink" title="鼠标跟踪（详解）"></a>鼠标跟踪（详解）</h1><h2 id="初始化状态"><a href="#初始化状态" class="headerlink" title="初始化状态"></a>初始化状态</h2><p><code>const int stateNum=4;</code>&#x2F;&#x2F;状态数，包括（x，y，dx，dy）坐标及速度（每次移动的距离）<br><code>const int measureNum=2;</code>&#x2F;&#x2F;观测量，能看到的是坐标值，当然也可以自己计算速度，但没必要<br>转移矩阵或者说增益矩阵的值好像有点莫名其妙</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">float</span> A[stateNum][stateNum] =&#123;<span class="hljs-comment">//transition matrix  </span><br>        <span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>  <br>    &#125;;  <br></code></pre></td></tr></table></figure>
+<p>即是矩阵:<br>$$<br>\begin{bmatrix}<br>x’\<br>y’\<br>dx’\<br>dy’<br>\end{bmatrix}<br>&#x3D;<br>\begin{bmatrix}<br>1 &amp; 0 &amp; 1 &amp; 0\<br>0 &amp; 1 &amp; 0 &amp; 1\<br>0 &amp; 0 &amp; 1 &amp; 0\<br>0 &amp; 0 &amp; 1 &amp; 1\<br>\end{bmatrix}<br>\begin{bmatrix}<br>x\<br>y\<br>dx\<br>dy<br>\end{bmatrix}<br>$$</p>
+<p>$X_1&#x3D;X+dx$，依次类推<br>所以这个矩阵还是很容易却确定的，可以根据自己的实际情况定制转移矩阵<br>同样的方法，三维坐标的转移矩阵可以如下</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">float</span> A[stateNum][stateNum] =&#123;<span class="hljs-comment">//transition matrix  </span><br>        <span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,  <br>        <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>  <br>    &#125;;  <br></code></pre></td></tr></table></figure>
+<p>当然并不一定得是1和0</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">KalmanFilter <span class="hljs-title">KF</span><span class="hljs-params">(stateNum, measureNum, <span class="hljs-number">0</span>)</span></span>;<br><span class="hljs-comment">//KalmanFilter::KalmanFilter(intdynamParams, intmeasureParams, int controlParams=0, inttype=CV_32F)</span><br>Parameters: <br>    * dynamParams – Dimensionality of the state.<br>    * measureParams – Dimensionality of the measurement.<br>    * controlParams – Dimensionality of the control vector.<br>    * type – Type of the created matrices that should beCV_32F orCV_64F.<br> <br><span class="hljs-function">Mat <span class="hljs-title">state</span> <span class="hljs-params">(stateNum, <span class="hljs-number">1</span>, CV_32FC1)</span></span>;         <span class="hljs-comment">//  state(x,y,detaX,detaY)</span><br><span class="hljs-function">Mat <span class="hljs-title">processNoise</span><span class="hljs-params">(stateNum, <span class="hljs-number">1</span>, CV_32F)</span></span>; <span class="hljs-comment">//  processNoise(x,y,detaX,detaY)</span><br>Mat measurement = Mat::<span class="hljs-built_in">zeros</span>(measureNum, <span class="hljs-number">1</span>, CV_32F); <span class="hljs-comment">//measurement(x,y)</span><br></code></pre></td></tr></table></figure>
+
+<p>需定义的参数矩阵：<br><code>Fk : KF.transitionMatrix</code><br><code>KF.transitionMatrix = *(Mat_&lt;float&gt;(2, 2) &lt;&lt; 1, 0, 1, 0......);   </code><br><code>Hk : KF.measurementMatrix</code><br><code>setIdentity(KF.measurementMatrix); </code><br><code>Qk : KF.processNoiseCov</code><br><code>setIdentity(KF.processNoiseCov, Scalar::all(1e-5));   </code><br><code>Rk  : KF.measurementNoiseCov </code><br><code>setIdentity(KF.measurementNoiseCov, Scalar::all(1e-1));   </code><br><code>Pk : KF.errorCovPost </code><br><code>setIdentity(KF.errorCovPost, Scalar::all(1));   </code><br>注意：其中: KF.transitionMatrix  ：<br>​                                         (1,0,1,0,<br>​                                          0,1,0,1,<br>​                                          0,0,1,0,<br>​                                          0,0,0,1 );</p>
+<h2 id="预测predict，读出预测的位置"><a href="#预测predict，读出预测的位置" class="headerlink" title="预测predict，读出预测的位置"></a>预测predict，读出预测的位置</h2><h2 id="更新updata"><a href="#更新updata" class="headerlink" title="更新updata"></a>更新updata</h2><h3 id="更新观测矩阵：updata-x2F-generate-measurement"><a href="#更新观测矩阵：updata-x2F-generate-measurement" class="headerlink" title="更新观测矩阵：updata&#x2F;generate measurement"></a>更新观测矩阵：updata&#x2F;generate measurement</h3><ul>
+<li>对于鼠标跟踪：直接使用鼠标的实际位置更新，真实位置即为观测位置</li>
+<li>对于自动更新：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">randn</span>( measurement, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(KF.measurementNoiseCov.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>)));  <br>  <br><span class="hljs-comment">// generate measurement  </span><br>measurement += KF.measurementMatrix*state; <br></code></pre></td></tr></table></figure></li>
+</ul>
+<h3 id="更新KF：KF-correct-measurement"><a href="#更新KF：KF-correct-measurement" class="headerlink" title="更新KF：KF.correct(measurement);"></a>更新KF：KF.correct(measurement);</h3><p>分别显示前一状态的位置：Point statePt &#x3D; Point( (int)KF.statePost.at<float>(0), (int)KF.statePost.at<float>(1));;<br>预测位置：Point predictPt &#x3D; Point( (int)prediction.at<float>(0), (int)prediction.at<float>(1));<br>观测位置(真实位置)：mousePosition（由setMouseCallback(“Kalman”, mouseEvent);得到，递归方式通过measurement计算得到）</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv/cv.h&gt;</span>  </span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;opencv/highgui.h&gt;</span>  </span><br>  <br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>  </span><br>  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> cv;  <br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;  <br>  <br><span class="hljs-type">const</span> <span class="hljs-type">int</span> winWidth = <span class="hljs-number">800</span>;  <br><span class="hljs-type">const</span> <span class="hljs-type">int</span> winHeight = <span class="hljs-number">600</span>;  <br>  <br>Point mousePosition = <span class="hljs-built_in">Point</span>(winWidth&gt;&gt;<span class="hljs-number">1</span>, winHeight&gt;&gt;<span class="hljs-number">1</span>);  <br>  <br><span class="hljs-comment">//mouse call back  </span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">mouseEvent</span><span class="hljs-params">(<span class="hljs-type">int</span> event, <span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y, <span class="hljs-type">int</span> flags, <span class="hljs-type">void</span> *param)</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-keyword">if</span>(event==CV_EVENT_MOUSEMOVE)  <br>    &#123;  <br>        mousePosition=<span class="hljs-built_in">Point</span>(x,y);  <br>    &#125;  <br>&#125;  <br>  <br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"></span>&#123;  <br>    <span class="hljs-comment">//1.kalman filter setup     </span><br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> stateNum=<span class="hljs-number">4</span>;    <br>    <span class="hljs-type">const</span> <span class="hljs-type">int</span> measureNum=<span class="hljs-number">2</span>;    <br>  <br>    <span class="hljs-function">KalmanFilter <span class="hljs-title">KF</span><span class="hljs-params">(stateNum, measureNum, <span class="hljs-number">0</span>)</span></span>;  <br>    <span class="hljs-function">Mat <span class="hljs-title">state</span> <span class="hljs-params">(stateNum, <span class="hljs-number">1</span>, CV_32FC1)</span></span>; <span class="hljs-comment">//state(x,y,detaX,detaY)  </span><br>    <span class="hljs-function">Mat <span class="hljs-title">processNoise</span><span class="hljs-params">(stateNum, <span class="hljs-number">1</span>, CV_32F)</span></span>;  <br>    Mat measurement = Mat::<span class="hljs-built_in">zeros</span>(measureNum, <span class="hljs-number">1</span>, CV_32F);    <span class="hljs-comment">//measurement(x,y)  </span><br>  <br>  <br>        <span class="hljs-built_in">randn</span>( state, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0.1</span>) ); <span class="hljs-comment">//随机生成一个矩阵，期望是0，标准差为0.1;  </span><br>        KF.transitionMatrix = *(<span class="hljs-built_in">Mat_</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">4</span>, <span class="hljs-number">4</span>) &lt;&lt;   <br>            <span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,   <br>            <span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,   <br>            <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-number">0</span>,   <br>            <span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">1</span> );<span class="hljs-comment">//元素导入矩阵，按行;  </span><br>  <br>        <span class="hljs-comment">//setIdentity: 缩放的单位对角矩阵;  </span><br>        <span class="hljs-comment">//!&lt; measurement matrix (H) 观测模型  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.measurementMatrix);  <br>  <br>        <span class="hljs-comment">//!&lt; process noise covariance matrix (Q)  </span><br>        <span class="hljs-comment">// wk 是过程噪声，并假定其符合均值为零，协方差矩阵为Qk(Q)的多元正态分布;  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.processNoiseCov, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">1e-5</span>));  <br>          <br>        <span class="hljs-comment">//!&lt; measurement noise covariance matrix (R)  </span><br>        <span class="hljs-comment">//vk 是观测噪声，其均值为零，协方差矩阵为Rk,且服从正态分布;  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.measurementNoiseCov, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">1e-1</span>));  <br>          <br>        <span class="hljs-comment">//!&lt; priori error estimate covariance matrix (P&#x27;(k)): P&#x27;(k)=A*P(k-1)*At + Q)*/  A代表F: transitionMatrix  </span><br>        <span class="hljs-comment">//预测估计协方差矩阵;  </span><br>        <span class="hljs-built_in">setIdentity</span>(KF.errorCovPost, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">1</span>));  <br>          <br>  <br>        <span class="hljs-comment">//!&lt; corrected state (x(k)): x(k)=x&#x27;(k)+K(k)*(z(k)-H*x&#x27;(k))  </span><br>        <span class="hljs-comment">//initialize post state of kalman filter at random   </span><br>        <span class="hljs-built_in">randn</span>(KF.statePost, Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0</span>), Scalar::<span class="hljs-built_in">all</span>(<span class="hljs-number">0.1</span>));  <br>        <span class="hljs-function">Mat <span class="hljs-title">showImg</span><span class="hljs-params">(winWidth, winHeight,CV_8UC3)</span></span>;  <br>  <br>        <span class="hljs-keyword">for</span>(;;)  <br>        &#123;  <br>            <span class="hljs-built_in">setMouseCallback</span>(<span class="hljs-string">&quot;Kalman&quot;</span>, mouseEvent);  <br>            showImg.<span class="hljs-built_in">setTo</span>(<span class="hljs-number">0</span>);  <br>  <br>            Point statePt = <span class="hljs-built_in">Point</span>( (<span class="hljs-type">int</span>)KF.statePost.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>), (<span class="hljs-type">int</span>)KF.statePost.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">1</span>));  <br>  <br>            <span class="hljs-comment">//2.kalman prediction     </span><br>            Mat prediction = KF.<span class="hljs-built_in">predict</span>();  <br>            Point predictPt = <span class="hljs-built_in">Point</span>( (<span class="hljs-type">int</span>)prediction.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>), (<span class="hljs-type">int</span>)prediction.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">1</span>));  <br>  <br>            <span class="hljs-comment">//3.update measurement  </span><br>            measurement.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">0</span>)= (<span class="hljs-type">float</span>)mousePosition.x;  <br>            measurement.<span class="hljs-built_in">at</span>&lt;<span class="hljs-type">float</span>&gt;(<span class="hljs-number">1</span>) = (<span class="hljs-type">float</span>)mousePosition.y;  <br>  <br>            <span class="hljs-comment">//4.update  </span><br>            KF.<span class="hljs-built_in">correct</span>(measurement);  <br>  <br>            <span class="hljs-comment">//randn( processNoise, Scalar(0), Scalar::all(sqrt(KF.processNoiseCov.at&lt;float&gt;(0, 0))));  </span><br>            <span class="hljs-comment">//state = KF.transitionMatrix*state + processNoise;  </span><br>            <span class="hljs-comment">//draw  </span><br>            <span class="hljs-built_in">circle</span>(showImg, statePt, <span class="hljs-number">5</span>, <span class="hljs-built_in">CV_RGB</span>(<span class="hljs-number">255</span>,<span class="hljs-number">0</span>,<span class="hljs-number">0</span>),<span class="hljs-number">1</span>);<span class="hljs-comment">//former point  </span><br>            <span class="hljs-built_in">circle</span>(showImg, predictPt, <span class="hljs-number">5</span>, <span class="hljs-built_in">CV_RGB</span>(<span class="hljs-number">0</span>,<span class="hljs-number">255</span>,<span class="hljs-number">0</span>),<span class="hljs-number">1</span>);<span class="hljs-comment">//predict point  </span><br>            <span class="hljs-built_in">circle</span>(showImg, mousePosition, <span class="hljs-number">5</span>, <span class="hljs-built_in">CV_RGB</span>(<span class="hljs-number">0</span>,<span class="hljs-number">0</span>,<span class="hljs-number">255</span>),<span class="hljs-number">1</span>);<span class="hljs-comment">//ture point  </span><br>              <br>  <br><span class="hljs-comment">//          CvFont font;//字体  </span><br><span class="hljs-comment">//          cvInitFont(&amp;font, CV_FONT_HERSHEY_SCRIPT_COMPLEX, 0.5f, 0.5f, 0, 1, 8);  </span><br>            <span class="hljs-built_in">putText</span>(showImg, <span class="hljs-string">&quot;Red: Former Point&quot;</span>, <span class="hljs-built_in">cvPoint</span>(<span class="hljs-number">10</span>,<span class="hljs-number">30</span>), FONT_HERSHEY_SIMPLEX, <span class="hljs-number">1</span> ,Scalar :: <span class="hljs-built_in">all</span>(<span class="hljs-number">255</span>));  <br>            <span class="hljs-built_in">putText</span>(showImg, <span class="hljs-string">&quot;Green: Predict Point&quot;</span>, <span class="hljs-built_in">cvPoint</span>(<span class="hljs-number">10</span>,<span class="hljs-number">60</span>), FONT_HERSHEY_SIMPLEX, <span class="hljs-number">1</span> ,Scalar :: <span class="hljs-built_in">all</span>(<span class="hljs-number">255</span>));  <br>            <span class="hljs-built_in">putText</span>(showImg, <span class="hljs-string">&quot;Blue: Ture Point&quot;</span>, <span class="hljs-built_in">cvPoint</span>(<span class="hljs-number">10</span>,<span class="hljs-number">90</span>), FONT_HERSHEY_SIMPLEX, <span class="hljs-number">1</span> ,Scalar :: <span class="hljs-built_in">all</span>(<span class="hljs-number">255</span>));  <br>  <br>            <span class="hljs-built_in">imshow</span>( <span class="hljs-string">&quot;Kalman&quot;</span>, showImg );  <br>            <span class="hljs-type">int</span> key = <span class="hljs-built_in">waitKey</span>(<span class="hljs-number">3</span>);  <br>            <span class="hljs-keyword">if</span> (key == <span class="hljs-number">27</span>)  <br>            &#123;  <br>                <span class="hljs-keyword">break</span>;  <br>            &#125;  <br>        &#125;  <br>&#125;  <br></code></pre></td></tr></table></figure>
+<p><img src="/2017/03/26/Opencv%E5%AE%9E%E7%8E%B0Kalman%E6%BB%A4%E6%B3%A2%E5%99%A8/out2.JPG" srcset="/img/loading.gif" lazyload alt="output2"></p>
+<h1 id="主要参考"><a href="#主要参考" class="headerlink" title="主要参考"></a>主要参考</h1><p>1.<a target="_blank" rel="noopener" href="http://en.wikipedia.org/wiki/Kalman_filter">维基百科（英文）</a><a target="_blank" rel="noopener" href="http://zh.wikipedia.org/wiki/%E5%8D%A1%E5%B0%94%E6%9B%BC%E6%BB%A4%E6%B3%A2#.E5.8D.A1.E5.B0.94.E6.9B.BC.E6.BB.A4.E6.B3.A2.E5.99.A8">维基百科（中文）</a><br>2.<a target="_blank" rel="noopener" href="http://docs.opencv.org/modules/video/doc/motion_analysis_and_object_tracking.html?highlight=kalman#kalmanfilter">OpenCV文档</a><br>3.<a target="_blank" rel="noopener" href="http://www.cnblogs.com/feisky/archive/2009/12/04/1617287.html">博客园kalman详解blog</a><br>4.<a target="_blank" rel="noopener" href="http://blog.csdn.net/yang_xian521/article/details/7050398">CSDN kalman.cpp讲解yangxian</a><br>5.<a target="_blank" rel="noopener" href="http://blog.csdn.net/onezeros/article/details/6318944">CSDN 鼠标跟踪</a><br>6.<a target="_blank" rel="noopener" href="http://www.cs.unc.edu/~welch/media/pdf/kalman_intro.pdf">模型论文</a><br>7.<a target="_blank" rel="noopener" href="http://blog.csdn.net/yangtrees/article/details/8075911">Kalman-Opencv</a><br>8.<a target="_blank" rel="noopener" href="http://robotsforroboticists.com/kalman-filtering/">公式彩色着色，含pyhton源码</a><br>9.<a target="_blank" rel="noopener" href="http://alumni.media.mit.edu/~wad/mas864/psrc/kalman.c.txt">Kalman滤波的C代码</a><br>10.<a target="_blank" rel="noopener" href="http://www.cs.unc.edu/~welch/kalman/">比较全的Kalman链接</a><br>11.<a target="_blank" rel="noopener" href="http://blog.sina.com.cn/s/blog_7445c2940102whjq.html">卡尔曼滤波器（Kalman Filtering）入门</a><br>12.<a target="_blank" rel="noopener" href="http://blog.csdn.net/xiahouzuoxin/article/details/39582483">Kalman滤波器从原理到实现</a><br>13.<a target="_blank" rel="noopener" href="http://bbs.21ic.com/icview-292853-1-1.html">授之以渔： 卡尔曼滤波器 ….大泻蜜</a><br>14.<a target="_blank" rel="noopener" href="http://blog.csdn.net/heyijia0327/article/details/17487467">卡尔曼滤波 – 从推导到应用(一)</a><br>15.<a target="_blank" rel="noopener" href="http://blog.csdn.net/heyijia0327/article/details/17667341">卡尔曼滤波 – 从推导到应用(二)</a></p>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/Opencv/">Opencv</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/Opencv/">Opencv</a>
+                    
+                      <a class="hover-with-bg" href="/tags/Kalman/">Kalman</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/04/22/%E6%AC%A7%E6%B0%8F%E8%B7%9D%E7%A6%BB%E5%92%8C%E4%BD%99%E5%BC%A6%E7%9B%B8%E4%BC%BC%E5%BA%A6/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">欧氏距离和余弦相似度</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/03/22/RoboticsToolbox%E4%BD%BF%E7%94%A8%E5%9F%BA%E6%9C%AC%E6%95%99%E7%A8%8B/">
+                        <span class="hidden-mobile">RoboticsToolbox使用基本教程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>

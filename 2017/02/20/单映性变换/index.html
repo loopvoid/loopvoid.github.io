@@ -1,0 +1,571 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/favicon.png">
+  <link rel="icon" href="/img/favicon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="John Doe">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="3D坐标转换到2D坐标在单应性下，我们可以将3D中的点从相机1到相机2的变换写为：  $$ X_2&#x3D;HX_1 \longrightarrow X_1,X_2 \in R^3  $$  在图像平面中，使用齐次坐标，公式如下:  $ λ_1x_1&#x3D;X_1$$λ_2x_2&#x3D;X_2 $$\therefore λ_2 x_2 &#x3D; Hλ_1x_1 $  这意味着在一定范">
+<meta property="og:type" content="article">
+<meta property="og:title" content="单映性变换">
+<meta property="og:url" content="http://blog.home.io/2017/02/20/%E5%8D%95%E6%98%A0%E6%80%A7%E5%8F%98%E6%8D%A2/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="3D坐标转换到2D坐标在单应性下，我们可以将3D中的点从相机1到相机2的变换写为：  $$ X_2&#x3D;HX_1 \longrightarrow X_1,X_2 \in R^3  $$  在图像平面中，使用齐次坐标，公式如下:  $ λ_1x_1&#x3D;X_1$$λ_2x_2&#x3D;X_2 $$\therefore λ_2 x_2 &#x3D; Hλ_1x_1 $  这意味着在一定范">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://p2.qhimg.com/bdm/216_133_0/t01b198a4508e82dc0d.jpg">
+<meta property="article:published_time" content="2017-02-20T06:57:37.000Z">
+<meta property="article:modified_time" content="2022-03-18T05:08:09.558Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="基础知识">
+<meta property="article:tag" content="单映性">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://p2.qhimg.com/bdm/216_133_0/t01b198a4508e82dc0d.jpg">
+  
+  
+  <title>单映性变换 - Hexo</title>
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/css/bootstrap.min.css" />
+
+
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css@4/github-markdown.min.css" />
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hint.css@2/hint.min.css" />
+
+  
+    
+    
+      
+      <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@10/styles/github-gist.min.css" />
+    
+  
+
+  
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.css" />
+  
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_ba1fz6golrf.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+<!-- 自定义样式保持在最底部 -->
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    var CONFIG = {"hostname":"blog.home.io","root":"/","version":"1.8.14","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"right","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"copy_btn":true,"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+<meta name="generator" content="Hexo 6.1.0"></head>
+
+
+<body>
+  <header style="height: 70vh;">
+    <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>LoopVoid</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                首页
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                归档
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                分类
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                标签
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                关于
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              &nbsp;<i class="iconfont icon-search"></i>&nbsp;
+            </a>
+          </li>
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">&nbsp;<i
+                class="iconfont icon-dark" id="color-toggle-icon"></i>&nbsp;</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+    <div class="banner" id="banner" parallax=true
+         style="background: url('/img/banner.png') no-repeat center center;
+           background-size: cover;">
+      <div class="full-bg-img">
+        <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+          <div class="page-header text-center fade-in-up">
+            <span class="h2" id="subtitle" title="单映性变换">
+              
+            </span>
+
+            
+              <div class="mt-3">
+  
+  
+    <span class="post-meta">
+      <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+      <time datetime="2017-02-20 14:57" pubdate>
+        2017年2月20日 下午
+      </time>
+    </span>
+  
+</div>
+
+<div class="mt-1">
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-chart"></i>
+      2.7k 字
+    </span>
+  
+
+  
+    <span class="post-meta mr-2">
+      <i class="iconfont icon-clock-fill"></i>
+      
+      
+      23 分钟
+    </span>
+  
+
+  
+  
+</div>
+
+            
+          </div>
+
+          
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="d-none d-lg-block col-lg-2"></div>
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div class="py-5" id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">单映性变换</h1>
+            
+            <div class="markdown-body">
+              <h2 id="3D坐标转换到2D坐标"><a href="#3D坐标转换到2D坐标" class="headerlink" title="3D坐标转换到2D坐标"></a>3D坐标转换到2D坐标</h2><p>在单应性下，我们可以将3D中的点从相机1到相机2的变换写为：</p>
+<blockquote>
+<p>$$ X_2&#x3D;HX_1 \longrightarrow X_1,X_2 \in R^3  $$</p>
+</blockquote>
+<p>在图像平面中，使用齐次坐标，公式如下:</p>
+<blockquote>
+<p>$ λ_1x_1&#x3D;X_1$<br>$λ_2x_2&#x3D;X_2 $<br>$\therefore λ_2 x_2 &#x3D; Hλ_1x_1 $</p>
+</blockquote>
+<p>这意味着在一定范围内,X<sub>2</sub>等于HX<sub>1</sub>。X<sub>2</sub>到HX<sub>1</sub>是图像平面中的点之间的直接映射。如果确定这些点都在一副图像(对于通过纯旋转相关的相机，每个场景点可以被认为是躺在无限平面上)所在的平面中，则可以直接校正图像，而不需要恢复和操纵3D坐标。</p>
+<h2 id="单映性计算"><a href="#单映性计算" class="headerlink" title="单映性计算"></a>单映性计算</h2><p>为了计算H，我们从等式x<sub>2</sub>&#x3D;Hx<sub>1</sub>开始，在齐次坐标中我们得到以下约束:</p>
+<p>$$<br>\begin{bmatrix}x_2\\ y_2 \\ z_2 \end{bmatrix}&#x3D;\begin{bmatrix}H_{11} &amp; H_{12} &amp; H_{13}\\ H_{21} &amp; H_{22} &amp; H_{23}\\ H_{31} &amp; H_{32} &amp; H_{33} \end{bmatrix}&#x3D;\begin{bmatrix}x_1 \\ y_1 \\ z_1\end{bmatrix}\Leftrightarrow x_2&#x3D;Hx_1<br>$$</p>
+<p>在齐次坐标中$(x_2’&#x3D; x_2&#x2F;z_2 和 y_2’ &#x3D; y_2&#x2F;z_2)$:<br>$$<br>\begin{aligned} x_{2}^{\prime} &amp;&#x3D;\frac{H_{11} x_{1}+H_{12} y_{1}+H_{13} z_{1}}{H_{31} x_{1}+H_{32} y_{1}+H_{33} z_{1}} \ y_{2}^{\prime} &amp;&#x3D;\frac{H_{21} x_{1}+H_{22} y_{1}+H_{23} z_{1}}{H_{31} x_{1}+H_{32} y_{1}+H_{33} z_{1}} \end{aligned}<br>$$<br>为了习惯一般情况，令$z_1&#x3D;1$并重新排列:<br>$$<br>\begin{array}{l}{x_{2}^{\prime}\left(H_{31} x_{1}+H_{32} y_{1}+H_{33}\right)&#x3D;H_{11} x_{1}+H_{12} y_{1}+H_{13}} \\ {y_{2}^{\prime}\left(H_{31} x_{1}+H_{32} y_{1}+H_{33}\right)&#x3D;H_{21} x_{1}+H_{22} y_{1}+H_{23}}\end{array}<br>$$</p>
+<p>我们想求解H.即使这些非齐次方程涉及非线性坐标，但是H的系数呈线性。 因此整理上面的方程得到:<br>$$<br>\begin{matrix}<br>a^T_xh &#x3D; 0\\ a^T_yh &#x3D; 0<br>\end{matrix}<br>$$</p>
+<p>其中参数含义:<br>$$<br>\begin{matrix}<br>h&#x3D;(H_{11},H_{12},H_{13},H_{21},H_{22},H_{23},H_{31},H_{32},H_{33})^T\\ a_x&#x3D;(-x_1,-y_1,-1,0,0,0,x’_2x_1,x’_2y_1,x’_2)^T \\ a_y &#x3D; (0,0,0,-x_1,-y_1,-1,y’_2x_1,y’_2y_1,y’_2)^T<br>\end{matrix}<br>$$</p>
+<p>对这个系数矩阵做奇异值分解，在matlab里面有工具可以帮我们计算：</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><div class="code-wrapper"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></div></td><td class="code"><pre><code class="hljs matlab">[U,D,V]=svd(A);<br>h=V(:,<span class="hljs-keyword">end</span>);<br>H=[h(<span class="hljs-number">1</span>) h(<span class="hljs-number">2</span>) h(<span class="hljs-number">3</span>);h(<span class="hljs-number">4</span>) h(<span class="hljs-number">5</span>) h(<span class="hljs-number">6</span>);h(<span class="hljs-number">7</span>) h(<span class="hljs-number">8</span>) h(<span class="hljs-number">9</span>)];<br></code></pre></td></tr></table></figure>
+<p>这样，最后一个参数V的最后一列的九个值就组成了homography matrix。</p>
+<p>给定一组对应点，我们可以形成以下线性方程组:<br>$$ Ah&#x3D;0 $$<br>其中参数含义:<br>$$<br>A&#x3D;\begin{pmatrix}<br>a_{x_1}^T\\<br>a_{y_1}^T\\<br>…\\<br>a_{x_N}^T\\<br>a_{y_N}^T<br>\end{pmatrix}<br>$$</p>
+<p>方程Ah&#x3D;0可以用齐次线性最小二乘法来解决，将在接下来的部分进行描述。</p>
+<h2 id="齐次线性最小二乘法"><a href="#齐次线性最小二乘法" class="headerlink" title="齐次线性最小二乘法"></a>齐次线性最小二乘法</h2><p>我们会经常遇到这样形式的问题:$$Ah&#x3D;0$$这是典型的齐次线性最小二乘法的问题，它跟非齐次线性最小二乘法<br>$$ Ah&#x3D;b $$<br>在这种情况下，我们使用A的伪逆或求解求解x。但是这不适用于Ah&#x3D;0。因此，我们使用奇异值分解（SVD）的方法来解决Ah&#x3D;0的问题。<br>首先，计算A的SVD：<br>$$<br>A&#x3D;U\sum V^T&#x3D;\sum _{i&#x3D;1}^{9}\sigma _iu_iv_i^T<br>$$</p>
+<p>奇异值$\sigma_i$将按降序排序，因此$\sigma_9$将是最小的。<br>$\sigma_9$的值有三种情况：</p>
+<blockquote>
+<ul>
+<li>如果单应性是确定的,则$\sigma_9$，并且存在适合该点的单应性。</li>
+<li>如果单映性是超定的,则$\sigma_9$ ,这里$\sigma_9$表示“残余”或拟合优度。 </li>
+<li>我们不处理单映性未定的情况。</li>
+</ul>
+</blockquote>
+<p>从SVD中，我们取对应于最小奇异值的“右奇异向量”（V的一列）值$\sigma_9$。 解h包含最佳拟合点的单应性矩阵的系数。我们将h重构成矩阵H，并形成等式$x_{2}&#x3D;Hx_{1}$。</p>
+<h2 id="齐次线性最小二乘的推导"><a href="#齐次线性最小二乘的推导" class="headerlink" title="齐次线性最小二乘的推导"></a>齐次线性最小二乘的推导</h2><p>从Ah&#x3D;0开始，总和平方的误差可以写为:<br>$$<br>f(h)&#x3D;\frac{1}{2}(Ah-0)^T(Ah-0) \\<br>f(h)&#x3D;\frac{1}{2}(Ah)^T(Ah) \\<br>f(h)&#x3D;\frac{1}{2}h^TA^TAh<br>$$</p>
+<p>取f相对于h的导数并且将结果设置为零，得到:<br>$$<br>\frac{d}{dh}f&#x3D;0&#x3D;\frac{1}{2}(A^TA+(A^TA)^T)h \\<br>0 &#x3D; A^TAh<br>$$</p>
+<p>观察$A^T$A的特征向量分解，我们看到h应该等于特征值为零的$A^T$A的特征向量（或者，在存在噪声的情况下，特征值最接近零）。</p>
+<p>该结果与使用SVD获得的结果相同。这从很容易理解，假设具有SVD分解的矩阵$A&#x3D;UΣV^T$，V的列对应于$A^TA$的特征向量。</p>
+<p>可以参考:</p>
+<blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://cseweb.ucsd.edu/classes/wi07/cse252a/homography_estimation/homography_estimation.pdf">Homography Estimation</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.corrmap.com/features/homography_transformation.php">The Homography transformation</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.cnblogs.com/ml-cv/p/5871052.html">单应性(homography)变换的推导</a></li>
+<li><a target="_blank" rel="noopener" href="http://users.ics.forth.gr/~lourakis/homest/">homest: A C&#x2F;C++ Library for Robust, Non-linear Homography Estimation</a></li>
+</ul>
+</blockquote>
+
+            </div>
+            <hr>
+            <div>
+              <div class="post-metas mb-3">
+                
+                  <div class="post-meta mr-3">
+                    <i class="iconfont icon-category"></i>
+                    
+                      <a class="hover-with-bg" href="/categories/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                  </div>
+                
+                
+                  <div class="post-meta">
+                    <i class="iconfont icon-tags"></i>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/">基础知识</a>
+                    
+                      <a class="hover-with-bg" href="/tags/%E5%8D%95%E6%98%A0%E6%80%A7/">单映性</a>
+                    
+                  </div>
+                
+              </div>
+              
+                <p class="note note-warning">
+                  
+                    本博客所有文章除特别声明外，均采用 <a target="_blank" href="https://creativecommons.org/licenses/by-sa/4.0/deed.zh" rel="nofollow noopener noopener">CC BY-SA 4.0 协议</a> ，转载请注明出处！
+                  
+                </p>
+              
+              
+                <div class="post-prevnext">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2017/02/20/Opencv%E5%AE%9E%E7%8E%B0Surf%E7%89%B9%E5%BE%81%E7%82%B9%E5%92%8CHomography%E5%8C%B9%E9%85%8D%E7%89%A9%E4%BD%93/">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Opencv实现Surf特征点和Homography匹配物体</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2017/02/19/Opencv%E7%94%9F%E6%88%90%E6%91%84%E5%83%8F%E5%A4%B4%E6%A0%87%E5%AE%9A%E6%A3%8B%E7%9B%98/">
+                        <span class="hidden-mobile">Opencv生成摄像头标定棋盘</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+              <!-- Comments -->
+              <article class="comments" id="comments" lazyload>
+                
+                  
+                
+                
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#comments', function() {
+      var light = 'github-light';
+      var dark = 'github-dark';
+      var schema = document.documentElement.getAttribute('data-user-color-scheme');
+      if (schema === 'dark') {
+        schema = dark;
+      } else {
+        schema = light;
+      }
+      window.UtterancesThemeLight = light;
+      window.UtterancesThemeDark = dark;
+      var s = document.createElement('script');
+      s.setAttribute('src', 'https://utteranc.es/client.js');
+      s.setAttribute('repo', 'loopvoid/loopvoid.github.io');
+      s.setAttribute('issue-term', 'pathname');
+      
+      s.setAttribute('label', 'utterances');
+      
+      s.setAttribute('theme', schema);
+      s.setAttribute('crossorigin', 'anonymous');
+      document.getElementById('comments').appendChild(s);
+    })
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+              </article>
+            
+          </article>
+        </div>
+      </div>
+    </div>
+    
+      <div class="d-none d-lg-block col-lg-2 toc-container" id="toc-ctn">
+        <div id="toc">
+  <p class="toc-header"><i class="iconfont icon-list"></i>&nbsp;目录</p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+      </div>
+    
+  </div>
+</div>
+
+<!-- Custom -->
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v"
+                 for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+
+    
+  </main>
+
+  <footer class="text-center mt-5 py-3">
+  <div class="footer-content">
+     <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+  </div>
+  
+
+  
+
+  
+</footer>
+
+
+  <!-- SCRIPTS -->
+  
+  <script  src="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/nprogress@0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js" ></script>
+<script  src="https://cdn.jsdelivr.net/npm/bootstrap@4/dist/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+<!-- Plugins -->
+
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+  
+
+
+
+  
+    <script  src="https://cdn.jsdelivr.net/npm/tocbot@4/dist/tocbot.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3/dist/jquery.fancybox.min.js" ></script>
+  
+  
+    <script  src="https://cdn.jsdelivr.net/npm/anchor-js@4/anchor.min.js" ></script>
+  
+  
+    <script defer src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js" ></script>
+  
+
+
+
+
+
+
+  <script  src="https://cdn.jsdelivr.net/npm/typed.js@2/lib/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var title = document.getElementById('subtitle').title;
+      
+        typing(title);
+      
+    })(window, document);
+  </script>
+
+
+
+
+
+  
+
+  
+    <!-- MathJax -->
+    <script>
+      MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']]
+        },
+        loader: {
+          load: ['ui/lazy']
+        },
+        options: {
+          renderActions: {
+            findScript: [10, doc => {
+              document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+                const display = !!node.type.match(/; *mode=display/);
+                const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+                const text = document.createTextNode('');
+                node.parentNode.replaceChild(text, node);
+                math.start = { node: text, delim: '', n: 0 };
+                math.end = { node: text, delim: '', n: 0 };
+                doc.math.push(math);
+              });
+            }, '', false],
+            insertedScript: [200, () => {
+              document.querySelectorAll('mjx-container').forEach(node => {
+                let target = node.parentNode;
+                if (target.nodeName.toLowerCase() === 'li') {
+                  target.parentNode.classList.add('has-jax');
+                }
+              });
+            }, '', false]
+          }
+        }
+      };
+    </script>
+
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" ></script>
+
+  
+
+
+
+
+
+
+
+
+
+
+
+<!-- 主题的启动项 保持在最底部 -->
+<script  src="/js/boot.js" ></script>
+
+
+</body>
+</html>
